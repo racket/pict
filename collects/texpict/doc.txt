@@ -796,6 +796,20 @@ will not be 1024x768. In that case, consider using `size-in-pixels'
 (with the caveat that the resulting picture will have a different size
 on different displays).
 
+Transition Animations
+=====================
+
+Any number of transition actions can be nstalled after a slide is
+created and before the next slide is created. The first animation
+applies to the most recently created slide, and during presentation
+time, it starts when the next slide is requested; after all animations
+complete, the next slide appears immediately.
+
+If the presenter requests the next slide before an animation sequence
+completes, Slideshow breaks all animations and continues immediately
+to the next slide. Animations are not execute when jumping to a slide
+or moving backward through the slide set.
+
 Command-line Options
 ====================
 
@@ -927,15 +941,26 @@ Procedure Reference
   `thunk'.
 
 > (most-recent-slide) - Returns a slide structure that be supplied to
-  `re-slide' to make a copy of the slide.
+  `re-slide' to make a copy of the slide. Transition animations before
+  or after the slide (if any) are not included in the resulting slide.
 
 > (retract-most-recent-slide) - Cancels the most recently created
   slide, and also returns a slide structure that be supplied to
   `re-slide' to restore the slide (usually in a later position).
+  Transition animations after the slide (if any) are lost, while
+  transitions before the slide remain in place (but are not part of
+  the returned slide).
 
 > (re-slide slide [pict]) - [Re-]inserts a slide, optionally
   `lt-superimpose'ing the given additional pict.
 
+> (scroll-transition x y w h dx dy [secs steps-k]) - inserts a scroll
+  animation that shifts the screen rectangle (x, y, x+w, y+h) by `dx'
+  and `dy', taking `secs' time and animating with `steps-k' steps.
+  See also "Transition Animations", above.
+
+> (pause-transition secs) - inserts a delay "animation" with no
+  drawing effect.   See also "Transition Animations", above.
 
 > (comment string ...) - Concatenated the strings, to be used as a
   slide element for (usually hidden) commentary.
