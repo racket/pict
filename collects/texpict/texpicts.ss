@@ -119,6 +119,8 @@
    oval         ; pict -> pict
    oval/radius  ; pict r -> pict
 
+   big-circle   ; diameter -> pict
+
    ; Make a container picture that doesn't draw the child picture,
    ; but uses the child's size
    ghost        ; pict -> pict
@@ -191,9 +193,9 @@ commands:
 
    `(place ,x ,y ,pict)
    `(put ,x ,y ,putable)
-   `(connect ,x1 ,y1 ,x2 ,y2 ,bool)  ; line or vector; bool => vector
-   `(dconnect ,x ,y ,dx ,dy ,bool)   ; line or vector; bool => vector
-   `(curve ,x1 ,y1 ,x2 ,y2 ,xc ,yc)  ; bezier curve
+   `(connect ,x1 ,y1 ,x2 ,y2 ,bool)    ; line or vector; bool => vector
+   `(dconnect ,x ,y ,dx ,dy ,bool)     ; line or vector; bool => vector
+   `(curve ,x1 ,y1 ,x2 ,y2 ,xc ,yc ,d) ; bezier curve; d is optional density
 
 putables:
 
