@@ -20,6 +20,8 @@
 	   arrow-line
 	   arrows-line
 	   
+           ellipse
+           filled-ellipse
 	   circle
 	   disk
 
@@ -190,19 +192,23 @@
      `((place 0 0 ,(arrow-line dx dy size))
        (place ,dx ,dy ,(arrow-line (- dx) (- dy) size)))))
 
-  (define (circle size)
+  (define (circle size) (ellipse size size))
+  
+  (define (ellipse width height)
     (dc (lambda (dc x y)
 	  (let ([b (send dc get-brush)])
 	    (send dc set-brush (send the-brush-list find-or-create-brush
 				     "white" 'transparent))
-	    (send dc draw-ellipse x y size size)
+	    (send dc draw-ellipse x y width height)
 	    (send dc set-brush b)))
-	size size size 0))
+	width height 0 0))
 
-  (define (disk size)
+  (define (disk size) (filled-ellipse size size))
+  
+  (define (filled-ellipse width height)
     (dc (lambda (dc x y)
-	  (send dc draw-ellipse x y size size))
-	size size 0 0))
+	  (send dc draw-ellipse x y width height))
+	width height 0 0))
 
   (define cloud
     (case-lambda

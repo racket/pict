@@ -506,6 +506,10 @@ it should be.]
 > circle                  ; diameter -> pict
 > disk                    ; diameter -> pict
 
+  ;; Unfilled and filled ellipses; works for all sizes.
+> ellipse                 ; width height -> pict
+> filled-ellipse          ; width height -> pict
+
   ;; Creates an arrow or arrowhead in the specific direction
 > arrow                   ; size radians -> pict
 > arrowhead               ; size radians -> pict
