@@ -428,6 +428,11 @@ Procedures
    ;; to indicate the color of the pict.
 >  colorize ; pict color% -> pict
 
+   ;; -- MrEd only --
+   ;; same as above, except the list of numbers indicate the
+   ;; red, green, and blue components of the color
+>  colorize ; pict (list number number number) -> pict
+
    ;; Describe a picture with low-level commands; see below.
 >  picture      ; w h command-list -> pict
 
