@@ -766,6 +766,19 @@ Procedure Reference
 > (slide/center element ...) - Like `slide/title/center', but without
   the title.
 
+> (slide/title/inset title-string slide-inset element ...)
+> (slide/title/tall/inset title-string slide-inset element ...)
+> (slide/title/center/inset title-string slide-inset element ...)
+> (slide/inset slide-inset element ...)
+> (slide/center/inset slide-inset element ...)
+  Like `slide/title', etc., except that an inset is supplied. A slide
+  inset is created with `make-slide-inset'.
+
+> (make-slide-inset left-inset top-inset right-inset bottom-inset) -
+  Creates a slide inset, which describes a number of pixels to inset
+  a slide on each side. Each inset must be an exact, non-negative
+  integer.
+
 > (t string) - Same as (text string main-font (current-font-size))
 > (it string) - Same as (text string `(italic . ,main-font) (current-font-size))
 > (bt string) - Same as (text string `(bold . ,main-font) (current-font-size))
@@ -818,6 +831,10 @@ Procedure Reference
   Like `para, etc., except that text is right-aligned within the
   paragraph.
 
+> (clickback pict thunk)
+  Creates a pict that embeds the given one, and is the same size as
+  the given pict, but that when clicked during a presentation calls
+  `thunk'.
 
 > (most-recent-slide) - Returns a slide structure that be supplied to
   `re-slide' to make a copy of the slide.
@@ -887,3 +904,8 @@ Procedure Reference
 > (done-making-slides)
   Called implicitly by "slideshow-run.ss", and not to be called
   directly.
+
+> (set-use-background-frame! on?) - enables or disables the creation
+  of a background frame, which is typically useful only when insets
+  are active. The last enable/disable during slide creation takes
+  effect once and for all.
