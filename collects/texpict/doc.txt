@@ -149,7 +149,7 @@ A pict is an instance of the `pict' structure type:
 
 The `children' field is a list of `child' structures:
 
-> struct:child :: (struct child (pict dx dy))
+> struct:child :: (struct child (pict dx dy sx sy))
 
 ------------------------------------------------------------
 Procedures
@@ -683,7 +683,7 @@ _balloon.ss_
 The "balloon.ss" module produce functions for creating and placing
 cartoon-speech ballons.
 
-> (wrap-balloon pict spike-sym dx dy [color])
+> (wrap-balloon pict spike-sym dx dy [color corner-radius])
 
 Superimposes `pict' on top of a balloon that wraps it.
 

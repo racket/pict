@@ -127,10 +127,10 @@
   (define corner-size 32)
 
   (define wrap-balloon
-    (opt-lambda (p corner dx dy [color balloon-color])
-      (let ([b (mk-balloon (+ (pict-width p) (* 2 corner-size))
-			   (+ (pict-height p) corner-size)
-			   corner-size
+    (opt-lambda (p corner dx dy [color balloon-color][c-rad corner-size])
+      (let ([b (mk-balloon (+ (pict-width p) (* 2 c-rad))
+			   (+ (pict-height p) c-rad)
+			   c-rad
 			   corner dx dy
 			   color)])
 	(make-balloon

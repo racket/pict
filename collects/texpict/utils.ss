@@ -17,6 +17,7 @@
 
 	   arrow
 	   arrowhead
+	   arrowhead/offset
 	   arrow-line
 	   arrows-line
 	   
@@ -56,7 +57,7 @@
       (make-pict (pict-draw naya)
 		 w h
 		 a d
-		 (list (make-child box 0 0)))))
+		 (list (make-child box 0 0 1 1)))))
   
   (define cons-colorized-picture
     (lambda (p color cmds)
@@ -183,6 +184,8 @@
   (define (arrowhead size angle)
     (let-values ([(p dx dy) (arrowhead/delta 0 size angle)])
       p))
+  (define (arrowhead/offset size angle)
+    (arrowhead/delta 0 size angle))
 
   (define (arrow-line dx dy size)
     (let-values ([(a adx ady) (arrowhead/delta 0 size (atan dy dx))])
@@ -807,28 +810,35 @@
     (case-lambda
      [(p x-factor y-factor)
       (let ([drawer (make-pict-drawer p)])
-	(dc
-	 (lambda (dc x y)
-	   (define (reset-pen)
-	     (let ([p (send dc get-pen)])
-	       (send dc set-pen (send the-pen-list
-				      find-or-create-pen
-				      "white" 1 'transparent))
-	       (send dc set-pen p)))
-	   (let-values ([(xs ys) (send dc get-scale)])
-	     (send dc set-scale (* xs x-factor) (* ys y-factor))
-	     (reset-pen)
-	     (drawer dc
-		     (/ x x-factor)
-		     (/ y y-factor))
-	     (send dc set-scale xs ys)
-	     (reset-pen)))
-	 (* (pict-width p) x-factor)
-	 (* (pict-height p) y-factor)
-	 (* (pict-ascent p) y-factor)
-	 (* (pict-descent p) y-factor)))]
+	(let ([new
+	       (dc
+		(lambda (dc x y)
+		  (define (reset-pen)
+		    (let ([p (send dc get-pen)])
+		      (send dc set-pen (send the-pen-list
+					     find-or-create-pen
+					     "white" 1 'transparent))
+		      (send dc set-pen p)))
+		  (let-values ([(xs ys) (send dc get-scale)])
+		    (send dc set-scale (* xs x-factor) (* ys y-factor))
+		    (reset-pen)
+		    (drawer dc
+			    (/ x x-factor)
+			    (/ y y-factor))
+		    (send dc set-scale xs ys)
+		    (reset-pen)))
+		(* (pict-width p) x-factor)
+		(* (pict-height p) y-factor)
+		(* (pict-ascent p) y-factor)
+		(* (pict-descent p) y-factor))])
+	  (make-pict (pict-draw new)
+		     (pict-width new)
+		     (pict-height new)
+		     (pict-ascent new)
+		     (pict-descent new)
+		     (list (make-child p 0 0 x-factor y-factor)))))]
      [(p factor) (scale p factor factor)]))
-
+  
   (define-syntax scale/improve-new-text
     (syntax-rules ()
       [(_ expr s)
