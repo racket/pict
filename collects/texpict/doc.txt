@@ -241,11 +241,15 @@ Procedures
 >  colorize ; pict color-string -> pict
 
    ;; Desribe a picture with low-level commands; see below.
-   picture      ; w h command-list -> pict
+>  picture      ; w h command-list -> pict
 
    ;; Create a new picture by `cons'ing drawing commands onto
    ;; an existing picture.
 >  cons-picture ; pict command-list -> pict
+
+   ;; Create a self-rendering picture (for dc output only)
+>  prog-picture ; (dc dx dy -> void) w a d -> pict
+
 
    ;; Generate the LaTeX code for a pict.
 >  pict->string
