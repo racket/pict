@@ -101,14 +101,16 @@
    text-line/phantom ; string string -> pict
    tex-paragraph     ; w string ['top|'bottom] -> pict
 
-   ;; Delimitters to go around height h (result is taller than h)
+   ;; Delimitters to go around height h (result is taller than h;
+   ;;  try h/2)
    left-brace     ; h -> pict
    right-brace    ; h -> pict
-   top-brace      ; h -> pict
-   bottom-brace   ; h -> pict
    left-delimit   ; str h -> pict
    right-delimit  ; str h -> pict
    middle-delimit ; str h -> pict
+   ;; Delimitter to go around width w (result is w wide)
+   top-brace      ; w -> pict
+   bottom-brace   ; w -> pict
 
    clip-descent   ; pict -> pict
    inset          ; pict i -> pict
