@@ -123,7 +123,9 @@
     (opt-lambda (p corner dx dy [color balloon-color])
       (let ([b (mk-balloon (+ (pict-width p) (* 2 font-size))
 			   (+ (pict-height p) font-size)
-			   font-size
+			   (if (> (pict-height p) font-size)
+			       font-size
+			       -0.4)
 			   corner dx dy
 			   color)])
 	(make-balloon
