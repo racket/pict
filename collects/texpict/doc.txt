@@ -933,7 +933,9 @@ Procedure Reference
   slide, and also returns a slide structure that be supplied to
   `re-slide' to restore the slide (usually in a later position).
 
-> (re-slide slide) - [Re-]inserts a slide.
+> (re-slide slide [pict]) - [Re-]inserts a slide, optionally
+  `lt-superimpose'ing the given additional pict.
+
 
 > (comment string ...) - Concatenated the strings, to be used as a
   slide element for (usually hidden) commentary.

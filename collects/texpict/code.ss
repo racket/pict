@@ -36,8 +36,9 @@
       
       (define current-keyword-list 
 	(make-parameter '("define" "cond" "define-struct" "and" "or" "else"
+			  "lambda" "require" "provide"  "require-for-syntax"
 			  "define-syntax" "let" "letrec" "let*" "syntax-rules"
-			  "syntax-case" "set!" "begin")))
+			  "syntax-case" "set!" "begin" "quote-syntax" "module")))
       (define current-const-list 
 	(make-parameter '("null")))
 
@@ -60,6 +61,7 @@
       (define open-sq-p (colorize (tt "[") base-color))
       (define close-sq-p (colorize (tt "]") base-color))
       (define quote-p (colorize (tt "'") literal-color))
+      (define syntax-p (colorize (tt "#'") keyword-color))
       (define semi-p (colorize (tt "; ") comment-color))
       (define open-paren/lit-p (colorize (tt "(") literal-color))
       (define close-paren/lit-p (colorize (tt ")") literal-color))
@@ -96,11 +98,23 @@
 	       (not (char=? #\_ (string-ref str 1))))
 	  (maybe-colorize (text (substring str 1) `(bold italic . modern) (current-font-size))
 			  id-color)]
-	 [(regexp-match #rx"^(.+)\\^([0-9]+)*$" str)
+	 [(regexp-match #rx"^(.+)_([0-9]+)\\^([0-9]+)$" str)
+	  => (lambda (m)
+	       (hbl-append (colorize-id (cadr m) mode)
+			   (cc-superimpose
+			    (text (caddr m) `(subscript bold . modern) (current-font-size))
+			    (text (cadddr m) `(superscript bold . modern) (current-font-size)))))]
+	 [(regexp-match #rx"^(.+)\\^([0-9]+)_([0-9]+)$" str)
+	  => (lambda (m)
+	       (hbl-append (colorize-id (cadr m) mode)
+			   (cc-superimpose
+			    (text (cadddr m) `(subscript bold . modern) (current-font-size))
+			    (text (caddr m) `(superscript bold . modern) (current-font-size)))))]
+	 [(regexp-match #rx"^(.+)\\^([0-9]+)$" str)
 	  => (lambda (m)
 	       (hbl-append (colorize-id (cadr m) mode)
 			   (text (caddr m) `(superscript bold . modern) (current-font-size))))]
-	 [(regexp-match #rx"^(.+)_([0-9]+)*$" str)
+	 [(regexp-match #rx"^(.+)_([0-9]+)$" str)
 	  => (lambda (m)
 	       (hbl-append (colorize-id (cadr m) mode)
 			   (text (caddr m) `(subscript bold . modern) (current-font-size))))]
@@ -130,7 +144,7 @@
       
       (define (typeset-code stx)
 	(let loop ([stx stx][closes null][mode #f])
-	  (syntax-case stx (quote syntax-unquote 
+	  (syntax-case stx (quote syntax-unquote syntax
 				  code:contract code:comment code:line
 				  code:template code:blank $)
 	    [() (add-close (htl-append open-paren-p close-paren-p) closes)]
@@ -138,6 +152,8 @@
 	    [$ (colorize-id "|" closes)]
 	    [(quote x)
 	     (htl-append quote-p (loop #'x closes 'literal))]
+	    [(syntax x)
+	     (htl-append syntax-p (loop #'x closes mode))]
 	    [(code:contract i ...)
 	     (htl-append semi-p (loop (datum->syntax-object #f (syntax->list #'(i ...)))
 				      closes 'comment))]
