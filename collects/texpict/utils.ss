@@ -53,6 +53,7 @@
 	   scale/improve-new-text
 
 	   inset/clip
+           clip
 
 	   hyperlinkize)
 
@@ -897,8 +898,10 @@
 		     (pict-descent new)
 		     (list (make-child p 0 0 1 1))
 		     #f)))]
-     [(p h v) (inset/clip h v h v)]
-     [(p a) (inset/clip a a a a)]))
+     [(p h v) (inset/clip p h v h v)]
+     [(p a) (inset/clip p a a a a)]))
+  
+  (define (clip p) (inset/clip p 0))
   
   (define-syntax scale/improve-new-text
     (syntax-rules ()
