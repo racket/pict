@@ -267,7 +267,7 @@
 			      [col (+ left 1)]
 			      [line (syntax-line stx)]
 			      [always-space? #f]
-                              [col->width (make-hash-table)])
+                              [col->width (make-hash-table 'equal)])
 		     (cond
 		      [(null? ps) (blank)]
 		      [(or (not line)
@@ -315,7 +315,7 @@
 				    (+ left space (get-span (car stxs)))
 				    (or (syntax-line (car stxs)) (add1 line))
 				    #t
-                                    (make-hash-table)))))])))))]
+                                    (make-hash-table 'equal)))))])))))]
 	    [id
 	     (identifier? stx)
 	     (add-close (colorize-id (symbol->string (syntax-e stx)) mode) closes)]
