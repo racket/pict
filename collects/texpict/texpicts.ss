@@ -134,6 +134,10 @@
    ;; Creates a fairly round circle using four splines:
    big-circle   ; diameter -> pict
 
+   ;; Set the line thickness for a picture:
+   thick       ; pict -> pict
+   thin        ; pict -> pict
+
    ;; Make a container picture that doesn't draw the child picture,
    ;; but uses the child's size
    ghost        ; pict -> pict
@@ -270,5 +274,7 @@ draws:
 
    string ; latex string
    `(picture ,w ,h ,@command-list)
+   `(color ,color-string ,draw)
+   `(thickness ,thickness ,draw) ; thickness is thicklines or thinlines
 
 |#
