@@ -26,8 +26,11 @@
 
 ;; To create a LaTeX picture, assemble a `pict' and then call
 ;; `pict->string'. This string can be `display'ed to obtain the LaTeX
-;; code, which is of the form:
+;; code, which is usually of the form:
 ;;    \begin{picture} ... \end{picture}
+;; When using colors, the output may be of the form:
+;;    \special{color push ...} ... \special{color pop ...}
+;; so consider putting the output in an \hbox{} when using color.
 
 ;; The `tex' function creates a pict given an arbitrary LaTeX
 ;; expression as a string. Initially, `tex' guess at the size of the
@@ -190,6 +193,7 @@
 
    ;; Apply a color to a picture. If the given picture has a colorized
    ;; sub-picture, the color of the sub-picture is not affected.
+   ;; Be sure to use the LaTeX package `colordvi'.
    colorize ; pict color-string -> pict
 
    ;; Desribe a picture with low-level commands; see below.
