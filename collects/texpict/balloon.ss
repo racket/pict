@@ -8,6 +8,7 @@
 	   place-balloon
 	   (rename mk-balloon balloon)
            make-balloon
+	   balloon?
            balloon-pict
            balloon-point-x
            balloon-point-y
@@ -62,6 +63,11 @@
                                    (/ w 2) (sub1 h)
                                    1 -1 -1 -1
                                    0 -1)]
+                      [(n) (values (/ (- w dw) 2) 1
+                                   (/ (+ w dw) 2) 1
+                                   (/ w 2) 1
+                                   1 -1 1 1
+                                   0 1)]
                       [(sw) (values 0 (- h dh)
                                     dw (sub1 h)
                                     0 (sub1 h)
@@ -128,7 +134,11 @@
 	 (balloon-point-y b)))))
   
   (define (place-balloon balloon p to find-to)
-    (let-values ([(x y) (find-to p to)])
+    (let-values ([(x y) (if (and (number? to) 
+				 (number? find-to)) 
+			    (values to (- (pict-height p)
+					  find-to))
+			    (find-to p to))])
       (cons-picture
        p
        `((place ,(- x (balloon-point-x balloon))

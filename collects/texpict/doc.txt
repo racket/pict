@@ -654,6 +654,66 @@ for backward compatibility.
 See the "slideshow" collection for more details.
 
 ------------------------------------------------------------
+_balloon.ss_
+------------------------------------------------------------
+
+The "balloon.ss" module produce functions for creating and placing
+cartoon-speech ballons.
+
+> (wrap-balloon pict spike-sym dx dy [color])
+
+Superimposes `pict' on top of a balloon that wraps it.
+
+The `spike-sym' indicates the corner from which a spike protrudes from
+the balloon (i.e., the spike that points to whatever the balloon is
+about). It's one of 'n, 's, 'e, 'w, 'ne, 'se, 'sw, or 'nw.
+
+The `dx' and `dy' arguments specify how far the spike should protrude.
+For a 'w spike, `dx' should be negative, etc.
+
+The `color' argument is the background color for the balloon. It
+defaults to `balloon-color'.
+
+The result is a balloon, not a pict. The `balloon-pict' function
+extracts a pict whose bounding box does not include the spike, but
+includes the rest of the image. (The `balloon-point-x' and
+`ballon-point-y' functions specify the location of the spike point.)
+
+> (place-balloon balloon pict to-pict find-to-pos)
+> (place-balloon balloon pict x y)
+
+Superimposes the pict in `balloon' onto `pict' to produce a new
+pict. The ballon is positioned so that its spike points to the
+location specified by either `x' and `y' (numbers) or `to-pict' and
+`find-to-pos'. In tghe latter case, `to-pict' is a sub-pict in `pict'
+and `find-to-pos' is a function like `find-lt.
+
+The resulting pict has the same bounding box, descent, and ascent as
+`pict', even if the balloon extends beyond the bounding box.
+
+> (balloon w h corner-radius spike-pos dx dy color)
+
+Creates a balloon, much like `wrap-balloon' except that the balloon's
+width is `w' and its height is `h'. The `corner-radius' argument
+specifies the radius for the balloon's rounded corners; if the radius
+is positive, the value is used as the radius of the rounded corner,
+but if radius is negative, the absolute value is used as the the
+proportion of the smallest dimension of the balloon.
+
+> (make-balloon pict num num) -> balloon
+> (balloon-pict balloon)      -> pict
+> (balloon-point-x balloon)   -> num
+> (balloon-point-y balloon)   -> num
+> (balloon? v)                -> bool
+
+A balloon value encapsulates a pict and the position of the basllon's
+spike relative to the balloon's top-left corner.
+
+> balloon-color
+
+The default background color for a ballooon.
+
+------------------------------------------------------------
 _face.ss_
 ------------------------------------------------------------
 
