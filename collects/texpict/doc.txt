@@ -780,9 +780,9 @@ platform might be slightly wider than on another, causing different
 line breaks, etc. Beware.
 
 Beware also of using bitmaps in slides when the presentation screen
-will not be 1024x768. In that case, consider scaling the bitmap
-picture (using `scale') so that it looks right with your presentation
-screen's dimensions.
+will not be 1024x768. In that case, consider using `size-in-pixels'
+(with the caveat that the resulting picture will have a different size
+on different displays).
 
 Command-line Options
 ====================
@@ -935,6 +935,11 @@ Procedure Reference
      #f or null (for historical reasons) if no subitems are to be
      displayed. Otherwise, it should be a procedure that takes a symbol
      (the same one passed to the outline maker) and produces a pict.
+
+> (size-in-pixels p) - Scales p so that p is displayed on the screen
+  as (pict-width p) wide and (pict-height p) tall. The result is just
+  p for a 1024x768 display.
+
 
 > font-size - The default font size, 32. This size is in pixels for a
   1024x768 screen; see also the "Display Size and Fonts" section, above.
