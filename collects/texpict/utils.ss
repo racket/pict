@@ -230,7 +230,7 @@
 	   (send dc set-pen p)))
        w h 0 0)]))
 
-  (define (file-icon w h gray?)
+  (define (file-icon w h gray)
     (dc
      (let* ([sw (lambda (x) (* (/ w 110) x))]
 	    [sh (lambda (y) (* (/ h 150) y))]
@@ -246,9 +246,10 @@
 
 	 (let ([color (send the-brush-list
 			    find-or-create-brush
-			    (if gray?
-				(make-object color% 200 200 255)
-				"white")
+			    (cond
+			     [(or (string? gray) (is-a? gray color%)) gray]
+			     [gray (make-object color% 200 200 255)]
+			     [else "white"])
 			    'solid)])
 
 	   (send dc set-pen (send the-pen-list 
