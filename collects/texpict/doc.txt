@@ -1,6 +1,4 @@
 
-     >>>>>> THIS IS UNSUPPORTED SOFTWARE <<<<<<<
-
 _texpict_ is a MzScheme/MrEd utility for creating pictures using a
 MrEd dc<%> (including post-script-dc% for _PostScript_ output) or
 _LaTeX_ as the back-end. The library was originally designed for LaTeX
@@ -542,3 +540,302 @@ it should be.]
   ;; scale while drawing the pict.
 > scale                   ; pict factor -> pict
 > scale                   ; pict x-factor y-factor -> pict
+
+------------------------------------------------------------
+_slideshow-run.ss_ and _slideshow.ss_
+------------------------------------------------------------
+
+Overview
+========
+
+The "slideshow-run.ss" library acts as a language (an extension of
+MzScheme) for defining a slide presentation. The "slideshow.ss"
+library is like "slideshow-run.ss", except that it can be used by
+utility modules (i.e., other than the main module of a presentation)
+to get access to all of the Slideshow functions. Slide images are
+generated as picts, using the "mrpict.ss" functions defined above; the
+"slideshow-run.ss" and "slideshow.ss" module export everything
+provided by "mrpict.ss" and "utils.ss".
+
+The main Slideshow function is `slide/title', which adds a slide to
+the presentation with a given title and content. For example, the
+Hello World presentation can be defined by the following module:
+
+ (module hello-world (lib "slideshow-run.ss" "texpict")
+   (slide/title
+    "How to Say Hello"
+    (t "Hello World!")))
+ 
+The `t' function creates a pict containing the given text in the
+default font and style.
+
+Executing the above module pops up a slide-presentation window. Type
+Alt-q (or Meta-q) to end the slides. More controls:
+
+    Alt-q or Meta-q               :  end slide show
+    Right arrow, Space, f, or n   :  next slide
+    Left arrow or b               :  previous slide
+    g                             :  last slide
+    1                             :  first slide
+    Alt-g or Meta-g               :  select a slide
+
+In general, each element after the title string for `slide/title' is a
+pict that will be centered on the slide. The picts are stacked
+verically and top-aligned, with `font-size' separation between each
+pict.
+
+ (module hello-world (lib "slideshow-run.ss" "texpict")
+   (slide/title
+    "How to Say Hello"
+    (t "Hello World!")
+    (t "Goodbye Dlrow!")))
+
+The `slide/title/center' form centers the stacked picts vertically
+instead of putting them at the top of the slide:
+
+ (module hello-world (lib "slideshow-run.ss" "texpict")
+   (slide/title/center
+    "How to Say Hello"
+    (t "Hello World!")
+    (t "Goodbye Dlrow!")))
+
+Various functions format paragraphs and generate bullted items for
+lists. For example, `item/page' creates a bulleted paragraph that
+spaces the width of the slide:
+
+ (module hello-world (lib "slideshow-run.ss" "texpict")
+   (slide/title
+    "How to Say Hello"
+    (page-item "If you want to create an example, you"
+               "can always do something with" (bt "Hello World!"))
+    (page-item "It's a bit silly, but a follow-up example"
+               "could be" (bt "Goodbye Dlrow!"))))
+
+In this example, `bt' is like `t', except that it makes the text bold.
+The `page-item' function accepts a mixture of strings and picts, and
+it formats them as a paragraph.
+
+Staging Slides
+==============
+
+The `slide/title' function creates a slide as a side-effect. It can be
+put inside a function to abstract over a slide:
+
+ (module hello-world (lib "slideshow-run.ss" "texpict")
+   (define (make-slide-n n)
+     (slide/title
+      "How to Generalize Slides"
+      (page-item "This is slide number" (number->string n))))
+
+   (make-slide-n 1)
+   (make-slide-n 2)
+   (make-slide-n 3))
+
+The `slide/title' function also has built-in support for some common
+multi-slide patterns. Each element argument to `slide/title' after the
+title is usually a pict, but there are a few other possibilities:
+
+  * If an element is 'next, then a slide is generated containing only
+    the preceeding elements, and then the <elems> are re-processed
+    without the 'next. Multiple 'next elements generate multiple slides.
+
+  * If an element is 'alts, then the next element must be a list of
+    element lists. Each list up to the last one is appended to the
+    elements before 'alts and the resulting list of elements is
+    processed. The last lists is appended to the preceeding elements
+    along with the remaining elements (after the list of lists) and the
+    result is re-processed.
+
+  * A 'nothing element is ignored (useful as a result of a branching
+    expression).
+
+  * 'next! is like 'next, except that it is preserved when consensing
+    (see below on the --condense flag).
+
+  * 'alts~ is like 'alts, except that it is *not* preserved when
+    consensing (see below on the --condense flag).
+
+  * A comment produced by `comment' is ignored, except when commentary
+    is displayed.
+
+Here's an example to illustrate how 'next and 'alts work:
+
+ (module multi-step (lib "slideshow-run.ss" "texpict")
+  (slide/title
+   "Example"
+   (page-item "First step")
+   'NEXT
+   (page-item "Second step")
+   'NEXT
+   'ALTS
+   (list (list (page-item "Tentative third step")
+               'NEXT
+               (page-item "This isn't working... back up"))
+         (list (page-item "Third step that works")))
+   'NEXT
+   (page-item "Fourth step")))
+
+[The code above is case-insensitive; 'NEXT and 'ALTS are capitalized
+merely to stand out.]
+
+Command-line Options
+====================
+
+The "slideshow.ss" module can be invoked directly, in which case a
+module file name should be provided on the command line (implemented
+either with "slideshow.ss" or "slideshow-run.ss") to provide the slide
+content. Setup PLT creates a "Slideshow" executable that runs
+"slideshow.ss".
+
+Thus, if the above example is in multi-step.ss, then
+
+   slideshow multi-step.ss
+
+runs the slides.
+
+The "Slideshow" executable accepts a number of command-line flags:
+
+  --print : Prints the slides to a PostScript file. Note that the
+            fonts might be different, so printed results will not
+            necessarily match the screen form exactly.
+
+  -c, --condense : Skips 'next in slide constructions, and uses only
+            the last alternative for 'alts~ (which otherwise acts like
+            'alts).
+
+  -p <page> : Sets the starting page.
+
+  -q, --quad : Shows four slides at a time.
+
+  -f <fs>, --font <fs> : Sets the base font size.
+
+  --comment : Displays commentary from `comment' elements.
+
+Procedure Reference
+===================
+
+> (slide/title title-string element ...) - Creates a titled slide. See
+  the overview for information about `element's.
+
+> (slide/title/tall title-string element ...) - Like `slide/title',
+  except that less extra space is inserted between the title and the
+  slide content.
+
+> (slide/title/center title-string element ...) - Like `slide/title',
+  except that the slide content is centered vertically.
+
+> (slide element ...) - Like `slide/title', but without the title.
+
+> (slide/center element ...) - Like `slide/title/center', but without
+  the title.
+
+> (t string) - Same as (text string main-font (current-font-size))
+> (it string) - Same as (text string `(italic . ,main-font) (current-font-size))
+> (bt string) - Same as (text string `(bold . ,main-font) (current-font-size))
+> (bit string) - Same as (text string `(bold italic . ,main-font) (current-font-size))
+> (tt string) - Same as (text string `(bold . modern) (current-font-size))
+> (titlet string) - Like `t', but using the slide-title font and color.
+
+> (para width-n ielement ...) - Generates a paragraph picture of width
+  `width-n'. Each ielement is either a string or a pict; strings are
+  split at spaces for word-wrapping to fit the page, and space is
+  added between elements. However, if a string element starts with a
+  punctuation mark (e.g., a comma), no space is added before the
+  element.
+
+> (para* width-n ielement ...) - Like `para, except that the
+  paragraph is only as wide as necessary, which may be less than
+  `width-n'.
+
+> (page-para ielement ...) - Like `para, except that the width
+   is `client-w' (see below).
+
+> (page-para* ielement ...) - Like `para*', except that the width
+   is `client-w' (see below).
+
+> (subitem width-n ielement ...)
+> (subitem* width-n ielement ...)
+> (page-subitem ielement ...)
+> (page-subitem* ielement ...)
+  Like `para, etc., except that a bullet is placed in front of the
+  paragraph, and the paragraph is indented on the left.
+
+> (subitem width-n ielement ...)
+> (subitem* width-n ielement ...)
+> (page-subitem ielement ...)
+> (page-subitem* ielement ...)
+  Like `item', etc., except that a hollow bullet is used, and the
+  width for the `page-' versions is inset from `client-w'.
+
+
+> (para/c width-n ielement ...)
+> (para*/c width-n ielement ...)
+> (page-para/c ielement ...)
+> (page-para*/c ielement ...)
+  Like `para, etc., except that text is centered within the paragraph.
+
+> (para/r width-n ielement ...)
+> (para*/r width-n ielement ...)
+> (page-para/r ielement ...)
+> (page-para*/r ielement ...)
+  Like `para, etc., except that text is right-aligned within the
+  paragraph.
+
+
+> (most-recent-slide) - Returns a slide structure that be supplied to
+  `re-slide' to make a copy of the slide.
+
+> (retract-most-recent-slide) - Cancels the most recently created
+  slide, and also returns a slide structure that be supplied to
+  `re-slide' to restore the slide (usually in a later position).
+
+> (re-slide slide) - [Re-]inserts a slide.
+
+> (comment string ...) - Concatenated the strings, to be used as a
+  slide element for (usually hidden) commentary.
+
+> (make-outline { symbol string-or-pict subitems } ...)  - Returns a
+  function that takes a symbol and generates an outline slide. Each
+  trio or arguments defines a section for the outline; the symbol
+  names the section, and when the outline function is called later,
+  the given symbol is compared to the section's symbol; the
+  string-or-pict is used as the displayed name of the section; the
+  subitems must currently be the empty list.
+
+> font-size - The default font size; it can be set through a
+  command-line flag, or through a 'slideshow:base-font-size
+  preference (see `get-preference' in MzLib's "file.ss").
+
+> current-font-size - The font size used by `t', etc., initialized to
+  `font-size'.
+> line-sep - Amount of seperating between paragraph lines.
+> title-size - Font size used for slide titles, derived from `font-size'.
+> main-font - Font specification used for `t'.
+
+> red - a color name like "red", possibiliy selected by the user.
+> green - a color name like "green"
+> blue - ...
+> purple - ...
+> orange - ...
+
+> bullet - a bullet pict
+> o-bullet - a hollow bullet pict
+
+> client-w - useable width of a slide
+> client-h - useable height of a slide
+
+> margin - client margin within the full slide
+
+> full-page - an empty pict that is the same size as the client ares
+> titleless-page - an empty pict that is the same size as the client
+  ares minus the title area
+
+> printing? - #t if the slides are begin durected to PostScript output
+> condense? - #t if slides are being condensed (see overview)
+> (skip-slides n) - increment the slide counter by `n' without adding
+  any slides.
+
+> (start-making-slides)
+> (done-making-slides)
+  Called implicitly by "slideshow-run.ss", and not to be called
+  directly.
