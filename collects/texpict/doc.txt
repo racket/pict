@@ -564,6 +564,11 @@ it should be.]
 > scale                   ; pict factor -> pict
 > scale                   ; pict x-factor y-factor -> pict
 
+  ;; Syntax that is like `scale', but also sets
+  ;; current-expected-text-scale while evaluating
+  ;; pict-expr:
+> (scale/improve-new-text pict-expr sx-expr sy-expr)
+
   ;; Scales a color, making it brighter or darker. If the
   ;; factor is < 1, the color is darkened by multiplying
   ;; the RGB components by the factor. If the factor is > 1,
@@ -835,7 +840,9 @@ Procedure Reference
   slide content.
 
 > (slide/title/center title-string element ...) - Like `slide/title',
-  except that the slide content is centered vertically.
+  except that the slide content is centered vertically. If the content
+  has steps an alternatives, each individual slide's content is
+  center-top aligned with the largest individual slide's bounding box.
 
 > (slide element ...) - Like `slide/title', but without the title.
 

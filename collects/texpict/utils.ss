@@ -45,7 +45,8 @@
            
            color-series
            scale-color
-	   scale)
+	   scale
+	   scale/improve-new-text)
 
   (define (re-pict box naya)
     (let ([w (pict-width box)]
@@ -784,4 +785,14 @@
 	 (* (pict-height p) y-factor)
 	 (* (pict-ascent p) y-factor)
 	 (* (pict-descent p) y-factor)))]
-     [(p factor) (scale p factor factor)])))
+     [(p factor) (scale p factor factor)]))
+
+  (define-syntax scale/improve-new-text
+    (syntax-rules ()
+      [(_ expr sx sy)
+       (let ([xs sx]
+	     [ys sy])
+	 (parameterize ([current-expected-text-scale
+			 (let ([s (current-expected-text-scale)])
+			   (list (* xs (car s)) (* ys (cadr s))))])
+	   (scale expr xs ys)))])))
