@@ -18,7 +18,7 @@
     (typeset-code 
      comment-color keyword-color id-color literal-color
      code-align
-     current-keyword-list  current-const-list))
+     current-keyword-list current-const-list code-colorize-enabled))
 
   (define-signature code-params^
     (current-font-size 
@@ -37,9 +37,17 @@
       (define current-keyword-list 
 	(make-parameter '("define" "cond" "define-struct" "and" "or" "else"
 			  "define-syntax" "let" "letrec" "let*" "syntax-rules"
-			  "syntax-case")))
+			  "syntax-case" "set!" "begin")))
       (define current-const-list 
 	(make-parameter '("null")))
+
+      (define code-colorize-enabled
+	(make-parameter #t))
+
+      (define (maybe-colorize p c)
+	(if (code-colorize-enabled)
+	    (colorize p c)
+	    p))
       
       (define base-color "brown")
       (define keyword-color "black")
@@ -64,7 +72,7 @@
 	 [(memq (car closes) '(comment line))
 	  (add-close p (cdr closes))]
 	 [else
-	  (add-close (htl-append p (case (car closes)
+	  (add-close (hbl-append p (case (car closes)
 				     [(literal) close-paren/lit-p]
 				     [(template) close-paren/tmpl-p]
 				     [(cond template-cond) close-sq-p]
@@ -79,22 +87,28 @@
       (define (pad-bottom space p)
 	(if (= 0 space)
 	    p
-	    (vl-append (tt " ") (pad-bottom (sub1 space) p))))
+	    (vl-append line-sep (tt " ") (pad-bottom (sub1 space) p))))
 
       (define (colorize-id str mode)
-	(if (and ((string-length str) . > . 1)
-		 (char=? #\_ (string-ref str 0))
-		 (not (char=? #\_ (string-ref str 1))))
-	    (colorize (text (substring str 1) `(bold italic . modern) (current-font-size))
-		      id-color)
-	    (colorize
-	     (tt str)
-	     (cond
-	      [(eq? mode 'literal) literal-color]
-	      [(memq mode '(comment template)) comment-color]
-	      [(member str (current-keyword-list)) keyword-color]
-	      [(member str (current-const-list)) literal-color]
-	      [else id-color]))))
+	(cond
+	 [(and ((string-length str) . > . 1)
+	       (char=? #\_ (string-ref str 0))
+	       (not (char=? #\_ (string-ref str 1))))
+	  (maybe-colorize (text (substring str 1) `(bold italic . modern) (current-font-size))
+			  id-color)]
+	 [(regexp-match #rx"^(.+)\\^([0-9]+)*$" str)
+	  => (lambda (m)
+	       (hbl-append (colorize-id (cadr m) mode)
+			   (text (caddr m) `(superscript bold . modern) (current-font-size))))]
+	 [else
+	  (maybe-colorize
+	   (tt str)
+	   (cond
+	    [(eq? mode 'literal) literal-color]
+	    [(memq mode '(comment template)) comment-color]
+	    [(member str (current-keyword-list)) keyword-color]
+	    [(member str (current-const-list)) literal-color]
+	    [else id-color]))]))
 
       (define (sub-mode mode)
 	(case mode
@@ -127,7 +141,7 @@
 	     (loop (datum->syntax-object #f (syntax->list #'(i ...)))
 		   closes 'line)]
 	    [(code:comment s)
-	     (htl-append semi-p (colorize (tt (syntax-e #'s)) comment-color))]
+	     (htl-append semi-p (maybe-colorize (tt (syntax-e #'s)) comment-color))]
 	    [(code:template i)
 	     (let loop ([p (loop #'i closes 'template)] [semis semi-p])
 	       (if ((pict-height p) . > . (pict-height semis))
@@ -181,6 +195,7 @@
 				   #t)))]
 		      [else
 		       (vl-append
+			line-sep
 			line-so-far
 			(let* ([space (max 0 (- (or (syntax-column (car stxs)) 0) left))]
 			       [p (pad-left space (car ps))])
@@ -198,7 +213,7 @@
 	    [else
 	     (add-close (if (pict? (syntax-e stx))
 			    (syntax-e stx)
-			    (colorize (tt (format "~s" (syntax-e stx))) literal-color))
+			    (maybe-colorize (tt (format "~s" (syntax-e stx))) literal-color))
 			closes)])))
       
       )))
