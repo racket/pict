@@ -150,7 +150,7 @@
       
       (define (add-semis p)
 	(let loop ([p p] [semis semi-p])
-	  (if ((pict-height p) . > . (pict-height semis))
+	  (if ((pict-height p) . > . (+ (pict-height semis) 1))
 	      (loop p (vl-append line-sep semi-p semis))
 	      (htl-append semis p))))
 
