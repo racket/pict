@@ -100,6 +100,10 @@
 	  => (lambda (m)
 	       (hbl-append (colorize-id (cadr m) mode)
 			   (text (caddr m) `(superscript bold . modern) (current-font-size))))]
+	 [(regexp-match #rx"^(.+)_([0-9]+)*$" str)
+	  => (lambda (m)
+	       (hbl-append (colorize-id (cadr m) mode)
+			   (text (caddr m) `(subscript bold . modern) (current-font-size))))]
 	 [else
 	  (maybe-colorize
 	   (tt str)
