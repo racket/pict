@@ -201,9 +201,9 @@
 	(memq (syntax-e s) '(local)))
 
       (define (get-span stx)
-	(syntax-case stx (code:blank)
-	  [code:blank 1]
-	  [_ (or (syntax-span stx) 1)]))
+        (syntax-case stx (code:blank)
+          [code:blank 1]
+          [_ (or (syntax-span stx) 1)]))
       
       (define (add-semis p)
 	(let loop ([p p] [semis semi-p])
@@ -266,7 +266,8 @@
 			      [line-so-far (get-open mode)]
 			      [col (+ left 1)]
 			      [line (syntax-line stx)]
-			      [always-space? #f])
+			      [always-space? #f]
+                              [col->width (make-hash-table)])
 		     (cond
 		      [(null? ps) (blank)]
 		      [(or (not line)
@@ -278,6 +279,9 @@
 			      [p (htl-append
 				  line-so-far
 				  (pad-left space (car ps)))])
+                         (hash-table-put! col->width 
+                                          (+ space col) 
+                                          (pict-width (htl-append line-so-far (pad-left space (blank)))))
 			 (if (null? (cdr stxs))
 			     p
 			     (loop (cdr stxs)
@@ -287,13 +291,22 @@
 				       +inf.0
 				       (+ col space (get-span (car stxs))))
 				   (or line (syntax-line (car stxs)))
-				   #t)))]
+				   #t
+                                   col->width)))]
 		      [else
 		       (vl-append
 			line-sep
 			line-so-far
 			(let* ([space (max 0 (- (or (syntax-column (car stxs)) 0) left))]
-			       [p (pad-left space (car ps))])
+			       [p 
+                                (let/ec k
+                                  (htl-append
+                                   (blank (hash-table-get col->width 
+                                                          (+ space left)
+                                                          (lambda ()
+                                                            (k (pad-left space (car ps)))))
+                                          0)
+                                   (car ps)))])
 			  (if (null? (cdr stxs))
 			      p
 			      (loop (cdr stxs)
@@ -301,7 +314,8 @@
 				    p
 				    (+ left space (get-span (car stxs)))
 				    (or (syntax-line (car stxs)) (add1 line))
-				    #t))))])))))]
+				    #t
+                                    (make-hash-table)))))])))))]
 	    [id
 	     (identifier? stx)
 	     (add-close (colorize-id (symbol->string (syntax-e stx)) mode) closes)]
