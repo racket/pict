@@ -1,16 +1,17 @@
 
      >>>>>> THIS IS UNSUPPORTED SOFTWARE <<<<<<<
 
-_texpict_ is a MzScheme/MrEd utility for creating pictures using
-_LaTeX_ or MrEd's dc<%> (including post-script-dc% for _PostScript_)
-as the back-end.
+_texpict_ is a MzScheme/MrEd utility for creating pictures using a
+MrEd dc<%> (including post-script-dc% for _PostScript_ output) or
+_LaTeX_ as the back-end. The library was originally designed for LaTeX
+output, hence the name.
 
-Pictures are created as `pict' structures. Procedures in the texpict
-library create new simple picts (e.g., `hline') or create new picts
-that include other picts (e.g., `ht-append'). In the latter case, the
-embedded picts retain their identity, so that offset-finding functions
-(e.g., `find-lt') can find the offset of an embedded pict in a larger
-pict.
+Pictures are created as `pict' structures. Some procedures in the
+texpict library create new simple picts (e.g., `hline'). Others build
+new picts out of existing picts (e.g., `ht-append'). In the latter
+case, the embedded picts retain their identity, so that offset-finding
+functions (e.g., `find-lt') can find the offset of an embedded pict in
+a larger pict.
 
 A pict has the following structure:
                 w
@@ -22,21 +23,76 @@ A pict has the following structure:
        |                  | d  /
         ------------------     
 For a single text line, d is descent below the baseline and
-a + d = h. For multiple tex lines (created with vX-append), a is 
+a + d = h. For multiple text lines (created with vX-append), a is 
 ascent of top line above baseline and d is descent of bottom line,
-so a + d < h. Other boxes have d = 0 and a = h.
+so a + d < h. Most other boxes have d = 0 and a = h.
+
+The size information for a pict is computed when the pict is
+created. This strategy supports programs that create new picts though
+arbitrarily complex computations on the size and shape of existing
+picts. However, it also means that a pict cannot be generated before
+its target device is known.
+
+A slightly different set of picture-making function are available for
+MrEd and LaTeX output. For example, the LaTeX set includes `tex',
+which accepts a string of arbitrary LaTeX code, and the MrEd set
+includes `prog-picture', which accepts an arbitrary Scheme procedure
+for drawing to a dc<%>.
 
 MrEd (or PostScript) output
 ---------------------------
 
-To create a picture for a MrEd dc<%> involving text, texpict needs a
-drawing context for measuring; provide the dc<%> via the
-`dc-for-text-size' parameter.
+The MrEd texpict function set is loaded by the _mrpict.ss_ library.
+The library is available in unit form via _mrpictr.ss_, which produces
+a unit importing mred^. The _mrpicts.ss_ library file defines the
+unit's signature.
+
+When creating a picture for a MrEd dc<%> that contains text, texpict
+needs a drawing context for measuringthe text. Provide a dc<%> before
+constructing pictures via the `dc-for-text-size' parameter.
+
+The `draw-pict' function takes a picture, a device context
+
+ ;; Example of prodcuing PostScript output
+ (require-library "mrpict.ss" "texpict")
+
+ ;; Create PS context
+ (define ps-dc (make-object post-script-dc%))
+ (send ps-dc start-doc "Pict output")
+ (send ps-dc start-page)
+
+ ;; Install context for sizing
+ (dc-for-text-size ps-dc)
+
+ ;; Create the pict
+ (define p ...)
+
+ ;; Output pict
+ (draw-pict p ps-dc 0 0)
+ (send ps-dc end-page)
+ (send ps-dc end-doc))
+
+If the output dc<%> has a "user scale", it is not reflected in the
+size information reported for pictures. This is consistent with MrEd's
+usual policy for reporting size information.
+
+The _mrps.ss_ and _mrframe.ss_ libraries provide broilerplate code for
+producing PostScript output or draing a picture into a canvas. To use
+either library, require it, create the picture, then call `show-pict':
+
+ (require-library "mrframe.ss" "texpict")
+ (define p (text "Hello World!"))
+ (show-pict p)
 
 LaTeX output
 ------------
 
-To create a LaTeX picture, use texpict[r].ss, assemble a pict and then
+The LaTeX texpict function set is loaded by the _texpict.ss_ library.
+The library is available in unit form via _texpictr.ss_, which
+produces a unit with no imports. The _texpicts.ss_ library file
+defines the unit's signature.
+
+To create a LaTeX picture, assemble a pict and then
 call `pict->string'. This string can be `display'ed to obtain the
 LaTeX code, which is usually of the form:
    \begin{picture} ... \end{picture}
@@ -70,8 +126,8 @@ reach a fixed point after a small change to the output. The
 `tex-series-prefix' parameter may be used to explicitly tag `tex'
 sequences in different contexts.
 
-All positions and sizes must be specified as exact integers, but
-texpict does not check that exact integers are supplied.
+For LaTeX output, all positions and sizes must be specified as exact
+integers, but texpict does not check that exact integers are supplied.
 
 ------------------------------------------------------------
 Structures
@@ -89,47 +145,52 @@ The `children' field is a list of `child' structures:
 Procedures
 ------------------------------------------------------------
 
+   ;; -- MrEd only --
    ;; Parameter specifying the dc<%> to use for measuring text.
    ;; Default: #f
-   ;; >> mrpict[r].ss only <<
 >  dc-for-text-size
 
+   ;; -- LaTeX only --
    ;; Load `tex' pict size information generated by a LaTeX run.
-   ;; >> texpict[r].ss only <<
 >  read-in-sizes  ; string -> void
 
+   ;; -- LaTeX only --
    ;; Parameter specifying whether to produce LaTeX commands to
    ;; produce size information for a future run.
    ;; Default: #t
-   ;; >> texpict[r].ss only <<
 >  output-measure-commands
 
+   ;; -- LaTeX only --
    ;; Parameter specifying whether the `pict2e' package is active.
    ;; Default: #f
-   ;; >> texpict[r].ss only <<
 >  using-pict2e-package
 
+   ;; -- LaTeX only --
    ;; Parameter specifying whether to draw precise lines for `connect'
    ;; with bezier curves. The value is a Boolean or a procedure that
    ;; takes a length and returns the number of points to use.
    ;; Default: #f
-   ;; >> texpict[r].ss only <<
 >  draw-bezier-lines
 
+   ;; -- LaTeX only --
+   ;; Parameter to use the old implementation of `connect'.
+   ;; Default: #f
+>  use-old-connect
+
+   ;; -- LaTeX only --
    ;; Parameter specifying a string to embed in the sizing key for a
    ;; pict created with `tex'. The prefix is applied when the `tex'
    ;; pict is created. Turning on the `serialize-tex-picts' parameter
    ;; effectively generates a new series prefix for every `tex' pict.
    ;; Default: #f
-   ;; >> texpict[r].ss only <<
 >  tex-series-prefix
    
+   ;; -- LaTeX only --
    ;; Parameter specifying whether to assign serial numbers to
    ;; `tex'-generated strings for sizing purposes. Serial numbers
    ;; allow the same tex string to be used in multiple contexts, but
    ;; the output must be built in the same order every time.
    ;; Default: #f
-   ;; >> texpict[r].ss only <<
 >  serialize-tex-picts
 
    ;; Parameter specifying whether to draw in B&W or color (when
@@ -163,13 +224,14 @@ Procedures
                 ; w h -> pict
                 ; w h d -> pict
 
+   ;; -- LaTeX only --
    ;; Create picts from LaTeX code
-   ;; >> texpict[r].ss only <<
 >  tex               ; string -> pict
 >  text-line         ; string -> pict
 >  text-line/phantom ; string string -> pict
 >  tex-paragraph     ; w string ['top|'bottom] -> pict
 
+   ;; -- MrEd only --
    ;; Create picts from string + style, 
    ;;  where a style can be:
    ;;    '(), (the default)
@@ -181,16 +243,17 @@ Procedures
    ;;  and the size is an exact number in [1,255],
    ;;    the default size is 12, unless a font%
    ;;    object is provided
-   ;; >> mrpict[r].ss only <<
 >  text              ; string [style [size]] -> pict
 
-   ;; Create a self-rendering picture
-   ;; >> mrpict[r].ss only <<
+   ;; -- MrEd only --
+   ;; Create a self-rendering picture.
+   ;; The arguments to the rendering procedure will be the 
+   ;; device context and top-left location for drawing.
 >  prog-picture ; (dc dx dy -> void) w h a d -> pict
 
+   ;; -- LaTeX only --
    ;; Delimitters to go around height h (result is taller than h;
    ;;  try h/2)
-   ;; >> texpict[r].ss only <<
 >  left-brace     ; h -> pict
 >  right-brace    ; h -> pict
 >  left-delimit   ; str h -> pict
@@ -228,6 +291,8 @@ Procedures
    ;; but uses the child's size
 >  ghost        ; pict -> pict
 
+   ;; Make a UML-like record picture, where the
+   ;; first argument is the title and the rest are fields.
 >  record       ; pict pict ... -> pict
 
    ;; Make a new picture as a column (vX-append) or row (hX-append)
@@ -286,19 +351,20 @@ Procedures
    ;; Be sure to use the LaTeX package `colordvi'.
 >  colorize ; pict color-string -> pict
 
-   ;; Desribe a picture with low-level commands; see below.
+   ;; Describe a picture with low-level commands; see below.
 >  picture      ; w h command-list -> pict
 
    ;; Create a new picture by `cons'ing drawing commands onto
    ;; an existing picture.
 >  cons-picture ; pict command-list -> pict
 
+   ;; -- LaTeX only --
    ;; Generate the LaTeX code for a pict.
-   >> texpict[r].ss only <<
->  pict->string
+>  pict->string ; pict -> string
 
-   ;; Parameter to use the old implementation of `connect'.
->  use-old-connect
+   ;; -- MrEd only --
+   ;; Draw a pict to a dc<%>
+>  draw-pict ; pict dc x y -> void
 
 ------------------------------------------------------------
 Picture Paths, Command, Putables, and Drawables
@@ -311,10 +377,16 @@ pict-path:
 
 commands:
 
+   ;; These commands use LaTeX-style coordinates: bottom-left
+   ;; is (0, 0).
+
    `(place ,x ,y ,pict)
    `(put ,x ,y ,putable)
    
-   ;; >> mrpict[r].ss : all `connect' variants are the same <<
+   ;; The varieties of `connect' commands are for LaTeX, where
+   ;; lines are constrained to a small set of allowed angles.
+   ;; For MrEd, all of the commands below act the same, and produce
+   ;; liens with precisely the requested angle.
 
    `(connect ,x1 ,y1 ,x2 ,y2 ,bool)         ; line or vector; bool => vector;
                                             ;   from (x1,y1) to (~x2,~y2)
@@ -344,8 +416,8 @@ commands:
                                             ;    2) ~y2=y2 and |~x2-x2|<tol
                                             ;       the final line is vertical
                                             ;    3) |(x2,y2)-(~x2,~y2)|<tol
-   `(curve ,x1 ,y1 ,x2 ,y2 ,xc ,yc ,d)      ; bezier curve; d is optional density;
-                                            ;  default d is 1.0
+   `(curve ,x1 ,y1 ,x2 ,y2 ,xc ,yc ,d)      ; bezier curve; d is optional density
+                                            ;  for LaTeX; the default d is 1.0
 
   [Notes: curve can generate more precise lines than connect~, but it usually 
           requires more LaTeX memory.]
