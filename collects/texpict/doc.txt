@@ -572,19 +572,25 @@ The _utils.ss_ library provides additional drawing procedures for MrEd
   ;; point.
 > arrow-line              ; dx dy size -> pict
 > arrows-line             ; dx dy size -> pict
-	   
+           
   ;; Conses a line or line-with-arrows onto a pict, using
   ;; one of the sub-pict-finding functions (e.g., `find-tc')
   ;; to extract the source and destination of the line.
-> add-line                ; pict src-pict (pict -> x y)
-                          ;      dest-pict (pict -> x y)
-                          ;      [line-w [color-string]] -> pict
-> add-arrow-line          ; arrow-size pict src-pict (pict -> x y)
-                          ;      dest-pict (pict -> x y)
-                          ;      [line-w [color-string]] -> pict
-> add-arrows-line         ; arrow-size pict src-pict (pict -> x y)
-                          ;      dest-pict (pict -> x y)
-                          ;      [line-w [color-string]] -> pict
+> add-line                ; pict 
+                          ; src-pict (pict -> x y)
+                          ; dest-pict (pict -> x y)
+                          ; [line-w [color-string [lines-under?]]]
+                          ; -> pict
+> add-arrow-line          ; arrow-size pict 
+                          ; src-pict (pict -> x y)
+                          ; dest-pict (pict -> x y)
+                          ; [line-w [color-string [lines-under?]]]
+                          ; -> pict
+> add-arrows-line         ; arrow-size pict 
+                          ; src-pict (pict -> x y)
+                          ; dest-pict (pict -> x y)
+                          ; [line-w [color-string [lines-under?]]] 
+                          ; -> pict
 
   ;; Loads a bitmap into a pict; if the bitmap is not ok,
   ;;  the result is a box containing the words "bitmap failed"
