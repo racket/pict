@@ -279,9 +279,10 @@
 			      [p (htl-append
 				  line-so-far
 				  (pad-left space (car ps)))])
-                         (hash-table-put! col->width 
-                                          (+ space col) 
-                                          (pict-width (htl-append line-so-far (pad-left space (blank)))))
+			 (unless (equal? +inf.0 (+ space col))
+			   (hash-table-put! col->width 
+					    (+ space col) 
+					    (pict-width (htl-append line-so-far (pad-left space (blank))))))
 			 (if (null? (cdr stxs))
 			     p
 			     (loop (cdr stxs)
