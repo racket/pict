@@ -64,6 +64,10 @@
    ;; a lenght and returns the number of points to use
    draw-bezier-lines
    
+   ;; Boolean parameter: #t => resort to Bezier lines when an appropriate
+   ;; slope is really hard to find.
+   draw-bezier-hard-lines
+   
    ;; Parameter specifying whether to draw in B&W or color (when
    ;; `colorize' is used)
    black-and-white
@@ -100,6 +104,8 @@
    ;; Delimitters to go around height h (result is taller than h)
    left-brace     ; h -> pict
    right-brace    ; h -> pict
+   top-brace      ; h -> pict
+   bottom-brace   ; h -> pict
    left-delimit   ; str h -> pict
    right-delimit  ; str h -> pict
    middle-delimit ; str h -> pict
@@ -115,7 +121,7 @@
    dash-vline   ; w h seg -> pict
 
    frame        ; pict -> pict
-   dash-frame   ; pict h seg -> pict
+   dash-frame   ; pict seg-length -> pict ; dfeault seg-length is 5
    oval         ; pict -> pict
    oval/radius  ; pict r -> pict
 
@@ -205,7 +211,7 @@ putables:
    `(circle ,d)
    `(circle* ,d)
    `(frame ,draw)
-   `(colorbox ,draw)
+   `(colorbox ,color-str ,draw)
    `(oval ,w ,h ,str) ; str is portion: e.g., "" or "[bl]"
    ; plus some more
 
