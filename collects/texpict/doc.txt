@@ -817,6 +817,7 @@ Procedure Reference
 > (bt string) - Same as (text string `(bold . ,(current-main-font)) (current-font-size))
 > (bit string) - Same as (text string `(bold italic . ,(current-main-font)) (current-font-size))
 > (tt string) - Same as (text string `(bold . modern) (current-font-size))
+> (rt string) - Same as (text string `roman (current-font-size))
 > (titlet string) - Like `t', but using the slide-title font and color.
 
 > (para width-n ielement ...) - Generates a paragraph picture of width
