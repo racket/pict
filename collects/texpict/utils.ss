@@ -27,6 +27,7 @@
 
 	   add-line
 	   add-arrow-line
+	   add-arrows-line
 
 	   bitmap
 
@@ -252,7 +253,7 @@
 	 (send dc set-pen p)))
      w h 0 0))
 
-  (define (-add-line base src find-src dest find-dest thickness color arrow-size)
+  (define (-add-line base src find-src dest find-dest thickness color arrow-size arrow2-size)
     (let-values ([(sx sy) (find-src base src)]
 		 [(dx dy) (find-dest base dest)])
       (cc-superimpose
@@ -267,6 +268,14 @@
 					(atan (- dy sy) 
 					      (- dx sx)))])
 			   `((place ,(+ dx xo) ,(+ dy yo) ,arrow)))
+			 null)
+		   ,@(if arrow2-size
+			 (let-values ([(arrow xo yo)
+				       (arrowhead/delta 
+					arrow-size 
+					(atan (- sy dy) 
+					      (- sx dx)))])
+			   `((place ,(+ sx xo) ,(+ sy yo) ,arrow)))
 			 null)))])
 	 (let ([p2 (if thickness
 		       (linewidth thickness p)
@@ -282,7 +291,7 @@
      [(base src find-src dest find-dest thickness)
       (add-line base src find-src dest find-dest thickness #f)]
      [(base src find-src dest find-dest thickness color)
-      (-add-line base src find-src dest find-dest thickness color #f)]))
+      (-add-line base src find-src dest find-dest thickness color #f #f)]))
 
   (define add-arrow-line
     (case-lambda
@@ -291,8 +300,17 @@
      [(arrow-size base src find-src dest find-dest thickness)
       (add-arrow-line arrow-size base src find-src dest find-dest thickness #f)]
      [(arrow-size base src find-src dest find-dest thickness color)
-      (-add-line base src find-src dest find-dest thickness color arrow-size)]))
+      (-add-line base src find-src dest find-dest thickness color arrow-size #f)]))
 
+  (define add-arrows-line
+    (case-lambda
+     [(arrow-size base src find-src dest find-dest)
+      (add-arrows-line arrow-size base src find-src dest find-dest #f #f)]
+     [(arrow-size base src find-src dest find-dest thickness)
+      (add-arrows-line arrow-size base src find-src dest find-dest thickness #f)]
+     [(arrow-size base src find-src dest find-dest thickness color)
+      (-add-line base src find-src dest find-dest thickness color arrow-size arrow-size)]))
+  
   (define (bitmap filename)
     (let ([bm (make-object bitmap% filename)])
       (let ([w (send bm get-width)]

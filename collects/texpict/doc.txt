@@ -36,8 +36,8 @@ its target device is known.
 A slightly different set of picture-making function are available for
 MrEd and LaTeX output. For example, the LaTeX set includes `tex',
 which accepts a string of arbitrary LaTeX code, and the MrEd set
-includes `prog-picture', which accepts an arbitrary Scheme procedure
-for drawing to a dc<%>.
+includes `dc', which accepts an arbitrary Scheme procedure for drawing
+to a dc<%>.
 
 When creating pictures with `picture' or `cons-picture', or when
 finding relative picture locations with `find-lt', etc., the coordiate
@@ -52,8 +52,11 @@ a unit importing mred^. The _mrpicts.ss_ library file defines the
 unit's signature.
 
 When creating a picture for a MrEd dc<%> that contains text, texpict
-needs a drawing context for measuringthe text. Provide a dc<%> before
-constructing pictures via the `dc-for-text-size' parameter.
+needs a drawing context for measuring the text. Provide a dc<%> before
+constructing pictures via the `dc-for-text-size' parameter. The dc<%>
+should have the same text-measuring results as the destination dc<%>;
+in particular, use a post-script-dc% for preparing PostScript output,
+and a bitmap-dc% will work fine for bitmap-dc% or canvas% output.
 
 The `draw-pict' function takes a picture, a device context
 
@@ -79,14 +82,6 @@ The `draw-pict' function takes a picture, a device context
 If the output dc<%> has a "user scale", it is not reflected in the
 size information reported for pictures. This is consistent with MrEd's
 usual policy for reporting size information.
-
-The _mrps.ss_ and _mrframe.ss_ libraries provide broilerplate code for
-producing PostScript output or draing a picture into a canvas. To use
-either library, require it, create the picture, then call `show-pict':
-
- (require-library "mrframe.ss" "texpict")
- (define p (text "Hello World!"))
- (show-pict p)
 
 LaTeX output
 ------------
@@ -254,9 +249,15 @@ Procedures
 >  caps-text ; string [style [size]] -> pict
 
    ;; -- MrEd only --
-   ;; Create an arbitrary self-rendering pict.
-   ;; The arguments to the rendering procedure will be a
-   ;; device context and top-left location for drawing.
+   ;; Create an arbitrary self-rendering pict.  The arguments to the
+   ;; rendering procedure will be a device context and top-left
+   ;; location for drawing.
+   ;;
+   ;; When the rendering procedure is called, the current pen and
+   ;; brush will be solid and in the pict's color (and linewidth), and
+   ;; the scale and offset of the dc will be set. The text mode will
+   ;; be transparent, but the font and colors are not guaranteed to be
+   ;; anything in particular.
 >  dc      ; (dc<%> dx dy -> void) w h a d -> pict
 
    ;; -- LaTeX only --
@@ -301,10 +302,14 @@ Procedures
    ;; Creates a fairly round circle using four splines:
 >  big-circle   ; diameter -> pict
 
-   ;; Set the line thickness for a picture (does not apply to
-   ;; slanted lines)
+   ;; Set the line thickness for a picture. For MrEd output,
+   ;; selects between a pen width of 0 or 1.
 >  thick       ; pict -> pict
 >  thin        ; pict -> pict
+
+   ;; -- MrEd only --
+   ;; Set a specific pen width for drawing.
+>  linewidth   ; w pict -> pict
 
    ;; Make a container picture that doesn't draw the child picture,
    ;; but uses the child's size
@@ -390,6 +395,11 @@ Procedures
    ;; Draw a pict to a dc<%>
 >  draw-pict ; pict dc x y -> void
 
+   ;; -- MrEd only --
+   ;; Generate a pict-drawer procedure for multiple renderings of a
+   ;; pict (much faster than repeated calls to draw-pict)
+>  make-pict-drawer ; pict -> (dc x y -> void)
+
 ------------------------------------------------------------
 Picture Paths, Command, Putables, and Drawables
 ------------------------------------------------------------
@@ -466,3 +476,68 @@ draws:
    `(picture ,w ,h ,@command-list)
    `(color ,color-string ,draw)
    `(thickness ,thickness ,draw) ; thickness is thicklines or thinlines
+
+------------------------------------------------------------
+Additional MrEd Utilities
+------------------------------------------------------------
+
+The _utils.ss_ library provides additional drawing procedures for MrEd
+(not LaTeX) output. [It is not currently provided in unit form, though
+it should be.]
+
+  ;; Like `cons-picture', but the newly consed commands get a
+  ;; color
+> cons-colorized-picture  ; pict color-string command-list -> pict
+
+  ;; Like `frame' and `dash-frame', but the frame gets a color and
+  ;; optional line width
+> color-frame             ; pict color-string -> pict
+                          ; pict color-string line-w -> pict
+> color-dash-frame        ; pict seg-length color-string -> pict
+                          ; pict seg-length color-string line-w -> pict
+
+  ;; Rounded frames
+> round-frame             ; pict -> pict
+> color-round-frame       ; pict color-string -> pict
+                          ; pict color-string line-w -> pict
+
+  ;; Unfilled and filled circles; works for all sizes.
+> circle                  ; diameter -> pict
+> disk                    ; diameter -> pict
+
+  ;; Creates an arrow or arrowhead in the specific direction
+> arrow                   ; size radians -> pict
+> arrowhead               ; size radians -> pict
+
+  ;; Creates a line with arrowhead(s) as a 0-sized picture (suitable
+  ;; for use with `put'). The 0-sized picture contains the starting
+  ;; point.
+> arrow-line              ; dx dy size -> pict
+> arrows-line             ; dx dy size -> pict
+	   
+  ;; Conses a line or line-with-arrows onto a pict, using
+  ;; one of the sub-pict-finding functions (e.g., `find-tc')
+  ;; to extract the source and destination of the line.
+> add-line                ; pict src-pict (pict -> x y)
+                          ;      dest-pict (pict -> x y)
+                          ;      [line-w [color-string]] -> pict
+> add-arrow-line          ; arrow-size pict src-pict (pict -> x y)
+                          ;      dest-pict (pict -> x y)
+                          ;      [line-w [color-string]] -> pict
+> add-arrows-line         ; arrow-size pict src-pict (pict -> x y)
+                          ;      dest-pict (pict -> x y)
+                          ;      [line-w [color-string]] -> pict
+
+  ;; Fluffy cloud; default color is "gray".
+> cloud                   ; w h -> pict
+                          ; w h color-string -> pict
+
+  ;; Creates a MacOS-like file icon, optionally shaded
+> file-icon               ; w h gray? ->pict
+
+  ;; Loads a bitmap into a pict
+> bitmap                  ; filename -> pict
+
+  ;; Scales a pict (by adjusting the destination dc<%>'s
+  ;; scale while drawing the pict.
+> scale                   ; pict factor -> pict
