@@ -44,23 +44,20 @@
      comment-color keyword-color id-color literal-color
      code-align current-code-tt
      current-keyword-list current-const-list code-colorize-enabled
+     current-comment-color current-keyword-color 
      current-base-color current-id-color current-literal-color))
 
   (define-signature code-params^
     (current-font-size 
      line-sep))
 
-  (define-syntax (define-once stx)
+  (define-syntax (define-computed stx)
     (syntax-case stx ()
       [(_ id v)
        #'(begin
-	   (define val #f)
-	   (define (get-val)
-	     (unless val
-	       (set! val v))
-	     val)
+	   (define (get-val) v)
 	   (define-syntax id
-	     (syntax-id-rules (set)
+	     (syntax-id-rules (set!)
 	       [(x (... ...)) ,illegal-use-of-once]
 	       [x (get-val)])))]))
 
@@ -97,25 +94,27 @@
       
       (define current-base-color (make-parameter "brown"))
       (define keyword-color "black")
+      (define current-keyword-color (make-parameter keyword-color))
       (define id-color "navy")
       (define current-id-color (make-parameter id-color))
       (define literal-color (make-object color% 51 135 39))
       (define current-literal-color (make-parameter literal-color))
       (define comment-color (current-base-color))
+      (define current-comment-color (make-parameter comment-color))
       
-      (define-once open-paren-p (colorize (tt "(") (current-base-color)))
-      (define-once close-paren-p (colorize (tt ")") (current-base-color)))
-      (define-once open-sq-p (colorize (tt "[") (current-base-color)))
-      (define-once close-sq-p (colorize (tt "]") (current-base-color)))
-      (define-once quote-p (colorize (tt "'") (current-literal-color)))
-      (define-once syntax-p (colorize (tt "#'") keyword-color))
-      (define-once semi-p (colorize (tt "; ") comment-color))
-      (define-once open-paren/lit-p (colorize (tt "(") (current-literal-color)))
-      (define-once close-paren/lit-p (colorize (tt ")") (current-literal-color)))
-      (define-once open-paren/tmpl-p (colorize (tt "(") comment-color))
-      (define-once close-paren/tmpl-p (colorize (tt ")") comment-color))
+      (define-computed open-paren-p (colorize (tt "(") (current-base-color)))
+      (define-computed close-paren-p (colorize (tt ")") (current-base-color)))
+      (define-computed open-sq-p (colorize (tt "[") (current-base-color)))
+      (define-computed close-sq-p (colorize (tt "]") (current-base-color)))
+      (define-computed quote-p (colorize (tt "'") (current-literal-color)))
+      (define-computed syntax-p (colorize (tt "#'") (current-keyword-color)))
+      (define-computed semi-p (colorize (tt "; ") (current-comment-color)))
+      (define-computed open-paren/lit-p (colorize (tt "(") (current-literal-color)))
+      (define-computed close-paren/lit-p (colorize (tt ")") (current-literal-color)))
+      (define-computed open-paren/tmpl-p (colorize (tt "(") (current-comment-color)))
+      (define-computed close-paren/tmpl-p (colorize (tt ")") (current-comment-color)))
 
-      (define-once dot-p (colorize (tt " . ") (current-base-color)))
+      (define-computed dot-p (colorize (tt " . ") (current-base-color)))
 
       (define (get-close mode)
 	(case mode
@@ -183,8 +182,8 @@
 	   (tt str)
 	   (cond
 	    [(eq? mode 'literal) (current-literal-color)]
-	    [(memq mode '(comment template)) comment-color]
-	    [(member str (current-keyword-list)) keyword-color]
+	    [(memq mode '(comment template)) (current-comment-color)]
+	    [(member str (current-keyword-list)) (current-keyword-color)]
 	    [(member str (current-const-list)) (current-literal-color)]
 	    [else (current-id-color)]))]))
 
@@ -238,7 +237,7 @@
 		    (map (lambda (s)
 			   (if (pict? (syntax-e s))
 			       (syntax-e s)
-			       (maybe-colorize (tt (syntax-e s)) comment-color)))
+			       (maybe-colorize (tt (syntax-e s)) (current-comment-color))))
 			 (syntax->list #'(s ...))))]
 	    [(code:template i)
 	     (add-semis (loop #'i closes 'template))]
