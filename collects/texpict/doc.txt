@@ -245,7 +245,9 @@ Procedures
    ;;  A size is an exact number in [1, 255]; the
    ;;   default size is 12, but the size is ignored if
    ;;   a font% object is provided in the style.
->  text     ; string [style [size]] -> pict
+>  text      ; string [style [size]] -> pict
+   ;; Same, but use small caps:
+>  caps-text ; string [style [size]] -> pict
 
    ;; -- MrEd only --
    ;; Create an arbitrary self-rendering pict.
@@ -265,7 +267,18 @@ Procedures
 >  top-brace      ; w -> pict
 >  bottom-brace   ; w -> pict
 
+   ;; Truncates picture, removing descent part
 >  clip-descent   ; pict -> pict
+
+   ;; Raises picture relative to its baseline, extending
+   ;;  the height if necessary
+>  raise          ; pict n -> pict
+
+   ;; Drops picture below its ascent line, extending
+   ;;  the height if necessary
+>  drop           ; pict n -> pict
+
+   ;; Extends picture size, setting ascent and descent to 0
 >  inset          ; pict i -> pict
                   ; pict hi vi -> pict
                   ; pict l t r b -> pict
