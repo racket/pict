@@ -765,24 +765,30 @@
       (send the-pen-list find-or-create-pen color size style)))  
 
   (define (color-series dc steps dstep start-c end-c f pen? brush?)
-    (let ([sr (send start-c red)]
-          [sg (send start-c green)]
-          [sb (send start-c blue)]
-          [er (send end-c red)]
-          [eg (send end-c green)]
-          [eb (send end-c blue)]
-          [c (make-object color%)]
-          [s (lambda (start end i)
-               (floor (+ start (* (- end start) (/ i steps)))))])
-      (let loop ([i 0])
-        (send c set (s sr er i) (s sg eg i) (s sb eb i))
-        (when brush?
-          (send dc set-brush (find-brush c)))
-        (when pen?
-          (send dc set-pen (find-pen c)))
-        (f i)
-        (unless (= i steps)
-          (loop (+ dstep i))))))
+    (let ([start-c (if (string? start-c)
+		       (make-object color% start-c)
+		       start-c)]
+	  [end-c (if (string? end-c)
+		       (make-object color% end-c)
+		       end-c)])
+      (let ([sr (send start-c red)]
+	    [sg (send start-c green)]
+	    [sb (send start-c blue)]
+	    [er (send end-c red)]
+	    [eg (send end-c green)]
+	    [eb (send end-c blue)]
+	    [c (make-object color%)]
+	    [s (lambda (start end i)
+		 (floor (+ start (* (- end start) (/ i steps)))))])
+	(let loop ([i 0])
+	  (send c set (s sr er i) (s sg eg i) (s sb eb i))
+	  (when brush?
+	    (send dc set-brush (find-brush c)))
+	  (when pen?
+	    (send dc set-pen (find-pen c)))
+	  (f i)
+	  (unless (= i steps)
+	    (loop (+ dstep i)))))))
   
   (define (scale-color s c)
     (let ([c (if (string? c)

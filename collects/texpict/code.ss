@@ -11,14 +11,34 @@
       [(_ code typeset-code)
        (syntax/loc stx
 	 (define-syntax (code stx)
+	   (define (stx->loc-s-expr v)
+	     (cond
+	      [(syntax? v)
+	       `(datum->syntax-object
+		 #f
+		 ,(syntax-case v (unsyntax)
+		    [(unsyntax e) #'e]
+		    [else (stx->loc-s-expr (syntax-e v))])
+		 (list 'code
+		       ,(syntax-line v)
+		       ,(syntax-column v)
+		       ,(syntax-position v)
+		       ,(syntax-span v)))]
+	      [(pair? v) `(cons ,(stx->loc-s-expr (car v))
+				,(stx->loc-s-expr (cdr v)))]
+	      [(vector? v) `(vector ,@(map
+				       stx->loc-s-expr
+				       (vector->list v)))]
+	      [(box? v) `(box ,(stx->loc-s-expr (unbox v)))]
+	      [(null? v) 'null]
+	      [else `(quote ,v)]))
+	   (define (cvt s)
+	     (datum->syntax-object #'here (stx->loc-s-expr s)))
 	   (syntax-case stx ()
-	     [(_ expr) (syntax/loc stx
-			 (typeset-code (quasisyntax (((... ...) (... ...)) expr))))]
-	     [(_ expr (... ...) )
-	      (syntax/loc stx
-		(typeset-code (quasisyntax 
-			       (code:line (((... ...) (... ...)) expr) (... ...)))))])))]))
-    
+	     [(_ expr) #`(typeset-code #,(cvt #'expr))]
+	     [(_ expr (... ...))
+	      #`(typeset-code #,(cvt #'(code:line expr (... ...))))])))]))
+  
   (define-signature code^
     (typeset-code 
      comment-color keyword-color id-color literal-color
@@ -172,9 +192,10 @@
 
       (define (typeset-code stx)
 	(let loop ([stx stx][closes null][mode #f])
-	  (syntax-case stx (quote syntax-unquote syntax
-				  code:contract code:comment code:line
-				  code:template code:blank $)
+	  (syntax-case* stx (quote syntax-unquote syntax
+				   code:contract code:comment code:line
+				   code:template code:blank $)
+			(lambda (a b) (eq? (syntax-e a) (syntax-e b)))
 	    [() (add-close (htl-append (get-open mode) (get-close mode))
 			   closes)]
 	    [code:blank (tt " ")]
