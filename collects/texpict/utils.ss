@@ -512,17 +512,13 @@
 		    (+ x (* 0.42 size)) (- y (*  0.2 size))
 		    size size
 		    (* 0.8 pi) pi)
+	      (let ([r2 (make-object region% dc)])
+		(send r2 set-ellipse
+		      (+ x (* 0.52 size)) (- y (* 0.1 size))
+		      (* 0.8 size) (* 0.8 size))
+		(send r subtract r2))
 	      (send dc set-clipping-region r)
 	      (set-brush stem-color)
-	      (send dc draw-rectangle x y size size)
-	      
-	      (send dc set-clipping-region #f)
-	      (send r set-arc
-		    (+ x (* 0.52 size)) (- y (* 0.1 size))
-		    (* 0.8 size) (* 0.8 size)
-		    (* 0.49 pi) (* 1.1 pi))
-	      (send dc set-clipping-region r)
-	      (set-brush "white")
 	      (send dc draw-rectangle x y size size)
 
 	      ;; Body ----------------------------------------
