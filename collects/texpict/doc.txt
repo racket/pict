@@ -727,18 +727,18 @@ implements an interactive browser for face configurations.
   with the given base color. The built-in configurations, selected by
   mood-symbol, are as follows:
 
-    'unhappy - (face* 'none 'plain #t face-color 6)
-    'happy - (face* 'worried 'medium #f face-color 6)
-    'unhappy - (face* 'worried 'grimace #t face-color 6)
-    'happy - (face* 'none 'plain #f face-color 6)
-    'happier - (face* 'none 'large #f face-color 3)
-    'embarassed - (face* 'worried 'medium #f face-color 3)
-    'embarassed - (face* 'worried 'medium #t face-color 3)
-    'unhappier - (face* 'normal 'large #t face-color 3)
-    'happiest - (face* 'normal 'huge #f face-color 0 -3)
-    'unhappiest - (face* 'normal 'huge #t face-color 0 -3)
-    'mad - (face* 'angry 'grimace #t face-color 0)
-    'mean - (face* 'angry 'narrow #f face-color 0)
+    'unhappy - (face* 'none 'plain #t default-face-color 6)
+    'sortof-unhappy - (face* 'worried 'grimace #t default-face-color 6)
+    'sortof-happy - (face* 'worried 'medium #f default-face-color 6)
+    'happy - (face* 'none 'plain #f default-face-color 6)
+    'happier - (face* 'none 'large #f default-face-color 3)
+    'embarassed - (face* 'worried 'medium #f default-face-color 3)
+    'badly-embarassed - (face* 'worried 'medium #t default-face-color 3)
+    'unhappier - (face* 'normal 'large #t default-face-color 3)
+    'happiest - (face* 'normal 'huge #f default-face-color 0 -3)
+    'unhappiest - (face* 'normal 'huge #t default-face-color 0 -3)
+    'mad - (face* 'angry 'grimace #t default-face-color 0)
+    'mean - (face* 'angry 'narrow #f default-face-color 0)
 
 > (face* eyebrow-kind mouth-kind frown? [color eye-inset eyebrow-dy pupil-dx pupil-dy])
   - returns a pict for a configured face:
