@@ -535,6 +535,7 @@ it should be.]
 
   ;; Loads a bitmap into a pict
 > bitmap                  ; filename -> pict
+> bitmap                  ; bitmap%-object -> pict
 
   ;; Scales a pict (by adjusting the destination dc<%>'s
   ;; scale while drawing the pict.

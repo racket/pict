@@ -433,7 +433,9 @@
       (-add-line base src find-src dest find-dest thickness color arrow-size arrow-size)]))
   
   (define (bitmap filename)
-    (let ([bm (make-object bitmap% filename)])
+    (let ([bm (if (filename . is-a? . bitmap%)
+		  filename
+		  (make-object bitmap% filename))])
       (let ([w (send bm get-width)]
 	    [h (send bm get-height)])
 	(dc
