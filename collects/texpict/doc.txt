@@ -408,6 +408,22 @@ Procedures
 >  cons-picture ; pict command-list -> pict
 >  cons-picture* ; pict command-list -> pict
 
+   ;; Creates a pict with the same bounding box, ascent, and descent
+   ;; as the initial argument, but with the second pict placed on top.
+   ;; The dx and dy argument specify how far left and down the second
+   ;; pict's corner is frm the firts pict's corner.
+   ;; Alternately, the sub-pict and procedure arguments find a point
+   ;; in the intial pict for the second pict's corner. The procedure
+   ;; should be like find-lt (i.e., the result dy is from the pict's
+   ;; bottom instead of its top).
+>  place-over ; pict dx dy pict -> pict
+>  place-over ; pict sub-pict (pict pict -> dx dy) pict -> pict
+
+   ;; Like place-over, but the second pict is drawn first, then the
+   ;; initial pict.
+>  place-under ; pict dx dy pict -> pict
+>  place-under ; pict sub-pict (pict pict -> dx dy) pict -> pict
+
    ;; -- LaTeX only --
    ;; Generate the LaTeX code for a pict.
 >  pict->string ; pict -> string
