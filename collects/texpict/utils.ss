@@ -729,12 +729,14 @@
     (let ([bm (if (filename . is-a? . bitmap%)
 		  filename
 		  (make-object bitmap% filename 'unknown/mask))])
-      (let ([w (send bm get-width)]
-	    [h (send bm get-height)])
-	(dc
-	 (lambda (dc x y)
-	   (send dc draw-bitmap bm x y 'solid black-color (send bm get-loaded-mask)))
-	 w h 0 0))))
+      (if (send bm ok?)
+	  (let ([w (send bm get-width)]
+		[h (send bm get-height)])
+	    (dc
+	     (lambda (dc x y)
+	       (send dc draw-bitmap bm x y 'solid black-color (send bm get-loaded-mask)))
+	     w h 0 0))
+	  (frame (inset (colorize (text "bitmap failed") "red") 2)))))
   
   (define find-brush
     (opt-lambda (color [style 'solid])

@@ -586,7 +586,8 @@ The _utils.ss_ library provides additional drawing procedures for MrEd
                           ;      dest-pict (pict -> x y)
                           ;      [line-w [color-string]] -> pict
 
-  ;; Loads a bitmap into a pict
+  ;; Loads a bitmap into a pict; if the bitmap is not ok,
+  ;;  the result is a box containing the words "bitmap failed"
 > bitmap                  ; filename -> pict
 > bitmap                  ; bitmap%-object -> pict
 
