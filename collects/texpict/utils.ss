@@ -32,6 +32,7 @@
 	   jack-o-lantern
 	   angel-wing
 	   desktop-machine
+	   standard-fish
 
 	   add-line
 	   add-arrow-line
@@ -539,6 +540,90 @@
 	      (send dc set-brush b)
 	      (send dc set-pen p)))
 	  size (* 1.1 size) 0 0)))
+
+  (define standard-fish 
+    (opt-lambda (w h [direction 'left] [c "blue"] [ec #f])
+      (define no-pen (send the-pen-list find-or-create-pen "black" 1 'transparent))
+      (define color (if (string? c) (make-object color% c) c))
+      (define dark-color (scale-color 0.8 color))
+      (define eye-color (and ec (if (string? ec) (make-object color% ec) ec)))
+      (define dark-eye-color color)
+      (dc (lambda (dc x y)
+            (let ([rgn (make-object region% dc)]
+                  [old-rgn (send dc get-clipping-region)]
+                  [old-pen (send dc get-pen)]
+                  [old-brush (send dc get-brush)]
+                  [flip-rel (lambda (x0) 
+                              (if (eq? direction 'left)
+                                  x0
+                                  (- w x0)))]
+                  [flip (lambda (x0 w0) 
+                          (if (eq? direction 'left)
+                              x0
+                              (+ x (- w (- x0 x) w0))))])
+              (send dc set-pen no-pen)
+              (color-series
+               dc 4 1
+               dark-color color
+               (lambda (i)
+                 (send dc draw-polygon (list (make-object point% (flip-rel (+ (* 1/2 w) i)) (* 1/10 h))
+                                             (make-object point% (flip-rel (- (* 3/4 w) i)) (+ 0 i))
+                                             (make-object point% (flip-rel (- (* 3/4 w) i)) (- (* 2/10 h) i)))
+                       x y)
+                 (send dc draw-polygon (list (make-object point% (flip-rel (+ (* 1/2 w) i)) (* 9/10 h))
+                                             (make-object point% (flip-rel (- (* 3/4 w) i)) (- h i))
+                                             (make-object point% (flip-rel (- (* 3/4 w) i)) (+ (* 8/10 h) i)))
+                       x y)
+                 (send dc draw-polygon (list (make-object point% (flip-rel (+ (* 3/4 w) i)) (/ h 2))
+                                             (make-object point% (flip-rel (- w i)) (+ (* 1/10 h) i))
+                                             (make-object point% (flip-rel (- w i)) (- (* 9/10 h) i)))
+                       x y))
+               #f #t)
+              (send rgn set-rectangle x y w (/ h 2))
+              (send dc set-clipping-region rgn)
+              (color-series
+               dc 4 1
+               dark-color color
+               (lambda (i)
+                 (send dc draw-ellipse (+ (- x (* 1/4 w)) i) (+ y i)
+                       (- (* 6/4 w) (* 2 i)) (- (* 4 h) (* 2 i))))
+               #f #t)
+              (send dc set-clipping-region old-rgn)
+              (send rgn set-rectangle x (+ y (/ h 2)) w (/ h 2))
+              (send dc set-clipping-region rgn)
+              (color-series
+               dc 4 1
+               dark-color color
+               (lambda (i)
+                 (send dc draw-ellipse (+ (- x (* 1/4 w)) i) (+ (- y (* 3 h)) i)
+                       (- (* 6/4 w) (* 2 i)) (- (* 4 h) (* 2 i))))
+               #f #t)
+              (send dc set-clipping-region old-rgn)
+              (color-series
+               dc 4 1
+               dark-color color
+               (lambda (i)
+                 (send dc draw-polygon (list (make-object point% (flip-rel (+ (* 1/2 w) i)) (/ h 2))
+                                             (make-object point% (flip-rel (- (* 5/8 w) i)) (+ (* 1/4 h) i))
+                                             (make-object point% (flip-rel (- (* 5/8 w) i)) (- (* 3/4 h) i)))
+                       x y))
+               #f #t)
+              (when eye-color
+                (color-series
+                 dc
+                 1/20 1/80
+                 dark-eye-color eye-color
+                 (lambda (s)
+                   (let ([ew (* (- 1/10 s) w)])
+                     (send dc draw-ellipse 
+                           (flip (+ x (* 1/5 w) (* s 1/2 w)) ew)
+                           (+ y (* 1/3 h) (* (* s 4/2) 1/2 h))
+                           ew
+                           (* (- 1/10 s) 4/2 h))))
+                 #f #t))
+              (send dc set-pen old-pen)
+              (send dc set-brush old-brush)))
+          w h 0 0)))
 
   (define (-add-line base src find-src dest find-dest thickness color arrow-size arrow2-size)
     (let-values ([(sx sy) (find-src base src)]

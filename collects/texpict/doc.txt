@@ -615,6 +615,13 @@ it should be.]
   ;; current one.
 > angel-wing              ; w h left? -> pict
 
+
+  ;; Creates a fish, swimming either 'left or 'right.
+  ;; If eye-color is #f, no eye is drawn. Defaults are
+  ;; 'left, "blue", and "black".
+> standard-fish           ; w h [direction color eye-color] -> pict
+
+
 ------------------------------------------------------------
 _slideshow-run.ss_ and _slideshow.ss_
 ------------------------------------------------------------
