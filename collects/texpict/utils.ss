@@ -544,7 +544,7 @@
 	  size (* 1.1 size) 0 0)))
 
   (define standard-fish 
-    (opt-lambda (w h [direction 'left] [c "blue"] [ec #f])
+    (opt-lambda (w h [direction 'left] [c "blue"] [ec #f] [mouth-open? #f])
       (define no-pen (send the-pen-list find-or-create-pen "black" 1 'transparent))
       (define color (if (string? c) (make-object color% c) c))
       (define dark-color (scale-color 0.8 color))
@@ -562,7 +562,22 @@
                   [flip (lambda (x0 w0) 
                           (if (eq? direction 'left)
                               x0
-                              (+ x (- w (- x0 x) w0))))])
+                              (+ x (- w (- x0 x) w0))))]
+		  [set-rgn (lambda (rgn flip?)
+			     (let ([dy (if flip? (/ h 2) 0)])
+			       (if mouth-open?
+				   (send rgn set-polygon
+					 (list (make-object point% 0 dy)
+					       (make-object point% w dy)
+					       (make-object point% w (- (* 1/2 h) dy))
+					       (make-object point% (* 1/6 w) (- (* 1/2 h) dy))
+					       (make-object point% 0 (if flip?
+									 (* 1/6 h)
+									 (* 1/3 h))))
+					 x (+ y dy))
+				   (send rgn set-rectangle 
+					 x (+ y dy)
+					 w (/ h 2)))))])
               (send dc set-pen no-pen)
               (color-series
                dc 4 1
@@ -581,8 +596,8 @@
                                              (make-object point% (flip-rel (- w i)) (- (* 9/10 h) i)))
                        x y))
                #f #t)
-              (send rgn set-rectangle x y w (/ h 2))
-              (send dc set-clipping-region rgn)
+	      (set-rgn rgn #f)
+	      (send dc set-clipping-region rgn)
               (color-series
                dc 4 1
                dark-color color
@@ -591,7 +606,7 @@
                        (- (* 6/4 w) (* 2 i)) (- (* 4 h) (* 2 i))))
                #f #t)
               (send dc set-clipping-region old-rgn)
-              (send rgn set-rectangle x (+ y (/ h 2)) w (/ h 2))
+              (set-rgn rgn #t)
               (send dc set-clipping-region rgn)
               (color-series
                dc 4 1

@@ -656,7 +656,7 @@ The _utils.ss_ library provides additional drawing procedures for MrEd
   ;; Creates a fish, swimming either 'left or 'right.
   ;; If eye-color is #f, no eye is drawn. Defaults are
   ;; 'left, "blue", and "black".
-> standard-fish           ; w h [direction color eye-color] -> pict
+> standard-fish           ; w h [direction color eye-color open-mouth?] -> pict
 
 
 ------------------------------------------------------------

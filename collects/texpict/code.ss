@@ -105,23 +105,23 @@
 	       (not (char=? #\_ (string-ref str 1))))
 	  (maybe-colorize (text (substring str 1) `(bold italic . modern) (current-font-size))
 			  id-color)]
-	 [(regexp-match #rx"^(.+)_([0-9]+)\\^([0-9]+)$" str)
+	 [(regexp-match #rx"^(.+)_([0-9a-z]+)\\^([0-9a-z]+)$" str)
 	  => (lambda (m)
 	       (hbl-append (colorize-id (cadr m) mode)
 			   (cc-superimpose
 			    (text (caddr m) `(subscript bold . modern) (current-font-size))
 			    (text (cadddr m) `(superscript bold . modern) (current-font-size)))))]
-	 [(regexp-match #rx"^(.+)\\^([0-9]+)_([0-9]+)$" str)
+	 [(regexp-match #rx"^(.+)\\^([0-9a-z]+)_([0-9a-z]+)$" str)
 	  => (lambda (m)
 	       (hbl-append (colorize-id (cadr m) mode)
 			   (cc-superimpose
 			    (text (cadddr m) `(subscript bold . modern) (current-font-size))
 			    (text (caddr m) `(superscript bold . modern) (current-font-size)))))]
-	 [(regexp-match #rx"^(.+)\\^([0-9]+)$" str)
+	 [(regexp-match #rx"^(.+)\\^([0-9a-z]+)$" str)
 	  => (lambda (m)
 	       (hbl-append (colorize-id (cadr m) mode)
 			   (text (caddr m) `(superscript bold . modern) (current-font-size))))]
-	 [(regexp-match #rx"^(.+)_([0-9]+)$" str)
+	 [(regexp-match #rx"^(.+)_([0-9a-z]+)$" str)
 	  => (lambda (m)
 	       (hbl-append (colorize-id (cadr m) mode)
 			   (text (caddr m) `(subscript bold . modern) (current-font-size))))]
