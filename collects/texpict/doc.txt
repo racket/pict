@@ -801,11 +801,13 @@ Procedure Reference
 
 > (make-outline { symbol string-or-pict subitems } ...)  - Returns a
   function that takes a symbol and generates an outline slide. Each
-  trio or arguments defines a section for the outline; the symbol
-  names the section, and when the outline function is called later,
-  the given symbol is compared to the section's symbol; the
-  string-or-pict is used as the displayed name of the section; the
-  subitems must currently be the empty list.
+  trio of arguments defines a section for the outline; the symbol
+  names the section, and when the outline function is called later to
+  make an outline, the given symbol is compared to the section's
+  symbol; the string-or-pict is used as the displayed name of the
+  section; the subitems can #f/null or a pict to show as a sub-item
+  when the section is active (i.e., its symbol is provided to the
+  outline-making function).
 
 > font-size - The default font size; it can be set through a
   command-line flag, or through a 'slideshow:base-font-size
