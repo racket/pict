@@ -245,6 +245,10 @@ Procedures
 >  text      ; string [style [size]] -> pict
    ;; Same, but use small caps:
 >  caps-text ; string [style [size]] -> pict
+   ;; A parameter used to refine text measurements to better
+   ;; match an expected scaling of the image:
+>  current-expected-text-scale ; -> (list num num)
+                               ; (list num num) -> void
 
    ;; -- MrEd only --
    ;; Create an arbitrary self-rendering pict.  The arguments to the
@@ -749,13 +753,36 @@ Here's an example to illustrate how 'next and 'alts work:
 [The code above is case-insensitive; 'NEXT and 'ALTS are capitalized
 merely to stand out.]
 
-Display Size
-============
+Display Size and Fonts
+======================
 
-Slideshow is defined primarily for generating slides in 1024x768 pixel
-format. When the current display has a different size when slideshow
-is started, pictures are scaled just before they are displayed on the
-screen.
+Slideshow is configured for generating slides in 1024x768 pixel
+format. When the current display has a different size as Slideshow is
+started, the Slideshow display still occupies the entire screen, and
+pictures are scaled just before they are displayed. Thus, one picture
+unit reliably corresponds to a "pixel" that occupies 1/1024 x 1/768 of
+the screen.
+
+The `text' form for generating text pictures takes into account any
+expected scaling for the display when measuring text. (All Slideshow
+text functions, such as `t' and `page-para', are built on `text'.) In
+particular, scaling the picture causes a different font size to be
+used for drawing the slide (rather than bitmap-scaling the original
+font), and changing the font size by a factor of K does not
+necessarily scale all text dimensions equally by a factor of
+K. Nevertheless, using the `current-expected-text-scale' parameter,
+Slideshow is usually able to produce good results when the slide is
+scaled.
+
+More generally, different font sets on different platforms can change
+the way a slide is rendered. For example, the `tt' font on one
+platform might be slightly wider than on another, causing different
+line breaks, etc. Beware.
+
+Beware also of using bitmaps in slides when the presentation screen
+will not be 1024x768. In that case, consider scaling the bitmap
+picture (using `scale') so that it looks right with your presentation
+screen's dimensions.
 
 Command-line Options
 ====================
@@ -909,11 +936,8 @@ Procedure Reference
      displayed. Otherwise, it should be a procedure that takes a symbol
      (the same one passed to the outline maker) and produces a pict.
 
-> font-size - The default font size (in pixels), normally 32;
-  it can be set through a command-line flag, or through a
-  'slideshow:default-font-size preference (see `get-preference' in
-  MzLib's "file.ss"), but neither is recommend. Instead, use the
-  `current-font-size' parameter, below
+> font-size - The default font size, 32. This size is in pixels for a
+  1024x768 screen; see also the "Display Size and Fonts" section, above.
 > gap-size - (* 3/4 font-size)
 
 > current-font-size - Parameter for the font size used by `t', etc.,
