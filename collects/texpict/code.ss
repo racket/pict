@@ -35,7 +35,9 @@
 	(lift (inset p 0 (pict-height p) 0 0) (pict-height p)))
       
       (define current-keyword-list 
-	(make-parameter '("define" "cond" "define-struct" "and" "or" "else")))
+	(make-parameter '("define" "cond" "define-struct" "and" "or" "else"
+			  "define-syntax" "let" "letrec" "let*" "syntax-rules"
+			  "syntax-case")))
       (define current-const-list 
 	(make-parameter '("null")))
       
@@ -80,8 +82,10 @@
 	    (vl-append (tt " ") (pad-bottom (sub1 space) p))))
 
       (define (colorize-id str mode)
-	(if (char=? #\_ (string-ref str 0))
-	    (colorize (text (substring str 1) `(italic . modern) (current-font-size))
+	(if (and ((string-length str) . > . 1)
+		 (char=? #\_ (string-ref str 0))
+		 (not (char=? #\_ (string-ref str 1))))
+	    (colorize (text (substring str 1) `(bold italic . modern) (current-font-size))
 		      id-color)
 	    (colorize
 	     (tt str)
@@ -99,7 +103,7 @@
 	  [else mode]))
 
       (define (cond? s)
-	(eq? 'cond (syntax-e s)))
+	(memq (syntax-e s) '(cond))) ;  syntax-rules syntax-case)))
 
       (define (get-span stx)
 	(syntax-case stx (code:blank)
