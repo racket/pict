@@ -651,7 +651,7 @@ Alt-q (or Meta-q) to end the slides. More controls:
 
 In general, each element after the title string for `slide/title' is a
 pict that will be centered on the slide. The picts are stacked
-verically and top-aligned, with `font-size' separation between each
+verically and top-aligned, with `char-size' separation between each
 pict.
 
  (module hello-world (lib "slideshow-run.ss" "texpict")
@@ -902,6 +902,9 @@ Procedure Reference
 > font-size - The default font size; it can be set through a
   command-line flag, or through a 'slideshow:base-font-size
   preference (see `get-preference' in MzLib's "file.ss").
+
+> char-size - Roughly font-size, but whereas slideshow:base-font-size
+  scales the size used for text, char-size stays the same; it's 24
 
 > current-font-size - The font size used by `t', etc., initialized to
   `font-size'.
