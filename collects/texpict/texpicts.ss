@@ -145,6 +145,22 @@
    ctl-superimpose
    cbl-superimpose
 
+   ;; Make a table give a list of picts. The list should
+   ;; be a concatentation of rows (so it formats right in
+   ;; Scheme code).
+   ;; The row-seps and col-seps arguments are `lists'
+   ;; specifying the separation between rows and columns.
+   ;; For R rows and C columns, these lists should have
+   ;; R - 1 and C - 1 numbers, respectively. The lists
+   ;; can be improper (e.g. just a number), in which case the
+   ;; non-pair cdr is used as the value for all remaining list 
+   ;; items that were expected.
+   ;; The last argument is an optional function; it is called
+   ;; to get a superimpose function for a particular cell. (It
+   ;; will be called with a maximial-size empty box and the actual
+   ;; cell box.) The default returns cc-superimpose for all cells.
+   table ; ncols pict-list row-seps col-seps (col row -> (pict pict -> pict))
+
    ;; Desribe a picture with low-level commands; see below
    picture      ; w h command-list -> pict
 
