@@ -123,7 +123,7 @@
      [(p seg-length color) (color-dash-frame p seg-length color #f)]))  
 
   ;; Returns three values: pict dx dy
-  (define (generic-arrow stem? solid? size angle)
+  (define (generic-arrow stem? solid? size angle pen-thickness)
     (values
      (dc
       (lambda (dc x y)
@@ -133,8 +133,8 @@
 		 [d (sqrt (+ (* x x) (* y y)))]
 		 [a (atan y x)])
 	    (make-object point% 
-			 (* d size 1/2 (cos (+ a angle)))
-			 (* d size 1/2 (- (sin (+ a angle)))))))
+              (* d size 1/2 (cos (+ a angle)))
+              (* d size 1/2 (- (sin (+ a angle)))))))
 	(let ([b (send dc get-brush)]
 	      [p (send dc get-pen)])
 	  (send dc set-pen (send the-pen-list
@@ -164,23 +164,29 @@
 	  (send dc set-brush b)
 	  (send dc set-pen p)))
       size size 0 0)
-     (- (- 0 (* 1/2 size (cos angle))) (/ size 2))
-     (- (+ (* 1/2 size) (- (* 1/2 size (sin angle)))) size)))
+     (let ([generic-x (- (- 0 (* 1/2 size (cos angle))) (/ size 2))])
+       (case (system-type)
+         [(macosx) (+ generic-x (quotient pen-thickness 2))]
+         [else generic-x]))
+     (let ([generic-y (- (+ (* 1/2 size) (- (* 1/2 size (sin angle)))) size)])
+       (case (system-type)
+         [(macosx) (- generic-y (quotient pen-thickness 2))]
+         [else generic-y]))))
 
   (define (arrow/delta size angle)
-    (generic-arrow #t #t size angle))
+    (generic-arrow #t #t size angle 0))
   (define (arrow size angle)
     (let-values ([(p dx dy) (arrow/delta size angle)])
       p))
 
-  (define (arrowhead/delta size angle)
-    (generic-arrow #f #t size angle))
+  (define (arrowhead/delta pen-thickness size angle)
+    (generic-arrow #f #t size angle pen-thickness))
   (define (arrowhead size angle)
-    (let-values ([(p dx dy) (arrowhead/delta size angle)])
+    (let-values ([(p dx dy) (arrowhead/delta 0 size angle)])
       p))
 
   (define (arrow-line dx dy size)
-    (let-values ([(a adx ady) (arrowhead/delta size (atan dy dx))])
+    (let-values ([(a adx ady) (arrowhead/delta 0 size (atan dy dx))])
       (picture
        0 0
        `((connect 0 0 ,dx ,dy)
@@ -517,7 +523,7 @@
 
   (define (-add-line base src find-src dest find-dest thickness color arrow-size arrow2-size)
     (let-values ([(sx sy) (find-src base src)]
-		 [(dx dy) (find-dest base dest)])
+                 [(dx dy) (find-dest base dest)])
       (cc-superimpose
        base
        (let ([p (cons-picture
@@ -525,7 +531,8 @@
 		 `((connect ,sx ,sy ,dx ,dy)
 		   ,@(if arrow-size
 			 (let-values ([(arrow xo yo)
-				       (arrowhead/delta 
+				       (arrowhead/delta
+                                        (or thickness 0)
 					arrow-size 
 					(atan (- dy sy) 
 					      (- dx sx)))])
@@ -533,7 +540,8 @@
 			 null)
 		   ,@(if arrow2-size
 			 (let-values ([(arrow xo yo)
-				       (arrowhead/delta 
+				       (arrowhead/delta
+                                        (or thickness 0)
 					arrow-size 
 					(atan (- sy dy) 
 					      (- sx dx)))])
