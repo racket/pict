@@ -532,7 +532,7 @@ it should be.]
                           ; w h color-string -> pict
 
   ;; Creates a MacOS-like file icon, optionally shaded
-> file-icon               ; w h gray ->pict
+> file-icon               ; w h gray [fancy?] ->pict
                           ;   gray = #f -> white
                           ;   gray = #t -> default color
                           ;   gray = color/string -> uses color
@@ -545,6 +545,38 @@ it should be.]
   ;; scale while drawing the pict.
 > scale                   ; pict factor -> pict
 > scale                   ; pict x-factor y-factor -> pict
+
+  ;; Scales a color, making it brighter or darker. If the
+  ;; factor is < 1, the color is darkened by multiplying
+  ;; the RGB components by the factor. If the factor is > 1,
+  ;; the color is lightened by dividing the gap between
+  ;; the RGB components and 255 by the factor.
+> scale-color             ; factor string-or-color% -> color%
+
+  ;; Gets an immutable pen% from the-pen-list
+> find-pen                ; string-or-color% [size [style]] -> pen%
+                          ;   size defaults to 1
+                          ;   style defaults to 'solid
+
+  ;; Gets an immutable brush from the-brush-list
+> find-brush              ; string-or-color% [style] -> brush%
+                          ;   style defaults to 'solid
+
+
+  ;; Calls a drawing function multiple times, gradually
+  ;; changing the pen/brush color for each call. The
+  ;; step count and step delta should be exact numbers;
+  ;; the procedure is called with each number from 0 to 
+  ;; the step count, using the step delta. For the first
+  ;; call, the current pen and/or brush color matches the
+  ;; starting color; for the last call, it matches the
+  ;; ending color; and for intermediate calls, the color
+  ;; is an intermediate color.
+> color-series            ; dc<%> num-steps step-delta
+                          ;  start-color-or-string%
+                          ;  end-color-or-string%
+                          ;  (num -> any)
+                          ;  set-pen? set-brush?
 
 ------------------------------------------------------------
 _slideshow-run.ss_ and _slideshow.ss_
@@ -758,10 +790,10 @@ Procedure Reference
 > (page-para* ielement ...) - Like `para*', except that the width
    is `client-w' (see below).
 
-> (subitem width-n ielement ...)
-> (subitem* width-n ielement ...)
-> (page-subitem ielement ...)
-> (page-subitem* ielement ...)
+> (item width-n ielement ...)
+> (item* width-n ielement ...)
+> (page-item ielement ...)
+> (page-item* ielement ...)
   Like `para, etc., except that a bullet is placed in front of the
   paragraph, and the paragraph is indented on the left.
 
@@ -799,15 +831,24 @@ Procedure Reference
 > (comment string ...) - Concatenated the strings, to be used as a
   slide element for (usually hidden) commentary.
 
-> (make-outline { symbol string-or-pict subitems } ...)  - Returns a
+> (make-outline { symbol/s string-or-pict subitems } ...)  - Returns a
   function that takes a symbol and generates an outline slide. Each
-  trio of arguments defines a section for the outline; the symbol
-  names the section, and when the outline function is called later to
-  make an outline, the given symbol is compared to the section's
-  symbol; the string-or-pict is used as the displayed name of the
-  section; the subitems can #f/null or a pict to show as a sub-item
-  when the section is active (i.e., its symbol is provided to the
-  outline-making function).
+  trio of arguments defines a section for the outline:
+
+   - The symbol/s names the section, either with a single symbol or a
+     list of symbols. When the outline function is called later to
+     make an outline, the given symbol is compared to the section's
+     symbol(s), and the section is marked as current if the symbol
+     matches.
+
+   - The string-or-pict is used as the displayed name of the
+     section.
+
+   - The subitems are displayed when the section is active. It can be
+     #f or null (for historical reasons) if no subitems are to be
+
+     displayed. Otherwise, it should be a procedure that takes a symbol
+     (the same one passed to the outline maker) and produces a pict.
 
 > font-size - The default font size; it can be set through a
   command-line flag, or through a 'slideshow:base-font-size
