@@ -894,6 +894,12 @@ Procedure Reference
   Like `para, etc., except that a bullet is placed in front of the
   paragraph, and the paragraph is indented on the left.
 
+> (item/bullet bullet-pict width-n ielement ...)
+> (item*/bullet bullet-pict width-n ielement ...)
+> (page-item/bullet bullet-pict ielement ...)
+> (page-item*/bullet bullet-pict ielement ...)
+  Like `item', etc., but with a given bullet pict.
+
 > (subitem width-n ielement ...)
 > (subitem* width-n ielement ...)
 > (page-subitem ielement ...)
@@ -1040,3 +1046,13 @@ implements an interactive browser for face configurations.
       - eyebrow-dy adjusts the eyebrows; recommend values: between -5 and 5
       - pupil-dx adjusts the pupil; recommend values: between -10 and 10
       - pupil-dy adjusts the pupil; recommend values: between -15 and 15
+
+------------------------------------------------------------
+_code.ss_ and _slide-code.ss_
+------------------------------------------------------------
+
+The "code.ss" module provides a unit for typesetting Scheme code a la
+SlaTeX, and "slide-code.ss" invokes this module in a context suitable
+for Slideshow use.
+
+These modules are still evolving. Watch this space for details.
