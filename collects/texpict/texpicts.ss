@@ -89,7 +89,7 @@
    launder  ; pict -> pict
 
    ;; Create an empty pict
-   empty        ; w h -> pict
+   blank        ; w h -> pict
 
    ;; Create picts
    tex               ; string -> pict
