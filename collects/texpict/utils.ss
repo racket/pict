@@ -28,6 +28,8 @@
 	   add-line
 	   add-arrow-line
 
+	   bitmap
+
 	   scale)
 
   (define cons-colorized-picture
@@ -287,6 +289,15 @@
       (add-arrow-line arrow-size base src find-src dest find-dest thickness #f)]
      [(arrow-size base src find-src dest find-dest thickness color)
       (-add-line base src find-src dest find-dest thickness color arrow-size)]))
+
+  (define (bitmap filename)
+    (let ([bm (make-object bitmap% filename)])
+      (let ([w (send bm get-width)]
+	    [h (send bm get-height)])
+	(dc
+	 (lambda (dc x y)
+	   (send dc draw-bitmap bm x y))
+	 w h 0 0))))
 
   (define (scale p factor)
     (let ([drawer (make-pict-drawer p)])
