@@ -198,7 +198,10 @@
    cons-picture ; pict command-list -> pict
 
    ;; Generate the LaTeX code for a pict.
-   pict->string))
+   pict->string
+
+   ;; Parameter to use the old implementation of `connect'.
+   use-old-connect))
 
 #|
 
@@ -211,26 +214,39 @@ commands:
 
    `(place ,x ,y ,pict)
    `(put ,x ,y ,putable)
-   `(connect ,x1 ,y1 ,x2 ,y2 ,bool)        ; line or vector; bool => vector;
-                                           ;   from (x1,y1) to (~x2,~y2)
-                                           ;   as close as possible
-   `(dconnect ,x ,y ,dx ,dy ,bool)         ; line or vector; bool => vector;
-                                           ;   from (x,y) to (~(x+dx),~(y+dy))
-   `(connect~y ,x1 ,y2 ,x2 ,y2 ,tol ,bool) ; sequence of lines from
-                                           ;  (~x1,~y1) to (~x2,~y2) where
-                                           ;  either: 
-                                           ;    1) ~x2=x2 and |~y2-y2|<d
-                                           ;    2) ~y2=y2 and |~x2-x2|<d and 
-                                           ;       the final line is vertical
-   `(connect~x ,x1 ,y2 ,x2 ,y2 ,tol ,bool) ; like ~connect, but either:
-                                           ;    1) ~x2=x2 and |~y2-y2|<d
-                                           ;       the final line is horizontal
-                                           ;    2) ~y2=y2 and |~x2-x2|<d
-   `(curve ,x1 ,y1 ,x2 ,y2 ,xc ,yc ,d)     ; bezier curve; d is optional density;
-                                           ;  default d is 1.0
+   `(connect ,x1 ,y1 ,x2 ,y2 ,bool)         ; line or vector; bool => vector;
+                                            ;   from (x1,y1) to (~x2,~y2)
+                                            ;   as close as possible
+                                            ;   (synonym for connect~xy with 
+                                            ;   an infinite tolerance when
+                                            ;   draw-bezier-lines is #f, or
+                                            ;   for curve when draw-bezier-lines
+                                            ;   is #t)
+   `(dconnect ,x ,y ,dx ,dy ,bool)          ; line or vector; bool => vector;
+                                            ;   from (x,y) to (~(x+dx),~(y+dy))
+                                            ;   as close as possible (uses
+                                            ;   connect)
+   `(connect~y ,tol ,x1 ,y2 ,x2 ,y2 ,bool)  ; sequence of lines from
+                                            ;  (~x1,~y1) to (~x2,~y2) where
+                                            ;  either: 
+                                            ;    1) ~x2=x2 and |~y2-y2|<tol
+                                            ;    2) ~y2=y2 and |~x2-x2|<tol and 
+                                            ;       the final line is vertical
+   `(connect~x ,tol ,x1 ,y2 ,x2 ,y2 ,bool)  ; like connect~y, but either:
+                                            ;    1) ~x2=x2 and |~y2-y2|<tol
+                                            ;       the final line is horizontal
+                                            ;    2) ~y2=y2 and |~x2-x2|<tol
+   `(connect~xy ,tol ,x1 ,y2 ,x2 ,y2 ,bool) ; like connect~y, but either:
+                                            ;    1) ~x2=x2 and |~y2-y2|<tol
+                                            ;       the final line is horizontal
+                                            ;    2) ~y2=y2 and |~x2-x2|<tol
+                                            ;       the final line is vertical
+                                            ;    3) |(x2,y2)-(~x2,~y2)|<tol
+   `(curve ,x1 ,y1 ,x2 ,y2 ,xc ,yc ,d)      ; bezier curve; d is optional density;
+                                            ;  default d is 1.0
 
-  [Notes: connect~{x,y} can be much faster than connect; curve can generate
-          more precise lines, but usually requires more LaTeX memory.]
+  [Notes: curve can generate more precise lines than connect~, but it usually 
+          requires more LaTeX memory.]
 
 putables:
 
