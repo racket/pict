@@ -63,6 +63,10 @@
    ;; with bezier curves. It be a boolean or a procedure that takes
    ;; a lenght and returns the number of points to use
    draw-bezier-lines
+   
+   ;; Parameter specifying whether to draw in B&W or color (when
+   ;; `colorize' is used)
+   black-and-white
 
    ;; Find an embedded picture; see bottom for the definition of pict-path
    find-lt  ; (left & top)  ; pict pict-path -> dx dy
@@ -119,7 +123,7 @@
    ; but uses the child's size
    ghost        ; pict -> pict
 
-   record       ; pict pict-list -> pict
+   record       ; pict pict ... -> pict
 
    vl-append    ; d pict ... -> pict
    vc-append
@@ -163,6 +167,8 @@
    ;; the column or row.
    ;;
    table ; ncols pict-list col-aligns row-aligns col-seps row-seps -> pict
+
+   colorize ; pict color-string -> pict
 
    ;; Desribe a picture with low-level commands; see below
    picture      ; w h command-list -> pict
