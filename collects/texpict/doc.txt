@@ -39,6 +39,10 @@ which accepts a string of arbitrary LaTeX code, and the MrEd set
 includes `prog-picture', which accepts an arbitrary Scheme procedure
 for drawing to a dc<%>.
 
+When creating pictures with `picture' or `cons-picture', or when
+finding relative picture locations with `find-lt', etc., the coordiate
+system is upside-down: (0, 0) is in the lower left.
+
 MrEd (or PostScript) output
 ---------------------------
 
