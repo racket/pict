@@ -234,15 +234,15 @@ Procedures
    ;; -- MrEd only --
    ;; Create a pict from a string, style, and size.
    ;;  A style is one of
-   ;;    null (the default),
+   ;;    null (the default, same a 'default),
    ;;    a font% object,
-   ;;    a font family symbol (e.g., 'symbol),
-   ;;    a font face string (e.g., "-*-symbol"),
+   ;;    a font family symbol (e.g., 'roman),
+   ;;    a font face string (e.g., "-adobe-symbol"),
    ;;    `(bold . ,style),
    ;;    `(italic . ,style), 
-   ;;    `(subscript . ,style),
-   ;;    or `(supersript . ,style).
-   ;;  A size is an exact number in [1,255]; the
+   ;;    `(subscript . ,style), or
+   ;;    `(supersript . ,style).
+   ;;  A size is an exact number in [1, 255]; the
    ;;   default size is 12, but the size is ignored if
    ;;   a font% object is provided in the style.
 >  text     ; string [style [size]] -> pict
