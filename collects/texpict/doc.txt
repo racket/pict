@@ -947,7 +947,8 @@ _face.ss_
 ------------------------------------------------------------
 
 The "face.ss" module provides functions for a kind of
-Mr.-Potatohead-style face library.
+Mr.-Potatohead-style face library. The _face-demo.ss_ module
+implements an interactive browser for face configurations.
 
 > default-face-color - orange
 
