@@ -104,10 +104,20 @@
 		  (when tongue?
 		    (let ([rgn (make-object region% dc)])
 		      (smile w h 2 0 rgn 0 flip?)
+		      (unless flip?
+			;; Invert region:
+			(let ([rgn2 (make-object region% dc)])
+			  (send rgn2 set-rectangle x y w h)
+			  (send rgn2 subtract rgn)
+			  (set! rgn rgn2)))
 		      (send dc set-clipping-region rgn)
 		      (send dc set-pen no-pen)
-		      (let ([dx (+ x (* 1/3 w))]
-			    [dy (+ y (* 1/2 h))]
+		      (let ([dx (+ x (if flip?
+					 (* 1/3 w)
+					 (* 1/2 w)))]
+			    [dy (+ y (if flip?
+					 (* 1/2 h)
+					 (* 13/20 h)))]
 			    [tw (* 1/5 w)]
 			    [th (* 1/4 h)])
 		      (series dc 3

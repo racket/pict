@@ -47,7 +47,9 @@
            color-series
            scale-color
 	   scale
-	   scale/improve-new-text)
+	   scale/improve-new-text
+
+	   inset/clip)
 
   (define (re-pict box naya)
     (let ([w (pict-width box)]
@@ -838,6 +840,34 @@
 		     (pict-descent new)
 		     (list (make-child p 0 0 x-factor y-factor)))))]
      [(p factor) (scale p factor factor)]))
+
+  (define inset/clip
+    (case-lambda
+     [(p l t r b)
+      (let* ([p (inset p l t r b)]
+	     [drawer (make-pict-drawer p)]
+	     [w (pict-width p)]
+	     [h (pict-height p)])
+	(let ([new
+	       (dc
+		(lambda (dc x y)
+		  (let ([rgn (make-object region% dc)])
+		    (send rgn set-rectangle x y w h)
+		    (let ([r (send dc get-clipping-region)])
+		      (when r
+			(send rgn intersect r))
+		      (send dc set-clipping-region rgn)
+		      (drawer dc x y)
+		      (send dc set-clipping-region r))))
+		w h (pict-ascent p) (pict-descent p))])
+	  (make-pict (pict-draw new)
+		     (pict-width new)
+		     (pict-height new)
+		     (pict-ascent new)
+		     (pict-descent new)
+		     (list (make-child p 0 0 1 1)))))]
+     [(p h v) (inset/clip h v h v)]
+     [(p a) (inset/clip a a a a)]))
   
   (define-syntax scale/improve-new-text
     (syntax-rules ()

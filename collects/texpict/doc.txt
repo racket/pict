@@ -617,6 +617,12 @@ The _utils.ss_ library provides additional drawing procedures for MrEd
 > (scale/improve-new-text pict-expr s-expr)
 > (scale/improve-new-text pict-expr sx-expr sy-expr)
 
+  ;; Insets and clips the pict's drawing to its
+  ;; bounding box. (Usually the inset amounts are negative.)
+> (inset/clip pict amt)
+> (inset/clip pict h-amt v-amt)
+> (inset/clip pict l-amt t-amt r-amt b-amt)
+
   ;; Scales a color, making it brighter or darker. If the
   ;; factor is < 1, the color is darkened by multiplying
   ;; the RGB components by the factor. If the factor is > 1,
