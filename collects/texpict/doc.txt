@@ -145,7 +145,7 @@ Structures
 
 A pict is an instance of the `pict' structure type:
 
-> struct:pict :: (struct pict (draw width height ascent descent children))
+> struct:pict :: (struct pict (draw width height ascent descent children panbox))
 
 The `children' field is a list of `child' structures:
 
@@ -325,8 +325,8 @@ Procedures
 >  refocus        ; pict pict -> pict
 
    ;; Given a pict, shifts the given pict's bounding box
-   ;;  to enclose the bounding boxes of all unlaundered
-   ;;  sub-picts
+   ;;  to enclose the bounding boxes of all sub-picts
+   ;;  (laundered or not)
 >  panorama      ; pict -> pict
 
 >  hline        ; w h -> pict

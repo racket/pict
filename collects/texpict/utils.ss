@@ -64,7 +64,8 @@
       (make-pict (pict-draw naya)
 		 w h
 		 a d
-		 (list (make-child box 0 0 1 1)))))
+		 (list (make-child box 0 0 1 1))
+		 #f)))
   
   (define cons-colorized-picture
     (lambda (p color cmds)
@@ -862,7 +863,8 @@
 		     (pict-height new)
 		     (pict-ascent new)
 		     (pict-descent new)
-		     (list (make-child p 0 0 x-factor y-factor)))))]
+		     (list (make-child p 0 0 x-factor y-factor))
+		     #f)))]
      [(p factor) (scale p factor factor)]))
 
   (define inset/clip
@@ -889,7 +891,8 @@
 		     (pict-height new)
 		     (pict-ascent new)
 		     (pict-descent new)
-		     (list (make-child p 0 0 1 1)))))]
+		     (list (make-child p 0 0 1 1))
+		     #f)))]
      [(p h v) (inset/clip h v h v)]
      [(p a) (inset/clip a a a a)]))
   
