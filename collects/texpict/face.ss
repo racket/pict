@@ -163,9 +163,11 @@
                                [(tmp-rgn2) (make-object region% dc)]
                                [(dy) (+ ddy (/ (- h (if flip? (+ th (abs (- bh th))) th)) 2))])
                     ;; Teeth:
-                    (smile tw th 0 ta tmp-rgn1 dy flip?)
+                    (smile tw th 0 ta (box tmp-rgn1) dy flip?)
                     (smile bw bh 0 ba (box tmp-rgn2) dy flip?)
                     (send tmp-rgn1 subtract tmp-rgn2)
+		    (send tmp-rgn2 set-rectangle x (+ y (* 1/2 h)) w (if flip? (* 1/4 h) h))
+		    (send tmp-rgn1 intersect tmp-rgn2)
                     (send dc set-clipping-region tmp-rgn1)
                     (teeth)
                     (send dc set-clipping-region #f)
@@ -191,9 +193,11 @@
                                [(dy) (/ (- h th) 2)]
                                [(elx ely) (values (+ x (* w 0.27)) (+ y (* h 0.65) (if flip? 3 1)))])
                     ;; Teeth:
-                    (smile tw th 0 ta tmp-rgn1 (+ (if flip? -30 0) dy) flip?)
-                    (smile tw th 0 ta (box tmp-rgn2) (+ (if flip? 0 -30) dy) flip?)
+                    (smile tw th 0 ta (box tmp-rgn1) (+ (if flip? -30 0) dy) flip?)
+		    (smile tw th 0 ta (box tmp-rgn2) (+ (if flip? 0 -30) dy) flip?)
                     (send tmp-rgn1 subtract tmp-rgn2)
+                    (send tmp-rgn2 set-rectangle (+ elx 15) y (- w (* 2 (- elx x)) 30) h)
+		    (send tmp-rgn1 intersect tmp-rgn2)
                     (send tmp-rgn2 set-ellipse elx ely 30 30)
                     (send tmp-rgn1 union tmp-rgn2)
                     (send tmp-rgn2 set-ellipse (- (+ x w) (- elx x) 30) ely 30 30)
