@@ -175,7 +175,6 @@
 	  (send dc draw-ellipse x y size size))
 	size size 0 0))
 
-
   (define cloud
     (case-lambda
      [(w h) (cloud w h "gray")]
