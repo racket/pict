@@ -71,12 +71,12 @@
       (define (add-close p closes)
 	(cond
 	 [(null? closes) p]
-	 [(memq (car closes) '(comment line))
+	 [(memq (car closes) '(contract line))
 	  (add-close p (cdr closes))]
 	 [else
 	  (add-close (hbl-append p (case (car closes)
 				     [(literal) close-paren/lit-p]
-				     [(template) close-paren/tmpl-p]
+				     [(template comment) close-paren/tmpl-p]
 				     [(cond template-cond local) close-sq-p]
 				     [else close-paren-p]))
 		     (cdr closes))]))
@@ -132,6 +132,7 @@
 	(case mode
 	  [(line cond local) #f]
 	  [(template-cond) 'template]
+	  [(contract) 'comment]
 	  [else mode]))
 
       (define (cond? s)
@@ -145,6 +146,12 @@
 	  [code:blank 1]
 	  [_ (or (syntax-span stx) 1)]))
       
+      (define (add-semis p)
+	(let loop ([p p] [semis semi-p])
+	  (if ((pict-height p) . > . (pict-height semis))
+	      (loop p (vl-append line-sep semi-p semis))
+	      (htl-append semis p))))
+
       (define (typeset-code stx)
 	(let loop ([stx stx][closes null][mode #f])
 	  (syntax-case stx (quote syntax-unquote syntax
@@ -158,18 +165,15 @@
 	    [(syntax x)
 	     (htl-append syntax-p (loop #'x closes mode))]
 	    [(code:contract i ...)
-	     (htl-append semi-p (loop (datum->syntax-object #f (syntax->list #'(i ...)))
-				      closes 'comment))]
+	     (add-semis (loop (datum->syntax-object #f (syntax->list #'(i ...)))
+			      closes 'contract))]
 	    [(code:line i ...)
 	     (loop (datum->syntax-object #f (syntax->list #'(i ...)))
 		   closes 'line)]
 	    [(code:comment s)
 	     (htl-append semi-p (maybe-colorize (tt (syntax-e #'s)) comment-color))]
 	    [(code:template i)
-	     (let loop ([p (loop #'i closes 'template)] [semis semi-p])
-	       (if ((pict-height p) . > . (pict-height semis))
-		   (loop p (vl-append line-sep semi-p semis))
-		   (htl-append semis p)))]
+	     (add-semis (loop #'i closes 'template))]
 	    [(i ...)
 	     (let ([is (syntax->list #'(i ...))])
 	       ;; Convert each i to a picture, include close paren in last item:
@@ -194,8 +198,8 @@
 			      [ps ips]
 			      [line-so-far (case mode
 					     [(literal) open-paren/lit-p]
-					     [(template) open-paren/tmpl-p]
-					     [(comment line) (blank)]
+					     [(template comment) open-paren/tmpl-p]
+					     [(contract line) (blank)]
 					     [(cond template-cond local) open-sq-p]
 					     [else open-paren-p])]
 			      [col (+ left 1)]

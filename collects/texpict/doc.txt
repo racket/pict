@@ -229,7 +229,7 @@ Procedures
 >  tex-paragraph     ; w string ['top|'bottom] -> pict
 
    ;; -- MrEd only --
-   ;; Create a pict from a string, style, and size.
+   ;; Create a pict from a string, style, size, and rotation.
    ;;  A style is one of
    ;;    null (the default, same a 'default),
    ;;    a font% object,
@@ -242,7 +242,10 @@ Procedures
    ;;  A size is an exact number in [1, 255] in pixels; the
    ;;   default size is 12, but the size is ignored if
    ;;   a font% object is provided in the style.
->  text      ; string [style [size]] -> pict
+   ;;  The default rotation is 0; for a non-zero rotation,
+   ;;   the pict covers the rotated text, and the descent
+   ;;   and ascent are zero.
+>  text      ; string [style [size [angle]]] -> pict
    ;; Same, but use small caps:
 >  caps-text ; string [style [size]] -> pict
    ;; A parameter used to refine text measurements to better
