@@ -619,7 +619,9 @@
               (color-series
                dc 4 1
                dark-color color
-               (lambda (i)
+               (lambda (ii)
+		 (define i (* ii (min 1 (* w 1/100))))
+
                  (send dc draw-polygon (list (make-object point% (flip-rel (+ (* 1/2 w) i)) (* 1/10 h))
                                              (make-object point% (flip-rel (- (* 3/4 w) i)) (+ 0 i))
                                              (make-object point% (flip-rel (- (* 3/4 w) i)) (- (* 2/10 h) i)))
@@ -656,11 +658,12 @@
               (color-series
                dc 4 1
                dark-color color
-               (lambda (i)
-                 (send dc draw-polygon (list (make-object point% (flip-rel (+ (* 1/2 w) i)) (/ h 2))
-                                             (make-object point% (flip-rel (- (* 5/8 w) i)) (+ (* 1/4 h) i))
-                                             (make-object point% (flip-rel (- (* 5/8 w) i)) (- (* 3/4 h) i)))
-                       x y))
+               (lambda (ii)
+		 (define i (* ii (min 1 (* w 1/100))))
+		 (send dc draw-polygon (list (make-object point% (flip-rel (+ (* 1/2 w) i)) (/ h 2))
+					     (make-object point% (flip-rel (- (* 5/8 w) i)) (+ (* 1/4 h) i))
+					     (make-object point% (flip-rel (- (* 5/8 w) i)) (- (* 3/4 h) i)))
+		       x y))
                #f #t)
               (when eye-color
 		(if (eq? eye-color 'x)
