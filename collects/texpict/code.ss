@@ -4,16 +4,21 @@
            (lib "mred.ss" "mred")
 	   (lib "unitsig.ss"))
 
-  (provide code code^ code-params^ code@)
+  (provide define-code code^ code-params^ code@)
 
-  (define-syntax (code stx)
-    (with-syntax ([typeset-code (datum->syntax-object stx 'typeset-code)])
-      (syntax-case stx ()
-	[(_ expr) (syntax/loc stx
-		    (typeset-code (quasisyntax ((... ...) expr))))]
-	[(_ expr ...) (syntax/loc stx
-			(typeset-code (quasisyntax (code:line ((... ...) expr) ...))))])))
-      
+  (define-syntax (define-code stx)
+    (syntax-case stx ()
+      [(_ code typeset-code)
+       (syntax/loc stx
+	 (define-syntax (code stx)
+	   (syntax-case stx ()
+	     [(_ expr) (syntax/loc stx
+			 (typeset-code (quasisyntax (((... ...) (... ...)) expr))))]
+	     [(_ expr (... ...) )
+	      (syntax/loc stx
+		(typeset-code (quasisyntax 
+			       (code:line (((... ...) (... ...)) expr) (... ...)))))])))]))
+    
   (define-signature code^
     (typeset-code 
      comment-color keyword-color id-color literal-color
