@@ -33,6 +33,11 @@
 
 	   bitmap
 
+           find-pen
+           find-brush
+           
+           color-series
+           scale-color
 	   scale)
 
   (define (re-pict box naya)
@@ -233,7 +238,7 @@
        w h 0 0)]))
 
   (define file-icon
-    (opt-lambda (w h gray [border "black"])
+    (opt-lambda (w h gray [fancy? #f])
       (dc
        (let* ([sw (lambda (x) (* (/ w 110) x))]
 	      [sh (lambda (y) (* (/ h 150) y))]
@@ -247,16 +252,21 @@
 	   (define p (send dc get-pen))
 	   (define b (send dc get-brush))
 
-	   (let ([color (send the-brush-list
-			      find-or-create-brush
-			      (cond
-			       [(or (string? gray) (is-a? gray color%)) gray]
-			       [gray (make-object color% 200 200 255)]
-			       [else "white"])
-			      'solid)])
+	   (let* ([bg-color (cond
+                                 [(or (string? gray) (is-a? gray color%)) gray]
+                                 [gray (make-object color% 200 200 255)]
+                                 [else "white"])]
+                  [line-color (if fancy?
+                                  (scale-color 0.6 bg-color)
+                                  "black")]
+                  [color (send the-brush-list
+                               find-or-create-brush
+                               bg-color
+                               'solid)])
 
 	     (send dc set-pen (send the-pen-list 
-				    find-or-create-pen border
+				    find-or-create-pen 
+                                    line-color
 				    (send p get-width)
 				    'solid))
 	     (send dc set-brush color)
@@ -269,10 +279,10 @@
 			   (90 0)))
 		   x y)
 
-	     (send dc draw-line (+ x (sw 90)) y (+ x (sw 90)) (+ y (sh 20)))
-	     (send dc draw-line (+ x (sw 90)) (+ y (sh 20)) (+ x (sw 110)) (+ y (sh 20))))
+             (send dc draw-line (+ x (sw 90)) (+ y 1) (+ x (sw 90)) (+ y (sh 20)))
+             (send dc draw-line (+ x (sw 90)) (+ y (sh 20)) (+ x (sw 110) -1) (+ y (sh 20))))
 	   
-	   (send dc set-brush b)
+           (send dc set-brush b)
 	   (send dc set-pen p)))
        w h 0 0)))
 
@@ -443,7 +453,47 @@
 	 (lambda (dc x y)
 	   (send dc draw-bitmap bm x y))
 	 w h 0 0))))
+  
+  (define find-brush
+    (opt-lambda (color [style 'solid])
+      (send the-brush-list find-or-create-brush color style)))
+  (define find-pen
+    (opt-lambda (color [size 1] [style 'solid])
+      (send the-pen-list find-or-create-pen color size style)))  
 
+  (define (color-series dc steps dstep start-c end-c f pen? brush?)
+    (let ([sr (send start-c red)]
+          [sg (send start-c green)]
+          [sb (send start-c blue)]
+          [er (send end-c red)]
+          [eg (send end-c green)]
+          [eb (send end-c blue)]
+          [c (make-object color%)]
+          [s (lambda (start end i)
+               (floor (+ start (* (- end start) (/ i steps)))))])
+      (let loop ([i 0])
+        (send c set (s sr er i) (s sg eg i) (s sb eb i))
+        (when brush?
+          (send dc set-brush (find-brush c)))
+        (when pen?
+          (send dc set-pen (find-pen c)))
+        (f i)
+        (unless (= i steps)
+          (loop (+ dstep i))))))
+  
+  (define (scale-color s c)
+    (let ([c (if (string? c)
+                 (make-object color% c)
+                 c)])
+      (let ([s (lambda (v)
+                 (if (> s 1)
+                     (- 255 (inexact->exact (floor (/ (- 255 v) s))))
+                     (min 255 (inexact->exact (floor (* v s))))))])
+        (make-object color%
+          (s (send c red))
+          (s (send c green))
+          (s (send c blue))))))
+  
   (define scale
     (case-lambda
      [(p x-factor y-factor)
