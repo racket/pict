@@ -134,7 +134,8 @@
    ;; Creates a fairly round circle using four splines:
    big-circle   ; diameter -> pict
 
-   ;; Set the line thickness for a picture:
+   ;; Set the line thickness for a picture (does not apply to
+   ;; slanted lines)
    thick       ; pict -> pict
    thin        ; pict -> pict
 
