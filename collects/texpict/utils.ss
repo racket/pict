@@ -319,25 +319,28 @@
 	   (send dc draw-bitmap bm x y))
 	 w h 0 0))))
 
-  (define (scale p factor)
-    (let ([drawer (make-pict-drawer p)])
-      (dc
-       (lambda (dc x y)
-	 (define (reset-pen)
-	   (let ([p (send dc get-pen)])
-	     (send dc set-pen (send the-pen-list
-				    find-or-create-pen
-				    "white" 1 'transparent))
-	     (send dc set-pen p)))
-	 (let-values ([(xs ys) (send dc get-scale)])
-	   (send dc set-scale (* xs factor) (* ys factor))
-	   (reset-pen)
-	   (drawer dc
-		   (/ x factor)
-		   (/ y factor))
-	   (send dc set-scale xs ys)
-	   (reset-pen)))
-       (* (pict-width p) factor)
-       (* (pict-height p) factor)
-       (* (pict-ascent p) factor)
-       (* (pict-descent p) factor)))))
+  (define scale
+    (case-lambda
+     [(p x-factor y-factor)
+      (let ([drawer (make-pict-drawer p)])
+	(dc
+	 (lambda (dc x y)
+	   (define (reset-pen)
+	     (let ([p (send dc get-pen)])
+	       (send dc set-pen (send the-pen-list
+				      find-or-create-pen
+				      "white" 1 'transparent))
+	       (send dc set-pen p)))
+	   (let-values ([(xs ys) (send dc get-scale)])
+	     (send dc set-scale (* xs x-factor) (* ys y-factor))
+	     (reset-pen)
+	     (drawer dc
+		     (/ x x-factor)
+		     (/ y y-factor))
+	     (send dc set-scale xs ys)
+	     (reset-pen)))
+	 (* (pict-width p) x-factor)
+	 (* (pict-height p) y-factor)
+	 (* (pict-ascent p) y-factor)
+	 (* (pict-descent p) y-factor)))]
+     [(p factor) (scale p factor factor)])))

@@ -541,3 +541,4 @@ it should be.]
   ;; Scales a pict (by adjusting the destination dc<%>'s
   ;; scale while drawing the pict.
 > scale                   ; pict factor -> pict
+> scale                   ; pict x-factor y-factor -> pict
