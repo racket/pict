@@ -1,5 +1,7 @@
-(module balloon (lib "slideshow.ss" "texpict")
-  (require (lib "mred.ss" "mred")
+(module balloon mzscheme
+  (require "mrpict.ss"
+	   "utils.ss"
+	   (lib "mred.ss" "mred")
            (lib "class.ss")
            (lib "etc.ss")
            (lib "math.ss"))
@@ -119,12 +121,14 @@
 
   (define balloon-color (make-object color% 255 255 170))
   
+  (define corner-size 32)
+
   (define wrap-balloon
     (opt-lambda (p corner dx dy [color balloon-color])
-      (let ([b (mk-balloon (+ (pict-width p) (* 2 font-size))
-			   (+ (pict-height p) font-size)
-			   (if (> (pict-height p) font-size)
-			       font-size
+      (let ([b (mk-balloon (+ (pict-width p) (* 2 corner-size))
+			   (+ (pict-height p) corner-size)
+			   (if (> (pict-height p) corner-size)
+			       corner-size
 			       -0.4)
 			   corner dx dy
 			   color)])
