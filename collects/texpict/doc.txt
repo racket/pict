@@ -316,6 +316,11 @@ Procedures
                   ; pict hi vi -> pict
                   ; pict l t r b -> pict
 
+   ;; Given a pict and an embedded pict, shifts the
+   ;;  given pict's bounding box to that of the
+   ;;  embedded pict
+>  refocus        ; pict pict -> pict
+
 >  hline        ; w h -> pict
 >  dash-hline   ; w h seg-length -> pict ; default seg-length is 5
 >  vline        ; w h -> pict
