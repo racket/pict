@@ -315,8 +315,8 @@ Procedures
    ;; orthogonal direction in different ways; e.g, vl-append left-aligns
    ;; all of the pitures. A specified amount of space is inserted
    ;; between each pair of pictures in making the column or row.
->  vl-append    ; d pict ... -> pict ; d units between each picture
->  vc-append
+>  vl-append    ; [d] pict ... -> pict ; d units between each picture
+>  vc-append                           ;  default=0
 >  vr-append
 >  ht-append
 >  hc-append
