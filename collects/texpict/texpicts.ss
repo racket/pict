@@ -89,8 +89,9 @@
 
    ;; Create picts
    tex               ; string -> pict
-   text-line         ;  string -> pict
-   text-line/phantom ;  string string -> pict
+   text-line         ; string -> pict
+   text-line/phantom ; string string -> pict
+   tex-paragraph     ; w string ['top|'bottom] -> pict
 
    ;; Delimitters to go around height h (result is taller than h)
    left-brace     ; h -> pict
