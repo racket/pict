@@ -362,6 +362,10 @@ Procedures
    ;; orthogonal direction in different ways; e.g, vl-append left-aligns
    ;; all of the pitures. A specified amount of space is inserted
    ;; between each pair of pictures in making the column or row.
+   ;; The descent of the result corresponds to baseline that is lowest
+   ;; in the result among all of the picts' descent-specified
+   ;; baselines; similarly, the ascent of the result corresponds to
+   ;; the highest ascent-specified baseline.
 >  vl-append    ; [d] pict ... -> pict ; d units between each picture
 >  vc-append                           ;  default=0
 >  vr-append
@@ -373,7 +377,9 @@ Procedures
 
    ;; Make a new picture by superimposing a set of pictures. The
    ;; alignment indicators are essentially as above: horizontal
-   ;; alignment then vertical alignment.
+   ;; alignment then vertical alignment. The descent and the ascent
+   ;; of the result is also computed as above (i.e., lowest descent
+   ;; and highest ascent).
 >  lt-superimpose ; pict ... -> pict
 >  lb-superimpose
 >  lc-superimpose
