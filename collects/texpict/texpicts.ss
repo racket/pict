@@ -58,7 +58,10 @@
 
    ;; Parameter specifying whether the `pict2e' package is active
    using-pict2e-package
-   ;; Parameter specifying whether to draw precise lines with bezier curves
+
+   ;; Parameter specifying whether to draw precise lines for `connect'
+   ;; with bezier curves. It be a boolean or a procedure that takes
+   ;; a lenght and returns the number of points to use
    draw-bezier-lines
 
    ;; Find an embedded picture; see bottom for the definition of pict-path
@@ -110,6 +113,9 @@
    dash-frame   ; pict h seg -> pict
    oval         ; pict -> pict
    oval/radius  ; pict r -> pict
+
+   ; Make a container picture that doesn't draw the child picture,
+   ; but uses the child's size
    ghost        ; pict -> pict
 
    record       ; pict pict-list -> pict
@@ -141,6 +147,9 @@
 
    ;; Desribe a picture with low-level commands; see below
    picture      ; w h command-list -> pict
+
+   ;; Create a new picture by `cons'ing drawing commands onto
+   ;; and existing picture
    cons-picture ; pict command-list -> pict
 
    ;; Generate the LaTeX code for a pict
