@@ -778,9 +778,10 @@
   (define black-color (make-object color% 0 0 0))
 
   (define (bitmap filename)
-    (let ([bm (if (filename . is-a? . bitmap%)
-		  filename
-		  (make-object bitmap% filename 'unknown/mask))])
+    (let ([bm (cond
+	       [(filename . is-a? . bitmap%) filename]
+	       [(filename . is-a? . image-snip%) (send filename get-bitmap)]
+	       [else (make-object bitmap% filename 'unknown/mask)])])
       (if (send bm ok?)
 	  (let ([w (send bm get-width)]
 		[h (send bm get-height)])
