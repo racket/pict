@@ -232,48 +232,49 @@
 	   (send dc set-pen p)))
        w h 0 0)]))
 
-  (define (file-icon w h gray)
-    (dc
-     (let* ([sw (lambda (x) (* (/ w 110) x))]
-	    [sh (lambda (y) (* (/ h 150) y))]
-	    [->pt (lambda (l)
-		    (map (lambda (p)
-			   (make-object point% 
-					(sw (car p))
-					(sh (cadr p))))
-			 l))])
-       (lambda (dc x y)
-	 (define p (send dc get-pen))
-	 (define b (send dc get-brush))
+  (define file-icon
+    (opt-lambda (w h gray [border "black"])
+      (dc
+       (let* ([sw (lambda (x) (* (/ w 110) x))]
+	      [sh (lambda (y) (* (/ h 150) y))]
+	      [->pt (lambda (l)
+		      (map (lambda (p)
+			     (make-object point% 
+					  (sw (car p))
+					  (sh (cadr p))))
+			   l))])
+	 (lambda (dc x y)
+	   (define p (send dc get-pen))
+	   (define b (send dc get-brush))
 
-	 (let ([color (send the-brush-list
-			    find-or-create-brush
-			    (cond
-			     [(or (string? gray) (is-a? gray color%)) gray]
-			     [gray (make-object color% 200 200 255)]
-			     [else "white"])
-			    'solid)])
+	   (let ([color (send the-brush-list
+			      find-or-create-brush
+			      (cond
+			       [(or (string? gray) (is-a? gray color%)) gray]
+			       [gray (make-object color% 200 200 255)]
+			       [else "white"])
+			      'solid)])
 
-	   (send dc set-pen (send the-pen-list 
-				  find-or-create-pen "black" 
-				  (send p get-width)
-				  'solid))
-	   (send dc set-brush color)
+	     (send dc set-pen (send the-pen-list 
+				    find-or-create-pen border
+				    (send p get-width)
+				    'solid))
+	     (send dc set-brush color)
+	     
+	     (send dc draw-polygon 
+		   (->pt '((0 0)
+			   (0 150)
+			   (110 150)
+			   (110 20)
+			   (90 0)))
+		   x y)
+
+	     (send dc draw-line (+ x (sw 90)) y (+ x (sw 90)) (+ y (sh 20)))
+	     (send dc draw-line (+ x (sw 90)) (+ y (sh 20)) (+ x (sw 110)) (+ y (sh 20))))
 	   
-	   (send dc draw-polygon 
-		 (->pt '((0 0)
-			 (0 150)
-			 (110 150)
-			 (110 20)
-			 (90 0)))
-		 x y)
-
-	   (send dc draw-line (+ x (sw 90)) y (+ x (sw 90)) (+ y (sh 20)))
-	   (send dc draw-line (+ x (sw 90)) (+ y (sh 20)) (+ x (sw 110)) (+ y (sh 20))))
-	 
-	 (send dc set-brush b)
-	 (send dc set-pen p)))
-     w h 0 0))
+	   (send dc set-brush b)
+	   (send dc set-pen p)))
+       w h 0 0)))
 
   (define jack-o-lantern
     (opt-lambda (size [pumpkin-color "orange"] [face-color "black"] [stem-color "brown"])
