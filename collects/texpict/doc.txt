@@ -383,8 +383,10 @@ Procedures
 >  picture      ; w h command-list -> pict
 
    ;; Create a new picture by `cons'ing drawing commands onto
-   ;; an existing picture.
+   ;; an existing picture. `cons-picture*' maintains the pict's
+   ;; descent and ascent.
 >  cons-picture ; pict command-list -> pict
+>  cons-picture* ; pict command-list -> pict
 
    ;; -- LaTeX only --
    ;; Generate the LaTeX code for a pict.
@@ -863,7 +865,6 @@ Procedure Reference
 
    - The subitems are displayed when the section is active. It can be
      #f or null (for historical reasons) if no subitems are to be
-
      displayed. Otherwise, it should be a procedure that takes a symbol
      (the same one passed to the outline maker) and produces a pict.
 
