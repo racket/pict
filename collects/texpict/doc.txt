@@ -128,6 +128,7 @@ Procedures
 
    ;; Create an empty pict
 >  blank        ; -> pict
+                ; s -> pict ; s is side length of square
                 ; w h -> pict
                 ; w h d -> pict
 
