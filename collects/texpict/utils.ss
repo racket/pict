@@ -217,7 +217,7 @@
 		 (* 1/2 w) (* 1/2 h))
 	   (send dc draw-ellipse
 		 (+ x (* 1/5 w)) y
-		 (* 3/5 w) (* 2/5 h))
+		 (* 3/5 w) (add1 (* 2/5 h)))
 	   (send dc draw-ellipse
 		 (+ x (* 1/5 w)) (+ y (* 1/3 h))
 		 (* 3/5 w) (* 2/3 h))
