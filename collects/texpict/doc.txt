@@ -393,6 +393,18 @@ Procedures
 >  pict->string ; pict -> string
 
    ;; -- MrEd only --
+   ;; Opens a frame that displays the pict.
+   ;; The frame adds one method: 
+   ;;   set-pict : pict -> void
+   ;; that changes the visible pict.
+   ;; the optional w and h arguments must
+   ;; be either numbers of #f. If numbers,
+   ;; the window is at least that size
+   ;; and the pict is drawn in the middle of
+   ;; the window.
+>  show-pict ; pict [w h] -> void
+
+   ;; -- MrEd only --
    ;; Draw a pict to a dc<%>
 >  draw-pict ; pict dc x y -> void
 
