@@ -303,8 +303,10 @@ putables:
    `(circle* ,d)
    `(frame ,draw)
    `(colorbox ,color-str ,draw)
-   `(oval ,str ,w ,h)  ; str is portion a la LaTeX: e.g., "" or "[bl]"
-   ; plus some more
+   `(oval ,str ,w ,h)  ; str is portion a la LaTeX: e.g., "" or "[bl]";
+                       ;  the oval is centered at the put position, instead of
+                       ;  bl-aligned
+   ; plus some more undocumented ones...
 
 draws:
 
