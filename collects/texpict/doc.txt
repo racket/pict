@@ -303,7 +303,7 @@ putables:
    `(circle* ,d)
    `(frame ,draw)
    `(colorbox ,color-str ,draw)
-   `(oval ,w ,h ,str)  ; str is portion a la LaTeX: e.g., "" or "[bl]"
+   `(oval ,str ,w ,h)  ; str is portion a la LaTeX: e.g., "" or "[bl]"
    ; plus some more
 
 draws:
