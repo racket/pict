@@ -166,8 +166,8 @@ putables:
    draw
    `(line ,dh ,dv ,hlen)
    `(vector ,dh ,dv ,hlen)
-   `(circle ,r)
-   `(circle* ,r)
+   `(circle ,d)
+   `(circle* ,d)
    `(frame ,draw)
    `(colorbox ,draw)
    `(oval ,w ,h ,str) ; str is portion: e.g., "" or "[bl]"
