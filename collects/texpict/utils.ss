@@ -42,6 +42,7 @@
 	   add-arrows-line
 
 	   bitmap
+	   bitmap-draft-mode
 
            find-pen
            find-brush
@@ -428,7 +429,9 @@
 					   'solid))
 		  (send dc draw-rounded-rectangle 15 10 70 45 5)
 
-		  (when (and (list? style) (memq 'devil style))
+		  (when (and (list? style) 
+			     (or (memq 'devil style)
+				 (memq 'binary style)))
 		    (send dc set-font (make-object font% 12 'modern 'normal 'normal))
 		    (let-values ([(w h d a) (send dc get-text-extent "101010")])
 		      (let ([dx (+ (/ (- 70 w) 2) 15)]
@@ -436,32 +439,33 @@
 			(send dc draw-text "101010" dx dy)
 			(send dc draw-text "010101" dx (+ dy h 2))))
 		    
-		    (send dc set-brush (send the-brush-list
-					     find-or-create-brush
+		    (when (memq 'devil style)
+		      (send dc set-brush (send the-brush-list
+					       find-or-create-brush
+					       "red"
+					       'solid))
+		      (let ([horn (list
+				   (make-object point% 0 17)
+				   (make-object point% 2 0)
+				   (make-object point% 4 17))])
+			(send dc draw-polygon horn 30 -15)
+			(send dc draw-polygon horn 70 -15))
+		      
+		      (send dc draw-polygon (list
+					     (make-object point% 0 0)
+					     (make-object point% 10 2)
+					     (make-object point% 0 6))
+			    115 32)
+		      
+		      (send dc set-pen (send the-pen-list
+					     find-or-create-pen
 					     "red"
+					     2
 					     'solid))
-		    (let ([horn (list
-				 (make-object point% 0 17)
-				 (make-object point% 2 0)
-				 (make-object point% 4 17))])
-		      (send dc draw-polygon horn 30 -15)
-		      (send dc draw-polygon horn 70 -15))
+		      (send dc draw-line 101 55 110 55)
+		      (send dc draw-spline 110 55   130 50    110  45)
+		      (send dc draw-spline 110 45   90 40    115  35)))
 		    
-		    (send dc draw-polygon (list
-					   (make-object point% 0 0)
-					   (make-object point% 10 2)
-					   (make-object point% 0 6))
-			  115 32)
-		    
-		    (send dc set-pen (send the-pen-list
-					   find-or-create-pen
-					   "red"
-					   2
-					   'solid))
-		    (send dc draw-line 101 55 110 55)
-		    (send dc draw-spline 110 55   130 50    110  45)
-		    (send dc draw-spline 110 45   90 40    115  35))
-
 		  (send dc set-origin dx dy)
 
 		  (send dc set-pen op)
@@ -777,12 +781,15 @@
   
   (define black-color (make-object color% 0 0 0))
 
+  (define bitmap-draft-mode (make-parameter #f (lambda (x) (and x #t))))
+
   (define (bitmap filename)
     (let ([bm (cond
+	       [(bitmap-draft-mode) #f]
 	       [(filename . is-a? . bitmap%) filename]
 	       [(filename . is-a? . image-snip%) (send filename get-bitmap)]
 	       [else (make-object bitmap% filename 'unknown/mask)])])
-      (if (send bm ok?)
+      (if (and bm (send bm ok?))
 	  (let ([w (send bm get-width)]
 		[h (send bm get-height)])
 	    (dc
