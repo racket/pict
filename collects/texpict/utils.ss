@@ -188,7 +188,7 @@
 				     "white" 'transparent))
 	    (send dc draw-ellipse x y size size)
 	    (send dc set-brush b)))
-	size size 0 0))
+	size size size 0))
 
   (define (disk size)
     (dc (lambda (dc x y)
