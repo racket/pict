@@ -90,10 +90,13 @@
                        [draw-once
                         (lambda (i rr?)
                           (when rr?
-                            (send dc draw-rounded-rectangle 
+			    (send dc draw-rounded-rectangle 
                                   (+ x (/ i 2)) (+ y (/ i 2))
                                   (- w i) (- h i)
-                                  corner-radius)
+                                  (if (and (< (* 2 corner-radius) (- w i))
+					   (< (* 2 corner-radius) (- h i)))
+				      corner-radius
+				      (/ (min (- w i) (- h i)) 2)))
                             (let ([p (send dc get-pen)])
                               (send dc set-pen no-pen)
                               (send dc draw-polygon (list (make-object point% (+ x0 (* i mx0)) (+ y0 (* i my0)))
@@ -127,9 +130,7 @@
     (opt-lambda (p corner dx dy [color balloon-color])
       (let ([b (mk-balloon (+ (pict-width p) (* 2 corner-size))
 			   (+ (pict-height p) corner-size)
-			   (if (> (pict-height p) corner-size)
-			       corner-size
-			       -0.4)
+			   corner-size
 			   corner dx dy
 			   color)])
 	(make-balloon
