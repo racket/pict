@@ -123,6 +123,7 @@
      [(p seg-length color) (color-dash-frame p seg-length color #f)]))  
 
   ;; Returns three values: pict dx dy
+  ;;  dx is in [-size, 0] and dy is in [0, size]
   (define (generic-arrow stem? solid? size angle pen-thickness)
     (values
      (dc
@@ -164,14 +165,8 @@
 	  (send dc set-brush b)
 	  (send dc set-pen p)))
       size size 0 0)
-     (let ([generic-x (- (- 0 (* 1/2 size (cos angle))) (/ size 2))])
-       (case (system-type)
-         [(macosx) (+ generic-x (quotient pen-thickness 2))]
-         [else generic-x]))
-     (let ([generic-y (- (+ (* 1/2 size) (- (* 1/2 size (sin angle)))) size)])
-       (case (system-type)
-         [(macosx) (- generic-y (quotient pen-thickness 2))]
-         [else generic-y]))))
+     (- (- 0 (* 1/2 size (cos angle))) (/ size 2))
+     (- (+ (* 1/2 size) (- (* 1/2 size (sin angle)))) size)))
 
   (define (arrow/delta size angle)
     (generic-arrow #t #t size angle 0))
@@ -528,7 +523,16 @@
        base
        (let ([p (cons-picture
 		 (ghost (launder base))
-		 `((connect ,sx ,sy ,dx ,dy)
+		 `(,(let* ([angle (atan (- sy dy) 
+					(- sx dx))]
+			   [cosa (cos angle)]
+			   [sina (sin angle)]
+			   ;; If there's an arrow, line goes only half-way in
+			   [ddx (* (or arrow-size 0) 0.5 cosa)]
+			   [ddy (* (or arrow-size 0) 0.5 sina)]
+			   [dsx (* (or arrow2-size 0) 0.5 (- cosa))]
+			   [dsy (* (or arrow2-size 0) 0.5 (- sina))])
+		      `(connect ,(+ sx dsx) ,(+ sy dsy) ,(+ dx ddx) ,(+ dy ddy)))
 		   ,@(if arrow-size
 			 (let-values ([(arrow xo yo)
 				       (arrowhead/delta

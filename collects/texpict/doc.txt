@@ -511,6 +511,8 @@ it should be.]
 > filled-ellipse          ; width height -> pict
 
   ;; Creates an arrow or arrowhead in the specific direction
+  ;;  within a size x size pict. (Points on the arrow may
+  ;;  extend slightly beyond the box.)
 > arrow                   ; size radians -> pict
 > arrowhead               ; size radians -> pict
 
