@@ -1,13 +1,16 @@
 
-(require-library "refer.ss")
+(module mrpict mzscheme
+  (require (lib "unitsig.ss"))
 
-(require-library "mrpicts.ss" "texpict")
+  (require (lib "mred-sig.ss" "mred")
+	   (lib "mred.ss" "mred"))
 
-(begin-elaboration-time
- (require-library "invoke.ss"))
+  (require "mrpict-sig.ss"
+	   "mrpict-unit.ss")
 
-(define-values/invoke-unit/sig mrpict^
-  (require-library-unit/sig "mrpictr.ss" "texpict")
-  #f
-  mred^)
+  (define-values/invoke-unit/sig mrpict^
+    mrpict@
+    #f
+    mred^)
 
+  (provide-signature-elements mrpict^))
