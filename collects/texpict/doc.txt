@@ -232,24 +232,26 @@ Procedures
 >  tex-paragraph     ; w string ['top|'bottom] -> pict
 
    ;; -- MrEd only --
-   ;; Create picts from string + style, 
-   ;;  where a style can be:
-   ;;    '(), (the default)
+   ;; Create a pict from a string, style, and size.
+   ;;  A style is one of
+   ;;    null (the default),
    ;;    a font% object,
    ;;    a font family symbol (e.g., 'symbol),
    ;;    a font face string (e.g., "-*-symbol"),
-   ;;    `(bold ,style), `(italic . ,style) 
-   ;;    `(subscript . ,style), or `(supersript . ,style)
-   ;;  and the size is an exact number in [1,255],
-   ;;    the default size is 12, unless a font%
-   ;;    object is provided
->  text              ; string [style [size]] -> pict
+   ;;    `(bold . ,style),
+   ;;    `(italic . ,style), 
+   ;;    `(subscript . ,style),
+   ;;    or `(supersript . ,style).
+   ;;  A size is an exact number in [1,255]; the
+   ;;   default size is 12, but the size is ignored if
+   ;;   a font% object is provided in the style.
+>  text     ; string [style [size]] -> pict
 
    ;; -- MrEd only --
-   ;; Create a self-rendering picture.
-   ;; The arguments to the rendering procedure will be the 
+   ;; Create an arbitrary self-rendering pict.
+   ;; The arguments to the rendering procedure will be a
    ;; device context and top-left location for drawing.
->  prog-picture ; (dc dx dy -> void) w h a d -> pict
+>  dc      ; (dc<%> dx dy -> void) w h a d -> pict
 
    ;; -- LaTeX only --
    ;; Delimitters to go around height h (result is taller than h;
