@@ -270,9 +270,9 @@ Procedures
    ;; Truncates picture, removing descent part
 >  clip-descent   ; pict -> pict
 
-   ;; Raises picture relative to its baseline, extending
+   ;; Lifts picture relative to its baseline, extending
    ;;  the height if necessary
->  raise          ; pict n -> pict
+>  lift           ; pict n -> pict
 
    ;; Drops picture below its ascent line, extending
    ;;  the height if necessary
