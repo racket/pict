@@ -250,14 +250,23 @@ Procedures
    ;;    a font face string (e.g., "-adobe-symbol"),
    ;;    `(bold . ,style),
    ;;    `(italic . ,style), 
-   ;;    `(subscript . ,style), or
-   ;;    `(supersript . ,style).
+   ;;    `(subscript . ,style), 
+   ;;    `(supersript . ,style),
+   ;;    `(combine . ,style), or
+   ;;    `(no-combine . ,style).
    ;;  A size is an exact number in [1, 255] in pixels; the
    ;;   default size is 12, but the size is ignored if
    ;;   a font% object is provided in the style.
    ;;  The default rotation is 0; for a non-zero rotation,
    ;;   the pict covers the rotated text, and the descent
    ;;   and ascent are zero.
+   ;;  By default, text drawing can combine characters (to
+   ;;   form ligatures, for kerning, etc.), unless the
+   ;;   base style is 'modern. The 'combine style symbol
+   ;;   overrides the default to allow combining, and the
+   ;;   'no-combine style symbol overrides the default to
+   ;;   disable combining; if both 'combine and 'no-combine
+   ;;   are specified, the first one takes precedence
 >  text      ; string [style [size [angle]]] -> pict
    ;; Same, but use small caps:
 >  caps-text ; string [style [size]] -> pict
