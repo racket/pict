@@ -92,15 +92,37 @@
                    (* sw 2/3) (+ (if flip? 0 i) (* h 2/3))
                    (- (* pi (- 5/4 (if flip? 1 0))) da) (+ (* pi (- 7/4 (if flip? 1 0))) da)))
                 
-                (define (plain-smile flip?)
-                  (send dc set-brush no-brush)            
-                  (series dc 3
+                (define (plain-smile flip? tongue?)
+		  (send dc set-brush no-brush)
+		  (series dc 3
                           (make-object color% "black")
                           face-edge-color
                           (lambda (i)
                             (smile w h i 0 #f 0 flip?)
-                            (smile w h (- i) 0 #f 0 flip?))
-                          #t #f))
+                            (smile w h (- i) 0 #f 0 flip?)) 
+                          #t #f)
+		  (when tongue?
+		    (let ([rgn (make-object region% dc)])
+		      (smile w h 2 0 rgn 0 flip?)
+		      (send dc set-clipping-region rgn)
+		      (send dc set-pen no-pen)
+		      (let ([dx (+ x (* 1/3 w))]
+			    [dy (+ y (* 1/2 h))]
+			    [tw (* 1/5 w)]
+			    [th (* 1/4 h)])
+		      (series dc 3
+			      face-color
+			      (make-object color% "red")
+			      (lambda (i)
+				(send dc draw-ellipse dx dy (- tw i) (- th i)))
+			      #f #t)
+		      (series dc 4
+			      (make-object color% "black")
+			      (scale-color 0.6 (make-object color% "red"))
+			      (lambda (i)
+				(send dc draw-line (- (+ dx i) (* tw 1/10)) dy (+ dx (* tw 0.65)) (+ dy (* th 0.75))))
+			      #t #f)
+		      (send dc set-clipping-region #f)))))
                 
                 (define (teeth)
                   ;; Assumes clipping region is set
@@ -215,7 +237,7 @@
                    (* 0.8 w) (* h 0.9) (* 0.08 pi)
                    (* 1.0 w) (* h 0.75) (- (* 0.01 pi))
                    flip? 0))
-                
+
                 
                 (define (draw-eyes inset)
                   ;; Draw eyes
@@ -253,12 +275,13 @@
 		  [(angry) (angry-eyebrows eyebrow-dy)]
 		  [(none) (void)])
 		(case mouth-kind
-		  [(plain) (plain-smile frown?)]
+		  [(plain) (plain-smile frown? #f)]
                   [(narrow) (narrow-smile frown?)]
 		  [(medium) (medium-smile frown?)]
 		  [(large) (large-smile frown?)]
 		  [(huge) (largest-smile frown?)]
-		  [(grimace) (medium-grimace frown?)])
+		  [(grimace) (medium-grimace frown?)]
+		  [(tongue) (plain-smile frown? #t)])
                 
                 (send dc set-brush old-brush)
                 (send dc set-pen old-pen))
