@@ -239,7 +239,7 @@ Procedures
    ;;    `(italic . ,style), 
    ;;    `(subscript . ,style), or
    ;;    `(supersript . ,style).
-   ;;  A size is an exact number in [1, 255]; the
+   ;;  A size is an exact number in [1, 255] in pixels; the
    ;;   default size is 12, but the size is ignored if
    ;;   a font% object is provided in the style.
 >  text      ; string [style [size]] -> pict
@@ -622,10 +622,11 @@ The "slideshow-run.ss" library acts as a language (an extension of
 MzScheme) for defining a slide presentation. The "slideshow.ss"
 library is like "slideshow-run.ss", except that it can be used by
 utility modules (i.e., other than the main module of a presentation)
-to get access to all of the Slideshow functions. Slide images are
-generated as picts, using the "mrpict.ss" functions defined above; the
-"slideshow-run.ss" and "slideshow.ss" module export everything
-provided by "mrpict.ss" and "utils.ss".
+to get access to all of the Slideshow functions.
+
+Slide images are generated as picts, using the "mrpict.ss" functions
+defined above; the "slideshow-run.ss" and "slideshow.ss" module
+exports everything provided by "mrpict.ss" and "utils.ss".
 
 The main Slideshow function is `slide/title', which adds a slide to
 the presentation with a given title and content. For example, the
@@ -651,7 +652,7 @@ Alt-q (or Meta-q) to end the slides. More controls:
 
 In general, each element after the title string for `slide/title' is a
 pict that will be centered on the slide. The picts are stacked
-verically and top-aligned, with `char-size' separation between each
+verically and top-aligned, with `gap-size' separation between each
 pict.
 
  (module hello-world (lib "slideshow-run.ss" "texpict")
@@ -747,6 +748,14 @@ Here's an example to illustrate how 'next and 'alts work:
 
 [The code above is case-insensitive; 'NEXT and 'ALTS are capitalized
 merely to stand out.]
+
+Display Size
+============
+
+Slideshow is defined primarily for generating slides in 1024x768 pixel
+format. When the current display has a different size when slideshow
+is started, pictures are scaled just before they are displayed on the
+screen.
 
 Command-line Options
 ====================
@@ -900,12 +909,12 @@ Procedure Reference
      displayed. Otherwise, it should be a procedure that takes a symbol
      (the same one passed to the outline maker) and produces a pict.
 
-> font-size - The default font size; it can be set through a
-  command-line flag, or through a 'slideshow:base-font-size
-  preference (see `get-preference' in MzLib's "file.ss").
-
-> char-size - Roughly font-size, but whereas slideshow:base-font-size
-  scales the size used for text, char-size stays the same; it's 24
+> font-size - The default font size (in pixels), normally 32;
+  it can be set through a command-line flag, or through a
+  'slideshow:default-font-size preference (see `get-preference' in
+  MzLib's "file.ss"), but neither is recommend. Instead, use the
+  `current-font-size' parameter, below
+> gap-size - (* 3/4 font-size)
 
 > current-font-size - Parameter for the font size used by `t', etc.,
   initialized to `font-size'.
