@@ -789,6 +789,8 @@
 
   (define-syntax scale/improve-new-text
     (syntax-rules ()
+      [(_ expr s)
+       (scale/improve-new-text expr s s)]
       [(_ expr sx sy)
        (let ([xs sx]
 	     [ys sy])
