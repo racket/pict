@@ -467,6 +467,7 @@
 	      (set-brush stem-color)
 	      (send dc draw-rectangle x y size size)
 	      
+	      (send dc set-clipping-region #f)
 	      (send r set-arc
 		    (+ x (* 0.52 size)) (- y (* 0.1 size))
 		    (* 0.8 size) (* 0.8 size)
@@ -694,15 +695,17 @@
      [(arrow-size base src find-src dest find-dest thickness color)
       (-add-line base src find-src dest find-dest thickness color arrow-size arrow-size)]))
   
+  (define black-color (make-object color% 0 0 0))
+
   (define (bitmap filename)
     (let ([bm (if (filename . is-a? . bitmap%)
 		  filename
-		  (make-object bitmap% filename))])
+		  (make-object bitmap% filename 'unknown/mask))])
       (let ([w (send bm get-width)]
 	    [h (send bm get-height)])
 	(dc
 	 (lambda (dc x y)
-	   (send dc draw-bitmap bm x y))
+	   (send dc draw-bitmap bm x y 'solid black-color (send bm get-loaded-mask)))
 	 w h 0 0))))
   
   (define find-brush
