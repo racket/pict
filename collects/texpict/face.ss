@@ -82,9 +82,14 @@
                   (eyebrows dy -0.3))
                 
                 (define (smile sw sh i da rgn dy flip?)
+		  ;; Either draw or set region. If rgn is boxed,
+		  ;;  then set it to an ellipse (more clip-friendly for PS)
+		  ;;  instead of an arc
                   ((if rgn 
                        (lambda (x y w h s e)
-                         (send rgn set-arc x y w h s e))
+			 (if (box? rgn)
+			     (send (unbox rgn) set-ellipse x y w h)
+			     (send rgn set-arc x y w h s e)))
                        (lambda (x y w h s e)
                          (send dc draw-arc x y w h s e)))
                    (+ x (/ (- w sw) 2) (* 1/6 sw)) 
@@ -103,7 +108,7 @@
                           #t #f)
 		  (when tongue?
 		    (let ([rgn (make-object region% dc)])
-		      (smile w h 2 0 rgn 0 flip?)
+		      (smile w h 2 0 (box rgn) 0 flip?)
 		      (unless flip?
 			;; Invert region:
 			(let ([rgn2 (make-object region% dc)])
