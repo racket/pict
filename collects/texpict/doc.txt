@@ -232,6 +232,7 @@ Procedures
 >  blank        ; -> pict
                 ; s -> pict ; s is side length of square
                 ; w h -> pict
+                ; w a d -> pict ; where h = a + d
                 ; w h a d -> pict
 
    ;; -- LaTeX only --
