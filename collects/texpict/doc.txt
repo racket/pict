@@ -39,7 +39,7 @@ includes `dc', which accepts an arbitrary Scheme procedure for drawing
 to a dc<%>.
 
 When creating pictures with `picture' or `cons-picture', or when
-finding relative picture locations with `find-lt', etc., the coordiate
+finding relative picture locations with `find-lt', etc., the coordinate
 system is upside-down: (0, 0) is in the lower left.
 
 Slideshow output
@@ -50,7 +50,7 @@ texpict and rendering them to the screen or printer. In particular,
 the `slide' function takes any number of picts and assembles them into
 a slide.
 
-If you are using Slidshow, skip the following two sections. In the
+If you are using Slideshow, skip the following two sections. In the
 reference below, functions are "MrEd only" are available, and
 functions marked "LaTeX only" are not available.
 
@@ -71,7 +71,7 @@ and a bitmap-dc% will work fine for bitmap-dc% or canvas% output.
 
 The `draw-pict' function takes a picture, a device context
 
- ;; Example of prodcuing PostScript output
+ ;; Example of producing PostScript output
  (require (lib "mrpict.ss" "texpict"))
 
  ;; Create PS context
@@ -114,7 +114,7 @@ The `tex' function creates a pict given an arbitrary LaTeX
 expression as a string. Initially, `tex' guess at the size of the
 resulting pict. (It always guesses 10 x 10.) The LaTeX expression
 generated for a `tex' pict causes information to be written to an
-auxilliary file when LaTeX evaluates the expression. If you use
+auxiliary file when LaTeX evaluates the expression. If you use
 `tex' boxes, then:
 
    * Use the package "mztp.sty" at the start of your LaTeX
@@ -252,7 +252,7 @@ Procedures
    ;;    `(bold . ,text-style),
    ;;    `(italic . ,text-style), 
    ;;    `(subscript . ,text-style), 
-   ;;    `(supersript . ,text-style),
+   ;;    `(superscript . ,text-style),
    ;;    `(combine . ,text-style), or
    ;;    `(no-combine . ,text-style).
    ;;  A size is an exact number in [1, 255] in pixels; the
@@ -289,14 +289,14 @@ Procedures
 >  dc      ; (dc<%> dx dy -> void) w h a d -> pict
 
    ;; -- LaTeX only --
-   ;; Delimitters to go around height h (result is taller than h;
+   ;; Delimiters to go around height h (result is taller than h;
    ;;  try h/2)
 >  left-brace     ; h -> pict
 >  right-brace    ; h -> pict
 >  left-delimit   ; str h -> pict
 >  right-delimit  ; str h -> pict
 >  middle-delimit ; str h -> pict
-   ;; Delimitter to go around width w (result is w wide)
+   ;; Delimiter to go around width w (result is w wide)
 >  top-brace      ; w -> pict
 >  bottom-brace   ; w -> pict
 
@@ -311,7 +311,7 @@ Procedures
    ;;  the height if necessary
 >  drop           ; pict n -> pict
 
-   ;; Makes the descent 0 and the acsent the height
+   ;; Makes the descent 0 and the ascent the height
 >  baseless       ; pict -> pict
 
    ;; Extends picture size; ascent and descent are
@@ -364,7 +364,7 @@ Procedures
    ;; Make a new picture as a column (vX-append) or row (hX-append)
    ;; of other pictures. Different procedures align pictures in the
    ;; orthogonal direction in different ways; e.g, vl-append left-aligns
-   ;; all of the pitures. A specified amount of space is inserted
+   ;; all of the pictures. A specified amount of space is inserted
    ;; between each pair of pictures in making the column or row.
    ;; The descent of the result corresponds to baseline that is lowest
    ;; in the result among all of the picts' descent-specified
@@ -401,7 +401,7 @@ Procedures
 >  cbl-superimpose
 
    ;; Make a table given a list of picts. The list is a
-   ;; concatentation of rows (which means that a Scheme `list' call
+   ;; concatenation of rows (which means that a Scheme `list' call
    ;; can be formatted to reflect the shape of the output table).
    ;;
    ;; The col-aligns, row-aligns, col-seps, and row-seps arguments are
@@ -413,7 +413,7 @@ Procedures
    ;; is used as the value for all remaining list items that were
    ;; expected. The alignment procedures are used to superimpose all
    ;; of the cells in a column or row; this superimposition determines
-   ;; the total width oir height of the column or row, and also
+   ;; the total width or height of the column or row, and also
    ;; determines the horizontal or vertical placement of each cell in
    ;; the column or row.
 >  table ; ncols pict-list col-aligns row-aligns col-seps row-seps -> pict
@@ -445,9 +445,9 @@ Procedures
    ;; Creates a pict with the same bounding box, ascent, and descent
    ;; as the initial argument, but with the second pict placed on top.
    ;; The dx and dy argument specify how far left and down the second
-   ;; pict's corner is frm the firts pict's corner.
+   ;; pict's corner is from the first pict's corner.
    ;; Alternately, the sub-pict and procedure arguments find a point
-   ;; in the intial pict for the second pict's corner. The procedure
+   ;; in the initial pict for the second pict's corner. The procedure
    ;; should be like find-lt (i.e., the result dy is from the pict's
    ;; bottom instead of its top).
 >  place-over ; pict dx dy pict -> pict
@@ -701,7 +701,7 @@ The _utils.ss_ library provides additional drawing procedures for MrEd
                           ;   gray = #t -> default color
                           ;   gray = color/string -> uses color
 
-  ;; Creates a jack-o-lantern; use the same pumkin-color and
+  ;; Creates a jack-o-lantern; use the same pumpkin-color and
   ;; face color to get a plain pumpkin. The size is the width.
 > jack-o-lantern          ; size [pumpkin-color face-color] -> pict
 
@@ -732,7 +732,7 @@ _balloon.ss_
 ------------------------------------------------------------
 
 The "balloon.ss" module produce functions for creating and placing
-cartoon-speech ballons.
+cartoon-speech balloons.
 
 > (wrap-balloon pict spike-sym dx dy [color corner-radius])
 
@@ -751,15 +751,15 @@ defaults to `balloon-color'.
 The result is a balloon, not a pict. The `balloon-pict' function
 extracts a pict whose bounding box does not include the spike, but
 includes the rest of the image. (The `balloon-point-x' and
-`ballon-point-y' functions specify the location of the spike point.)
+`balloon-point-y' functions specify the location of the spike point.)
 
 > (place-balloon balloon pict to-pict find-to-pos)
 > (place-balloon balloon pict x y)
 
 Superimposes the pict in `balloon' onto `pict' to produce a new
-pict. The ballon is positioned so that its spike points to the
+pict. The balloon is positioned so that its spike points to the
 location specified by either `x' and `y' (numbers) or `to-pict' and
-`find-to-pos'. In tghe latter case, `to-pict' is a sub-pict in `pict'
+`find-to-pos'. In the latter case, `to-pict' is a sub-pict in `pict'
 and `find-to-pos' is a function like `find-lt.
 
 The resulting pict has the same bounding box, descent, and ascent as
@@ -780,12 +780,12 @@ proportion of the smallest dimension of the balloon.
 > (balloon-point-y balloon)   -> num
 > (balloon? v)                -> bool
 
-A balloon value encapsulates a pict and the position of the basllon's
+A balloon value encapsulates a pict and the position of the balloon's
 spike relative to the balloon's top-left corner.
 
 > balloon-color
 
-The default background color for a ballooon.
+The default background color for a balloon.
 
 ------------------------------------------------------------
 _face.ss_
@@ -797,7 +797,7 @@ implements an interactive browser for face configurations.
 
 > default-face-color - orange
 
-> (face mood-symbol [color]) - returns a pict a pre-comfigured face
+> (face mood-symbol [color]) - returns a pict a pre-configured face
   with the given base color. The built-in configurations, selected by
   mood-symbol, are as follows:
 
@@ -806,8 +806,8 @@ implements an interactive browser for face configurations.
     'sortof-happy - (face* 'worried 'medium #f default-face-color 6)
     'happy - (face* 'none 'plain #f default-face-color 6)
     'happier - (face* 'none 'large #f default-face-color 3)
-    'embarassed - (face* 'worried 'medium #f default-face-color 3)
-    'badly-embarassed - (face* 'worried 'medium #t default-face-color 3)
+    'embarrassed - (face* 'worried 'medium #f default-face-color 3)
+    'badly-embarrassed - (face* 'worried 'medium #t default-face-color 3)
     'unhappier - (face* 'normal 'large #t default-face-color 3)
     'happiest - (face* 'normal 'huge #f default-face-color 0 -3)
     'unhappiest - (face* 'normal 'huge #t default-face-color 0 -3)
@@ -860,7 +860,7 @@ The _code^_ unit supplies the following
   An identifier that starts with an underscore is italicized in
   the pict. Underscores and carets in the middle of a word
   create superscripts and subscripts (like TeX). For example
-  `foo_^4_ok' is displayed as the idenfitier "foo" with a "4"
+  `foo_^4_ok' is displayed as the identifier "foo" with a "4"
   superscript and an "ok" subscript.
 
   Further, uses of certain keywords in `stx' typeset specially:
