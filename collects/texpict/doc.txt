@@ -50,8 +50,14 @@ auxilliary file when LaTeX evaluates the expression. If you use
 texpict keys `tex' size information on the exact LaTeX expression
 provided to `tex'. If you use a single `tex' pict in two different
 contexts where the provided expression produces differently sized
-output, texpict cannot distinguish the uses (and the size of the
-first instance of the pict will be used).
+output, texpict will not distinguish the uses (and the size of the
+first instance of the pict will be used) by default. The
+`serialize-tex-picts' parameter can solve this problem, but
+serialization requires that the output is built in exactly the same
+order every time, and generally requires more texpict-tex cycles to
+reach a fixed point after a small change to the output. The
+`tex-series-prefix' parameter may be used to explicitly tag `tex'
+sequences in different contexts.
 
 All positions and sizes must be specified as exact integers.
 
@@ -71,15 +77,33 @@ Procedures
 >  read-in-sizes  ; string -> void
 
    ;; Parameter specifying whether the `pict2e' package is active.
+   ;; Default: #f
 >  using-pict2e-package
 
    ;; Parameter specifying whether to draw precise lines for `connect'
    ;; with bezier curves. The value is a Boolean or a procedure that
    ;; takes a length and returns the number of points to use.
+   ;; Default: #f
 >  draw-bezier-lines
+
+
+   ;; Parameter specifying a string to embed in the sizing key for a
+   ;; pict created with `tex'. The prefix is applied when the `tex'
+   ;; pict is created. Turning on the `serialize-tex-picts' parameter
+   ;; effectively generates a new series prefix for every `tex' pict.
+   ;; Default: #f
+>  tex-series-prefix
    
+   ;; Parameter specifying whether to assign serial numbers to
+   ;; `tex'-generated strings for sizing purposes. Serial numbers
+   ;; allow the same tex string to be used in multiple contexts, but
+   ;; the output must be built in the same order every time.
+   ;; Default: #f
+>  serialize-tex-picts
+
    ;; Parameter specifying whether to draw in B&W or color (when
    ;; `colorize' is used).
+   ;; Default: #f
 >  black-and-white
 
    ;; Find an embedded picture; see bottom for the definition of pict-path
