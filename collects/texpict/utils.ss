@@ -495,21 +495,22 @@
 					   find-or-create-brush
 					   c 'solid)))]
 		  [r (make-object region% dc)]
+		  [path (make-object dc-path%)]
 		  [c (send dc get-clipping-region)])
 	      (send dc set-pen (send the-pen-list
 				     find-or-create-pen
 				     "white" 1 'transparent))
 
 	      ;; Stem ----------------------------------------
-	      (send r set-arc
+	      (send path arc
 		    (+ x (* 0.42 size)) (- y (*  0.2 size))
 		    size size
 		    (* 0.8 pi) pi)
-	      (let ([r2 (make-object region% dc)])
-		(send r2 set-ellipse
-		      (+ x (* 0.52 size)) (- y (* 0.1 size))
-		      (* 0.8 size) (* 0.8 size))
-		(send r subtract r2))
+	      (send path arc
+		    (+ x (* 0.52 size)) (- y (* 0.1 size))
+		    (* 0.8 size) (* 0.8 size)
+		    pi (* 0.8 pi) #f)
+	      (send r set-path path)
 	      (send dc set-clipping-region r)
 	      (set-brush stem-color)
 	      (send dc draw-rectangle x y size size)

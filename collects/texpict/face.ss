@@ -81,15 +81,11 @@
                 (define (angry-eyebrows dy)
                   (eyebrows dy -0.3))
                 
-                (define (smile sw sh i da rgn dy flip?)
-		  ;; Either draw or set region. If rgn is boxed,
-		  ;;  then set it to an ellipse (more clip-friendly for PS)
-		  ;;  instead of an arc
-                  ((if rgn 
+                (define (smile sw sh i da path dy flip?)
+		  ;; Either draw or set path.
+                  ((if path 
                        (lambda (x y w h s e)
-			 (if (box? rgn)
-			     (send (unbox rgn) set-ellipse x y w h)
-			     (send rgn set-arc x y w h s e)))
+			 (send path arc x y w h s e))
                        (lambda (x y w h s e)
                          (send dc draw-arc x y w h s e)))
                    (+ x (/ (- w sw) 2) (* 1/6 sw)) 
@@ -107,14 +103,12 @@
                             (smile w h (- i) 0 #f 0 flip?)) 
                           #t #f)
 		  (when tongue?
-		    (let ([rgn (make-object region% dc)])
-		      (smile w h 2 0 (box rgn) 0 flip?)
-		      (unless flip?
-			;; Invert region:
-			(let ([rgn2 (make-object region% dc)])
-			  (send rgn2 set-rectangle x y w h)
-			  (send rgn2 subtract rgn)
-			  (set! rgn rgn2)))
+		    (let ([path (new dc-path%)]
+			  [rgn (make-object region% dc)])
+		      (smile w h 2 0 path 0 flip?)
+		      (send path line-to (+ w x) (+ h y))
+		      (send path line-to x (+ h y))
+		      (send rgn set-path path)
 		      (send dc set-clipping-region rgn)
 		      (send dc set-pen no-pen)
 		      (let ([dx (+ x (if flip?
@@ -125,19 +119,19 @@
 					 (* 13/20 h)))]
 			    [tw (* 1/5 w)]
 			    [th (* 1/4 h)])
-		      (series dc 3
-			      face-color
-			      (make-object color% "red")
-			      (lambda (i)
-				(send dc draw-ellipse dx dy (- tw i) (- th i)))
-			      #f #t)
-		      (series dc 4
-			      (make-object color% "black")
-			      (scale-color 0.6 (make-object color% "red"))
-			      (lambda (i)
-				(send dc draw-line (- (+ dx i) (* tw 1/10)) dy (+ dx (* tw 0.65)) (+ dy (* th 0.75))))
-			      #t #f)
-		      (send dc set-clipping-region #f)))))
+			(series dc 3
+				face-color
+				(make-object color% "red")
+				(lambda (i)
+				  (send dc draw-ellipse dx dy (- tw i) (- th i)))
+				#f #t)
+			(series dc 4
+				(make-object color% "black")
+				(scale-color 0.6 (make-object color% "red"))
+				(lambda (i)
+				  (send dc draw-line (- (+ dx i) (* tw 1/10)) dy (+ dx (* tw 0.65)) (+ dy (* th 0.75))))
+				#t #f)
+			(send dc set-clipping-region #f)))))
                 
                 (define (teeth)
                   ;; Assumes clipping region is set
@@ -159,15 +153,14 @@
                           #f #t))
                 
                 (define (toothy-smile tw th ta bw bh ba flip? ddy)
-                  (let-values ([(tmp-rgn1) (make-object region% dc)]
-                               [(tmp-rgn2) (make-object region% dc)]
+                  (let-values ([(path) (make-object dc-path%)]
+			       [(tmp-rgn1) (make-object region% dc)]
                                [(dy) (+ ddy (/ (- h (if flip? (+ th (abs (- bh th))) th)) 2))])
                     ;; Teeth:
-                    (smile tw th 0 ta (box tmp-rgn1) dy flip?)
-                    (smile bw bh 0 ba (box tmp-rgn2) dy flip?)
-                    (send tmp-rgn1 subtract tmp-rgn2)
-		    (send tmp-rgn2 set-rectangle x (+ y (* 1/2 h)) w (if flip? (* 1/4 h) h))
-		    (send tmp-rgn1 intersect tmp-rgn2)
+                    (smile tw th 0 ta path dy flip?)
+		    (send path reverse)
+                    (smile bw bh 0 ba path dy flip?)
+		    (send tmp-rgn1 set-path path)
                     (send dc set-clipping-region tmp-rgn1)
                     (teeth)
                     (send dc set-clipping-region #f)
@@ -188,24 +181,21 @@
                             #t #f)))
                 
                 (define (grimace tw th ta flip?)
-                  (let-values ([(tmp-rgn1) (make-object region% dc)]
-                               [(tmp-rgn2) (make-object region% dc)]
+                  (let-values ([(path) (make-object dc-path%)]
+                               [(tmp-rgn1) (make-object region% dc)]
                                [(dy) (/ (- h th) 2)]
                                [(elx ely) (values (+ x (* w 0.27)) (+ y (* h 0.65) (if flip? 3 1)))])
                     ;; Teeth:
-                    (smile tw th 0 ta (box tmp-rgn1) (+ (if flip? -30 0) dy) flip?)
-		    (smile tw th 0 ta (box tmp-rgn2) (+ (if flip? 0 -30) dy) flip?)
-                    (send tmp-rgn1 subtract tmp-rgn2)
-                    (send tmp-rgn2 set-rectangle (+ elx 15) y (- w (* 2 (- elx x)) 30) h)
-		    (send tmp-rgn1 intersect tmp-rgn2)
-                    (send tmp-rgn2 set-ellipse elx ely 30 30)
-                    (send tmp-rgn1 union tmp-rgn2)
-                    (send tmp-rgn2 set-ellipse (- (+ x w) (- elx x) 30) ely 30 30)
-                    (send tmp-rgn1 union tmp-rgn2)
+		    (smile tw th 0 ta path (+ (if flip? -30 0) dy) flip?)
+		    (send path arc elx ely 30 30 (* 1/2 pi) (* 3/2 pi) #t)
+		    (send path reverse)
+		    (send path arc (- (+ x w) (- elx x) 30) ely 30 30 (* 1/2 pi) (* 3/2 pi) #f)
+		    (smile tw th 0 ta path (+ (if flip? 0 -30) dy) flip?)
+                    (send tmp-rgn1 set-path path)
                     (send dc set-clipping-region tmp-rgn1)
-                    (teeth)
+		    (teeth)
                     (send dc set-clipping-region #f)
-                    
+		    
                     ;; Smile edges:
                     (send dc set-brush no-brush)
                     (let ([sides (lambda (top? i)
