@@ -718,7 +718,7 @@
       [(base src find-src dest find-dest thickness color)
        (add-line base src find-src dest find-dest thickness color #f)]
       [(base src find-src dest find-dest thickness color under?)
-       (-add-line base src find-src dest find-dest thickness color #f under?)]))
+       (-add-line base src find-src dest find-dest thickness color #f #f under?)]))
   
   (define add-arrow-line
     (case-lambda
