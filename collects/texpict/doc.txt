@@ -570,6 +570,7 @@ it should be.]
   ;; Syntax that is like `scale', but also sets
   ;; current-expected-text-scale while evaluating
   ;; pict-expr:
+> (scale/improve-new-text pict-expr s-expr)
 > (scale/improve-new-text pict-expr sx-expr sy-expr)
 
   ;; Scales a color, making it brighter or darker. If the
@@ -642,6 +643,14 @@ MzScheme) for defining a slide presentation. The "slideshow.ss"
 library is like "slideshow-run.ss", except that it can be used by
 utility modules (i.e., other than the main module of a presentation)
 to get access to all of the Slideshow functions.
+
+Run "example-show.ss" in DrScheme to see an example. (Select the
+"(module...)"  from DrScheme's "Choose Language" dialog.) The
+"example-show.ss" file is in the "texpict" collection, so its
+path will be something like
+  ...plt/collects/texpict/slideshow.ss
+on your machine.
+
 
 Slide images are generated as picts, using the "mrpict.ss" functions
 defined above; the "slideshow-run.ss" and "slideshow.ss" module

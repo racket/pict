@@ -67,6 +67,8 @@
       (define close-paren/lit-p (colorize (tt ")") literal-color))
       (define open-paren/tmpl-p (colorize (tt "(") comment-color))
       (define close-paren/tmpl-p (colorize (tt ")") comment-color))
+
+      (define dot-p (colorize (tt " . ") base-color))
       
       (define (add-close p closes)
 	(cond
@@ -243,6 +245,9 @@
 	    [id
 	     (identifier? stx)
 	     (add-close (colorize-id (symbol->string (syntax-e stx)) mode) closes)]
+	    [(a . b)
+	     (hbl-append open-paren-p (loop #'a null mode)
+			 dot-p (loop #'b (cons mode closes) mode))]
 	    [else
 	     (add-close (if (pict? (syntax-e stx))
 			    (syntax-e stx)
