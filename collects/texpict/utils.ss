@@ -33,62 +33,82 @@
 
 	   scale)
 
+  (define (re-pict box naya)
+    (let ([w (pict-width box)]
+	  [h (pict-height box)]
+	  [d (pict-descent box)]
+	  [a (pict-ascent box)])
+      (make-pict (pict-draw naya)
+		 w h
+		 a d
+		 (list (make-child box 0 0)))))
+  
   (define cons-colorized-picture
     (lambda (p color cmds)
-      (cc-superimpose
+      (re-pict
        p
-       (colorize
-	(cons-picture
-	 (ghost (launder p))
-	 cmds)
-	color))))
+       (cc-superimpose
+	p
+	(colorize
+	 (cons-picture
+	  (ghost (launder p))
+	  cmds)
+	 color)))))
 
   (define (round-frame p radius)
-    (cc-superimpose
+    (re-pict
      p
-     (let ([w (pict-width p)]
-	   [h (pict-height p)])
-       (dc (lambda (dc x y)
-	     (let ([b (send dc get-brush)])
-	       (send dc set-brush (send the-brush-list find-or-create-brush
-					"white" 'transparent))
-	       (send dc draw-rounded-rectangle x y w h radius)
-	       (send dc set-brush b)))
-	   (pict-width p) (pict-height p) 0 0))))
+     (cc-superimpose
+      p
+      (let ([w (pict-width p)]
+	    [h (pict-height p)])
+	(dc (lambda (dc x y)
+	      (let ([b (send dc get-brush)])
+		(send dc set-brush (send the-brush-list find-or-create-brush
+					 "white" 'transparent))
+		(send dc draw-rounded-rectangle x y w h radius)
+		(send dc set-brush b)))
+	    (pict-width p) (pict-height p) 0 0)))))
 
   ;; FIXME: abstract common part of color-frame, etc.
 
   (define color-frame
     (case-lambda
      [(p color w)
-      (cc-superimpose
+      (re-pict
        p
-       (let ([p2 (colorize (frame (ghost (launder p))) color)])
-	 (if w
-	     (linewidth w p2)
-	     p2)))]
+       (cc-superimpose
+	p
+	(let ([p2 (colorize (frame (ghost (launder p))) color)])
+	  (if w
+	      (linewidth w p2)
+	      p2))))]
      [(p color) (color-frame p color #f)]))
   
   (define color-round-frame
     (case-lambda
      [(p radius color w)
-      (cc-superimpose
+      (re-pict
        p
-       (let ([p2 (colorize (round-frame (ghost (launder p)) radius) color)])
-	 (if w
-	     (linewidth w p2)
-	     p2)))]
+       (cc-superimpose
+	p
+	(let ([p2 (colorize (round-frame (ghost (launder p)) radius) color)])
+	  (if w
+	      (linewidth w p2)
+	      p2))))]
      [(p radius color) (color-round-frame p radius color #f)]))  
 
   (define color-dash-frame
     (case-lambda
      [(p seg-length color w)
-      (cc-superimpose
+      (re-pict
        p
-       (let ([p2 (colorize (dash-frame (ghost (launder p)) seg-length) color)])
-	 (if w
-	     (linewidth w p2)
-	     p2)))]
+       (cc-superimpose
+	p
+	(let ([p2 (colorize (dash-frame (ghost (launder p)) seg-length) color)])
+	  (if w
+	      (linewidth w p2)
+	      p2))))]
      [(p seg-length color) (color-dash-frame p seg-length color #f)]))  
 
   ;; Returns three values: pict dx dy
