@@ -812,10 +812,10 @@ Procedure Reference
   a slide on each side. Each inset must be an exact, non-negative
   integer.
 
-> (t string) - Same as (text string main-font (current-font-size))
-> (it string) - Same as (text string `(italic . ,main-font) (current-font-size))
-> (bt string) - Same as (text string `(bold . ,main-font) (current-font-size))
-> (bit string) - Same as (text string `(bold italic . ,main-font) (current-font-size))
+> (t string) - Same as (text string (current-main-font) (current-font-size))
+> (it string) - Same as (text string `(italic . ,(current-main-font)) (current-font-size))
+> (bt string) - Same as (text string `(bold . ,(current-main-font)) (current-font-size))
+> (bit string) - Same as (text string `(bold italic . ,(current-main-font)) (current-font-size))
 > (tt string) - Same as (text string `(bold . modern) (current-font-size))
 > (titlet string) - Like `t', but using the slide-title font and color.
 
@@ -906,11 +906,14 @@ Procedure Reference
 > char-size - Roughly font-size, but whereas slideshow:base-font-size
   scales the size used for text, char-size stays the same; it's 24
 
-> current-font-size - The font size used by `t', etc., initialized to
-  `font-size'.
+> current-font-size - Parameter for the font size used by `t', etc.,
+  initialized to `font-size'.
 > line-sep - Amount of seperating between paragraph lines.
 > title-size - Font size used for slide titles, derived from `font-size'.
-> main-font - Font specification used for `t'.
+> main-font - Font specification used for `t' by default
+> current-main-font - Parameter for the font specification used for `t'
+
+> (with-font f thunk) - Calls `thunk' with `current-main-font' set to `f'.
 
 > red - a color name like "red", possibiliy selected by the user.
 > green - a color name like "green"
