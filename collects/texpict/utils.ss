@@ -27,6 +27,8 @@
 	   disk
            rectangle
            filled-rectangle
+	   rounded-rectangle
+           filled-rounded-rectangle
            
 	   cloud
 	   file-icon
@@ -49,7 +51,9 @@
 	   scale
 	   scale/improve-new-text
 
-	   inset/clip)
+	   inset/clip
+
+	   hyperlinkize)
 
   (define (re-pict box naya)
     (let ([w (pict-width box)]
@@ -223,6 +227,30 @@
      h
      0
      0))
+  
+  (define filled-rounded-rectangle
+    (opt-lambda (w h [corner -0.25])
+      (dc
+       (lambda (dc x y)
+	 (send dc draw-rounded-rectangle x y w h corner))
+       w
+       h
+       0
+       0)))
+  
+  (define rounded-rectangle
+    (opt-lambda (w h [corner -0.25])
+      (dc
+       (lambda (dc x y)
+	 (let ([b (send dc get-brush)])
+	   (send dc set-brush (send the-brush-list find-or-create-brush
+				    "white" 'transparent))
+	   (send dc draw-rounded-rectangle x y w h corner)
+	   (send dc set-brush b)))
+       w
+       h
+       0
+       0)))
   
   (define (circle size) (ellipse size size))
   
@@ -879,4 +907,14 @@
 	 (parameterize ([current-expected-text-scale
 			 (let ([s (current-expected-text-scale)])
 			   (list (* xs (car s)) (* ys (cadr s))))])
-	   (scale expr xs ys)))])))
+	   (scale expr xs ys)))]))
+
+  (define (hyperlinkize r)
+    (colorize (inset
+	       (place-over r
+			   0 (pict-height r)
+			   (linewidth 2 (hline (pict-width r) 1)))
+	       0 0 0 2)
+	      "blue"))
+  
+  )
