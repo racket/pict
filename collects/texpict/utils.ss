@@ -1,8 +1,9 @@
 
 (module utils mzscheme
-  (require (lib "class.ss"))
-
-  (require (lib "mred.ss" "mred"))
+  (require (lib "class.ss")
+	   (lib "math.ss")
+	   (lib "etc.ss")
+	   (lib "mred.ss" "mred"))
 
   (require "mrpict.ss")
 
@@ -24,6 +25,7 @@
 
 	   cloud
 	   file-icon
+	   jack-o-lantern
 
 	   add-line
 	   add-arrow-line
@@ -272,6 +274,105 @@
 	 (send dc set-brush b)
 	 (send dc set-pen p)))
      w h 0 0))
+
+  (define jack-o-lantern
+    (opt-lambda (size [pumpkin-color "orange"] [face-color "black"] [stem-color "brown"])
+      (dc (lambda (dc x y)
+	    (let ([b (send dc get-brush)]
+		  [p (send dc get-pen)]
+		  [set-brush (lambda (c)
+			       (send dc set-brush 
+				     (send the-brush-list
+					   find-or-create-brush
+					   c 'solid)))]
+		  [r (make-object region% dc)]
+		  [c (send dc get-clipping-region)])
+	      (send dc set-pen (send the-pen-list
+				     find-or-create-pen
+				     "white" 1 'transparent))
+
+	      ;; Stem ----------------------------------------
+	      (send r set-arc
+		    (+ x (* 0.42 size)) (- y (*  0.2 size))
+		    size size
+		    (* 0.8 pi) pi)
+	      (send dc set-clipping-region r)
+	      (set-brush stem-color)
+	      (send dc draw-rectangle x y size size)
+	      
+	      (send r set-arc
+		    (+ x (* 0.52 size)) (- y (* 0.1 size))
+		    (* 0.8 size) (* 0.8 size)
+		    (* 0.49 pi) (* 1.1 pi))
+	      (send dc set-clipping-region r)
+	      (set-brush "white")
+	      (send dc draw-rectangle x y size size)
+
+	      ;; Body ----------------------------------------
+	      (send dc set-clipping-region c)
+	      (set-brush pumpkin-color)
+
+	      (send dc draw-ellipse 
+		    x (+ y (* 0.2 size))
+		    (* 0.4 size) (* 0.8 size))
+	      (send dc draw-ellipse 
+		    (+ x (* 0.6 size)) (+ y (* 0.2 size))
+		    (* 0.4 size) (* 0.8 size))
+
+	      (send dc draw-ellipse 
+		    (+ x (* 0.2 size)) (+ y (* 0.15 size))
+		    (* 0.4 size) (* 0.9 size))
+	      (send dc draw-ellipse 
+		    (+ x (* 0.4 size)) (+ y (* 0.15 size))
+		    (* 0.4 size) (* 0.9 size))
+
+	      ;; Smile ----------------------------------------
+
+	      (send r set-rectangle x (+ y (* 0.4 size)) size (* 0.7 size))
+	      (send dc set-clipping-region r)
+
+	      (set-brush face-color)
+	      (send dc draw-ellipse
+		    (+ x (* 0.15 size)) (+ y (* 0.2 size))
+		    (* 0.7 size) (* 0.7 size))
+	      
+	      (set-brush pumpkin-color)
+	      (send dc draw-ellipse
+		    (+ x (* 0.15 size)) (sub1 (+ y (* 0.2 size)))
+		    (* 0.7 size) (* 0.5 size))
+	      (send dc draw-rectangle
+		    (+ x (* 0.35 size)) (+ y (* 0.55 size))
+		    (* 0.1 size) (* 0.2 size))
+	      
+	      ;; Eyes ----------------------------------------
+	      (send dc set-clipping-region c)
+	      (set-brush face-color)
+
+	      (send dc draw-ellipse
+		    (+ x (* 0.25 size)) (+ y (* 0.3 size))
+		    (* 0.175 size) (* 0.25 size))
+	      (send dc draw-ellipse
+		    (+ x (* (- 0.75 0.175) size)) (+ y (* 0.3 size))
+		    (* 0.175 size) (* 0.25 size))
+
+	      (set-brush pumpkin-color)
+
+	      (send dc draw-polygon
+		    (list
+		     (make-object point%
+				  (* 0.5 size)
+				  (* 0.45 size))
+		     (make-object point%
+				  (* 0.2 size)
+				  (* 0.25 size))
+		     (make-object point%
+				  (* 0.8 size)
+				  (* 0.25 size)))
+		    x y)
+	      
+	      (send dc set-brush b)
+	      (send dc set-pen p)))
+	  size (* 1.1 size) 0 0)))
 
   (define (-add-line base src find-src dest find-dest thickness color arrow-size arrow2-size)
     (let-values ([(sx sy) (find-src base src)]
