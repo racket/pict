@@ -610,18 +610,30 @@
                        x y))
                #f #t)
               (when eye-color
-                (color-series
-                 dc
-                 1/20 1/80
-                 dark-eye-color eye-color
-                 (lambda (s)
-                   (let ([ew (* (- 1/10 s) w)])
-                     (send dc draw-ellipse 
-                           (flip (+ x (* 1/5 w) (* s 1/2 w)) ew)
-                           (+ y (* 1/3 h) (* (* s 4/2) 1/2 h))
-                           ew
-                           (* (- 1/10 s) 4/2 h))))
-                 #f #t))
+		(if (eq? eye-color 'x)
+		    (begin
+		      (send dc set-pen (send the-pen-list find-or-create-pen "black" 1 'solid))
+		      (let* ([ew (* 1/10 w)]
+			     [eh (* 1/10 h)]
+			     [x0 (flip (+ x (* 1/5 w)) ew)]
+			     [x1 (flip (+ x (* 1/5 w) ew) ew)]
+			     [y0 (+ y (* 2/3 h))]
+			     [y1 (- (+ y (* 2/3 h)) eh)])
+			(send dc draw-line x0 y0 x1 y1)
+			(send dc draw-line x0 y1 x1 y0))
+		      )
+		    (color-series
+		     dc
+		     1/20 1/80
+		     dark-eye-color eye-color
+		     (lambda (s)
+		       (let ([ew (* (- 1/10 s) w)])
+			 (send dc draw-ellipse 
+			       (flip (+ x (* 1/5 w) (* s 1/2 w)) ew)
+			       (+ y (* 1/3 h) (* (* s 4/2) 1/2 h))
+			       ew
+			       (* (- 1/10 s) 4/2 h))))
+		     #f #t)))
               (send dc set-pen old-pen)
               (send dc set-brush old-brush)))
           w h 0 0)))
