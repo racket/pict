@@ -362,86 +362,97 @@
 
   (define desktop-machine
     (opt-lambda (s [style null])
-      (let ([bm (if (memq 'plt style)
-		    (make-object bitmap% (build-path (collection-path "icons") "plt-small-shield.gif"))
-		    #f)])
-	(dc (lambda (dc x y)
-	      (let-values ([(sx sy) (send dc get-scale)]
-			   [(dx dy) (send dc get-origin)]
-			   [(op) (send dc get-pen)]
-			   [(ob) (send dc get-brush)])
-		(send dc set-origin (+ dx x (* s sx 10)) (+ dy y (* s sy 15)))
-		(send dc set-scale (* sx s) (* sy s))
-		
-		(let ([gray (send the-brush-list
-				  find-or-create-brush
-				  "gray"
-				  'solid)])
-		  (send dc set-brush gray)
-		  (send dc draw-polygon (list
-					 (make-object point% 10 60)
-					 (make-object point% 0 80)
-					 (make-object point% 80 80)
-					 (make-object point% 100 60)
-					 (make-object point% 100 0)
-					 (make-object point% 20 0)
-					 (make-object point% 10 5))))
-		(send dc draw-line 80 80 90 60)
-		(send dc draw-rectangle 10 5 80 55)
-		(send dc set-brush (send the-brush-list
-					 find-or-create-brush
-					 "white"
-					 'solid))
-		(send dc draw-rounded-rectangle 15 10 70 45 5)
-
-		(when (memq 'devil style)
-		  (send dc set-font (make-object font% 12 'modern 'normal 'normal))
-		  (let-values ([(w h d a) (send dc get-text-extent "101010")])
-		    (let ([dx (+ (/ (- 70 w) 2) 15)]
-			  [dy (+ (/ (- 45 (* 2 h) 2) 2) 10)])
-		      (send dc draw-text "101010" dx dy)
-		      (send dc draw-text "010101" dx (+ dy h 2))))
+      (define icon
+	(let ([bm (if (and (list? style) (memq 'plt style))
+		      (make-object bitmap% (build-path (collection-path "icons") "plt-small-shield.gif"))
+		      #f)])
+	  (dc (lambda (dc x y)
+		(let-values ([(sx sy) (send dc get-scale)]
+			     [(dx dy) (send dc get-origin)]
+			     [(op) (send dc get-pen)]
+			     [(ob) (send dc get-brush)])
+		  (send dc set-origin (+ dx (* sx x) (* s sx 10)) (+ dy (* sy y) (* s sy 15)))
+		  (send dc set-scale (* sx s) (* sy s))
 		  
+		  (let ([gray (send the-brush-list
+				    find-or-create-brush
+				    "gray"
+				    'solid)])
+		    (send dc set-brush gray)
+		    (send dc draw-polygon (list
+					   (make-object point% 10 60)
+					   (make-object point% 0 80)
+					   (make-object point% 80 80)
+					   (make-object point% 100 60)
+					   (make-object point% 100 0)
+					   (make-object point% 20 0)
+					   (make-object point% 10 5))))
+		  (send dc draw-line 80 80 90 60)
+		  (send dc draw-rectangle 10 5 80 55)
 		  (send dc set-brush (send the-brush-list
 					   find-or-create-brush
-					   "red"
+					   "white"
 					   'solid))
-		  (let ([horn (list
-			       (make-object point% 0 17)
-			       (make-object point% 2 0)
-			       (make-object point% 4 17))])
-		    (send dc draw-polygon horn 30 -15)
-		    (send dc draw-polygon horn 70 -15))
-		  
-		  (send dc draw-polygon (list
-					 (make-object point% 0 0)
-					 (make-object point% 10 2)
-					 (make-object point% 0 6))
-			115 32)
-		  
-		  (send dc set-pen (send the-pen-list
-					 find-or-create-pen
-					 "red"
-					 2
-					 'solid))
-		  (send dc draw-line 101 55 110 55)
-		  (send dc draw-spline 110 55   130 50    110  45)
-		  (send dc draw-spline 110 45   90 40    115  35))
+		  (send dc draw-rounded-rectangle 15 10 70 45 5)
 
-		(send dc set-origin dx dy)
-		(send dc set-scale sx sy)
+		  (when (and (list? style) (memq 'devil style))
+		    (send dc set-font (make-object font% 12 'modern 'normal 'normal))
+		    (let-values ([(w h d a) (send dc get-text-extent "101010")])
+		      (let ([dx (+ (/ (- 70 w) 2) 15)]
+			    [dy (+ (/ (- 45 (* 2 h) 2) 2) 10)])
+			(send dc draw-text "101010" dx dy)
+			(send dc draw-text "010101" dx (+ dy h 2))))
+		    
+		    (send dc set-brush (send the-brush-list
+					     find-or-create-brush
+					     "red"
+					     'solid))
+		    (let ([horn (list
+				 (make-object point% 0 17)
+				 (make-object point% 2 0)
+				 (make-object point% 4 17))])
+		      (send dc draw-polygon horn 30 -15)
+		      (send dc draw-polygon horn 70 -15))
+		    
+		    (send dc draw-polygon (list
+					   (make-object point% 0 0)
+					   (make-object point% 10 2)
+					   (make-object point% 0 6))
+			  115 32)
+		    
+		    (send dc set-pen (send the-pen-list
+					   find-or-create-pen
+					   "red"
+					   2
+					   'solid))
+		    (send dc draw-line 101 55 110 55)
+		    (send dc draw-spline 110 55   130 50    110  45)
+		    (send dc draw-spline 110 45   90 40    115  35))
 
-		(send dc set-pen op)
-		(send dc set-brush ob)
+		  (send dc set-origin dx dy)
 
-		(when (memq 'plt style)
-		  (when (send bm ok?)
-		    (let ([w (send bm get-width)]
-			  [h (send bm get-height)])
-		      (send dc draw-bitmap bm 
-			    (+ x (/ (- (* s 70) w) 2) (* s 25)) 
-			    (+ y (/ (- (* s 45) h) 2) (* s 25))))))))
-	(* s 120) (* s 115) 0 0))))
+		  (send dc set-pen op)
+		  (send dc set-brush ob)
+
+		  (send dc set-scale (* sx s 2/3) (* sy s 2/3))
+
+		  (when (and (list? style) (memq 'plt style))
+		    (when (send bm ok?)
+		      (let ([w (send bm get-width)]
+			    [h (send bm get-height)])
+			(send dc draw-bitmap bm 
+			      (/ (+ x (/ (- (* s 70) (* w 2/3 s)) 2) (* s 25)) (* 2/3 s))
+			      (/ (+ y (/ (- (* s 45) (* h 2/3 s)) 2) (* s 25)) (* 2/3 s))))))
+
+		  (send dc set-scale sx sy)))
+	      (* s 120) (* s 115) 0 0)))
+      (if (pict? style)
+	  (lt-superimpose
+	   icon
+	   (inset
+	    (cc-superimpose (blank (* s 70) (* s 45)) style)
+	    (* s 25) (* s 25) 0 0))
+	  icon)))
 
   (define jack-o-lantern
     (opt-lambda (size [pumpkin-color "orange"] [face-color "black"] [stem-color "brown"])

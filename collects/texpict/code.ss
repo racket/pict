@@ -74,6 +74,21 @@
       (define close-paren/tmpl-p (colorize (tt ")") comment-color))
 
       (define dot-p (colorize (tt " . ") base-color))
+
+      (define (get-close mode)
+	(case mode
+	  [(literal) close-paren/lit-p]
+	  [(template comment) close-paren/tmpl-p]
+	  [(cond template-cond local) close-sq-p]
+	  [else close-paren-p]))
+
+      (define (get-open mode)
+	(case mode
+	  [(literal) open-paren/lit-p]
+	  [(template comment) open-paren/tmpl-p]
+	  [(contract line) (blank)]
+	  [(cond template-cond local) open-sq-p]
+	  [else open-paren-p]))
       
       (define (add-close p closes)
 	(cond
@@ -81,11 +96,7 @@
 	 [(memq (car closes) '(contract line))
 	  (add-close p (cdr closes))]
 	 [else
-	  (add-close (hbl-append p (case (car closes)
-				     [(literal) close-paren/lit-p]
-				     [(template comment) close-paren/tmpl-p]
-				     [(cond template-cond local) close-sq-p]
-				     [else close-paren-p]))
+	  (add-close (hbl-append p (get-close (car closes)))
 		     (cdr closes))]))
 
       (define (pad-left space p)
@@ -164,7 +175,8 @@
 	  (syntax-case stx (quote syntax-unquote syntax
 				  code:contract code:comment code:line
 				  code:template code:blank $)
-	    [() (add-close (htl-append open-paren-p close-paren-p) closes)]
+	    [() (add-close (htl-append (get-open mode) (get-close mode))
+			   closes)]
 	    [code:blank (tt " ")]
 	    [$ (colorize-id "|" closes)]
 	    [(quote x)
@@ -177,8 +189,14 @@
 	    [(code:line i ...)
 	     (loop (datum->syntax-object #f (syntax->list #'(i ...)))
 		   closes 'line)]
-	    [(code:comment s)
-	     (htl-append semi-p (maybe-colorize (tt (syntax-e #'s)) comment-color))]
+	    [(code:comment s ...)
+	     (apply htl-append 
+		    semi-p 
+		    (map (lambda (s)
+			   (if (pict? (syntax-e s))
+			       (syntax-e s)
+			       (maybe-colorize (tt (syntax-e s)) comment-color)))
+			 (syntax->list #'(s ...))))]
 	    [(code:template i)
 	     (add-semis (loop #'i closes 'template))]
 	    [(i ...)
@@ -203,12 +221,7 @@
 		 (let ([left (or (syntax-column stx) +inf.0)])
 		   (let loop ([stxs is]
 			      [ps ips]
-			      [line-so-far (case mode
-					     [(literal) open-paren/lit-p]
-					     [(template comment) open-paren/tmpl-p]
-					     [(contract line) (blank)]
-					     [(cond template-cond local) open-sq-p]
-					     [else open-paren-p])]
+			      [line-so-far (get-open mode)]
 			      [col (+ left 1)]
 			      [line (syntax-line stx)]
 			      [always-space? #f])
