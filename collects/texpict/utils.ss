@@ -91,7 +91,7 @@
 					 "white" 'transparent))
 		(send dc draw-rounded-rectangle x y w h radius)
 		(send dc set-brush b)))
-	    (pict-width p) (pict-height p) 0 0)))))
+	    (pict-width p) (pict-height p))))))
 
   ;; FIXME: abstract common part of color-frame, etc.
 
@@ -212,9 +212,7 @@
      (lambda (dc x y)
        (send dc draw-rectangle x y w h))
      w
-     h
-     0
-     0))
+     h))
   
   (define (rectangle w h)
     (dc
@@ -225,9 +223,7 @@
          (send dc draw-rectangle x y w h)
          (send dc set-brush b)))
      w
-     h
-     0
-     0))
+     h))
   
   (define filled-rounded-rectangle
     (opt-lambda (w h [corner -0.25])
@@ -235,9 +231,7 @@
        (lambda (dc x y)
 	 (send dc draw-rounded-rectangle x y w h corner))
        w
-       h
-       0
-       0)))
+       h)))
   
   (define rounded-rectangle
     (opt-lambda (w h [corner -0.25])
@@ -249,9 +243,7 @@
 	   (send dc draw-rounded-rectangle x y w h corner)
 	   (send dc set-brush b)))
        w
-       h
-       0
-       0)))
+       h)))
   
   (define (circle size) (ellipse size size))
   
@@ -262,14 +254,14 @@
 				     "white" 'transparent))
 	    (send dc draw-ellipse x y width height)
 	    (send dc set-brush b)))
-	width height 0 0))
+	width height))
 
   (define (disk size) (filled-ellipse size size))
   
   (define (filled-ellipse width height)
     (dc (lambda (dc x y)
 	  (send dc draw-ellipse x y width height))
-	width height 0 0))
+	width height))
 
   (define cloud
     (case-lambda
@@ -304,7 +296,7 @@
 
 	   (send dc set-brush b)
 	   (send dc set-pen p)))
-       w h 0 0)]))
+       w h)]))
 
   (define file-icon
     (opt-lambda (w h gray [fancy? #f])
@@ -353,7 +345,7 @@
 	   
            (send dc set-brush b)
 	   (send dc set-pen p)))
-       w h 0 0)))
+       w h)))
 
   (define angel-wing
     (opt-lambda (w h left?)
@@ -392,7 +384,7 @@
 
 	     (send dc set-origin dx dy)
 	     (send dc set-scale sx sy))))
-       w h 0 0)))
+       w h)))
 
   (define desktop-machine
     (opt-lambda (s [style null])
@@ -482,7 +474,7 @@
 			      (/ (+ y (/ (- (* s 45) (* h 2/3 s)) 2) (* s 25)) (* 2/3 s))))))
 
 		  (send dc set-scale sx sy)))
-	      (* s 120) (* s 115) 0 0)))
+	      (* s 120) (* s 115))))
       (if (pict? style)
 	  (lt-superimpose
 	   icon
@@ -585,7 +577,7 @@
 	      
 	      (send dc set-brush b)
 	      (send dc set-pen p)))
-	  size (* 1.1 size) 0 0)))
+	  size (* 1.1 size))))
 
   (define standard-fish 
     (opt-lambda (w h [direction 'left] [c "blue"] [ec #f] [mouth-open? #f])
@@ -696,7 +688,7 @@
 		     #f #t)))
               (send dc set-pen old-pen)
               (send dc set-brush old-brush)))
-          w h 0 0)))
+          w h)))
 
   (define (-add-line base src find-src dest find-dest thickness color arrow-size arrow2-size under?)
     (let-values ([(sx sy) (find-src base src)]
@@ -791,7 +783,7 @@
 	    (dc
 	     (lambda (dc x y)
 	       (send dc draw-bitmap bm x y 'solid black-color (send bm get-loaded-mask)))
-	     w h 0 0))
+	     w h))
 	  (frame (inset (colorize (text "bitmap failed") "red") 2)))))
   
   (define find-brush

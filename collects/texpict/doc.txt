@@ -232,7 +232,7 @@ Procedures
 >  blank        ; -> pict
                 ; s -> pict ; s is side length of square
                 ; w h -> pict
-                ; w h d -> pict
+                ; w h a d -> pict
 
    ;; -- LaTeX only --
    ;; Create picts from LaTeX code
@@ -259,7 +259,7 @@ Procedures
    ;;   a font% object is provided in the text-style.
    ;;  The default rotation is 0; for a non-zero rotation,
    ;;   the pict covers the rotated text, and the descent
-   ;;   and ascent are zero.
+   ;;   is zero and the ascent is the height
    ;;  By default, text drawing can combine characters (to
    ;;   form ligatures, for kerning, etc.), unless the
    ;;   base text-style is 'modern. The 'combine text-style symbol
@@ -309,6 +309,9 @@ Procedures
    ;; Drops picture below its ascent line, extending
    ;;  the height if necessary
 >  drop           ; pict n -> pict
+
+   ;; Makes the descent 0 and the acsent the height
+>  baseless       ; pict -> pict
 
    ;; Extends picture size; ascent and descent are
    ;;  extended, too
