@@ -243,33 +243,33 @@ Procedures
 
    ;; -- MrEd only --
    ;; Create a pict from a string, style, size, and rotation.
-   ;;  A style is one of
+   ;;  A _text-style_ is one of
    ;;    null (the default, same a 'default),
    ;;    a font% object,
    ;;    a font family symbol (e.g., 'roman),
    ;;    a font face string (e.g., "-adobe-symbol"),
-   ;;    `(bold . ,style),
-   ;;    `(italic . ,style), 
-   ;;    `(subscript . ,style), 
-   ;;    `(supersript . ,style),
-   ;;    `(combine . ,style), or
-   ;;    `(no-combine . ,style).
+   ;;    `(bold . ,text-style),
+   ;;    `(italic . ,text-style), 
+   ;;    `(subscript . ,text-style), 
+   ;;    `(supersript . ,text-style),
+   ;;    `(combine . ,text-style), or
+   ;;    `(no-combine . ,text-style).
    ;;  A size is an exact number in [1, 255] in pixels; the
    ;;   default size is 12, but the size is ignored if
-   ;;   a font% object is provided in the style.
+   ;;   a font% object is provided in the text-style.
    ;;  The default rotation is 0; for a non-zero rotation,
    ;;   the pict covers the rotated text, and the descent
    ;;   and ascent are zero.
    ;;  By default, text drawing can combine characters (to
    ;;   form ligatures, for kerning, etc.), unless the
-   ;;   base style is 'modern. The 'combine style symbol
+   ;;   base text-style is 'modern. The 'combine text-style symbol
    ;;   overrides the default to allow combining, and the
-   ;;   'no-combine style symbol overrides the default to
+   ;;   'no-combine text-style symbol overrides the default to
    ;;   disable combining; if both 'combine and 'no-combine
    ;;   are specified, the first one takes precedence
->  text      ; string [style [size [angle]]] -> pict
+>  text      ; string [text-style [size [angle]]] -> pict
    ;; Same, but use small caps:
->  caps-text ; string [style [size]] -> pict
+>  caps-text ; string [text-style [size]] -> pict
    ;; A parameter used to refine text measurements to better
    ;; match an expected scaling of the image:
 >  current-expected-text-scale ; -> (list num num)
