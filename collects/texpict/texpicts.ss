@@ -148,20 +148,20 @@
    ;; Make a table give a list of picts. The list should be a
    ;; concatentation of rows (so it formats correctly in Scheme code).
    ;;
-   ;; The row-aligns, col-aligns, row-seps, and col-seps arguments are
+   ;; The col-aligns, row-aligns, col-seps, and row-seps arguments are
    ;; `lists' specifying the row and columns alignments separation
-   ;; between rows and columns.  For R rows and C columns, the first
-   ;; two should have R and C superimpose procedures, and the last two
-   ;; should have R - 1 and C - 1 numbers, respectively. The lists can
+   ;; between rows and columns.  For C columns and R rows, the first
+   ;; two should have C and R superimpose procedures, and the last two
+   ;; should have C - 1 and R - 1 numbers, respectively. The lists can
    ;; be improper (e.g. just a number), in which case the non-pair cdr
    ;; is used as the value for all remaining list items that were
    ;; expected. The alignment procedures are used to superimpose all
-   ;; of the cells in a row or column; this superimposition determines
-   ;; the total height or width of the row or column, and also
-   ;; determines the vertical or horizontal placement of each cell in
-   ;; the row or column.
+   ;; of the cells in a column or row; this superimposition determines
+   ;; the total width oir height of the column or row, and also
+   ;; determines the horizontal or vertical placement of each cell in
+   ;; the column or row.
    ;;
-   table ; ncols pict-list row-aligns col-aligns row-seps col-seps -> pict
+   table ; ncols pict-list col-aligns row-aligns col-seps row-seps -> pict
 
    ;; Desribe a picture with low-level commands; see below
    picture      ; w h command-list -> pict
