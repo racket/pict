@@ -281,7 +281,8 @@ Procedures
    ;;  the height if necessary
 >  drop           ; pict n -> pict
 
-   ;; Extends picture size, setting ascent and descent to 0
+   ;; Extends picture size; ascent and descent are
+   ;;  extended, too
 >  inset          ; pict i -> pict
                   ; pict hi vi -> pict
                   ; pict l t r b -> pict
@@ -531,7 +532,10 @@ it should be.]
                           ; w h color-string -> pict
 
   ;; Creates a MacOS-like file icon, optionally shaded
-> file-icon               ; w h gray? ->pict
+> file-icon               ; w h gray ->pict
+                          ;   gray = #f -> white
+                          ;   gray = #t -> default color
+                          ;   gray = color/string -> uses color
 
   ;; Loads a bitmap into a pict
 > bitmap                  ; filename -> pict
