@@ -529,16 +529,6 @@ it should be.]
                           ;      dest-pict (pict -> x y)
                           ;      [line-w [color-string]] -> pict
 
-  ;; Fluffy cloud; default color is "gray".
-> cloud                   ; w h -> pict
-                          ; w h color-string -> pict
-
-  ;; Creates a MacOS-like file icon, optionally shaded
-> file-icon               ; w h gray [fancy?] ->pict
-                          ;   gray = #f -> white
-                          ;   gray = #t -> default color
-                          ;   gray = color/string -> uses color
-
   ;; Loads a bitmap into a pict
 > bitmap                  ; filename -> pict
 > bitmap                  ; bitmap%-object -> pict
@@ -579,6 +569,25 @@ it should be.]
                           ;  end-color-or-string%
                           ;  (num -> any)
                           ;  set-pen? set-brush?
+
+  ;; Fluffy cloud; default color is "gray".
+> cloud                   ; w h -> pict
+                          ; w h color-string -> pict
+
+  ;; Creates a MacOS-like file icon, optionally shaded
+> file-icon               ; w h gray [fancy?] -> pict
+                          ;   gray = #f -> white
+                          ;   gray = #t -> default color
+                          ;   gray = color/string -> uses color
+
+  ;; Creates a jack-o-lantern; use the same pumkin-color and
+  ;; face color to get a plain pumpkin. The size is the width.
+> jack-o-lantern          ; size [pumpkin-color face-color] -> pict
+
+  ;; Creates an angel wing, left or right, or any size.
+  ;; The color and pen width for drawing the wing outline is the
+  ;; current one.
+> angel-wing              ; w h left? -> pict
 
 ------------------------------------------------------------
 _slideshow-run.ss_ and _slideshow.ss_

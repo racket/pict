@@ -26,6 +26,8 @@
 	   cloud
 	   file-icon
 	   jack-o-lantern
+	   angel-wing
+	   desktop-machine
 
 	   add-line
 	   add-arrow-line
@@ -285,6 +287,128 @@
            (send dc set-brush b)
 	   (send dc set-pen p)))
        w h 0 0)))
+
+  (define angel-wing
+    (opt-lambda (w h left?)
+      (dc
+       (lambda (dc x y)
+	 (let-values ([(sx sy) (send dc get-scale)]
+		      [(dx dy) (send dc get-origin)])
+	   (let ([nsx (* sx (/ w 54))]
+		 [nsy (* sy (/ h 110))])
+	     (send dc set-origin (+ dx (* x sx) (* (- 16) nsx)) (+ dy (* y sy) (* (- 20) nsy)))
+	     (send dc set-scale nsx nsy)
+
+	     (let ([wing
+		    (list
+		     
+		     (list 70 (+ 50 40)  35 65     20 20)
+		     (list 20 20    (- 20 5) (+ 20 30)    (+ 20 5) (+ 20 60))
+		     (list (+ 20 5) (+ 20 60)    50 100    70 (+ 50 45))
+		     
+		     (list 22 70   (- 30 5) (+ 65 30)   (+ 30 5) (+ 65 40))
+		     (list (+ 30 5) (+ 65 40)  50 110     70 (+ 50 50))
+		     
+		     (list 32 102   (- 40 5) (+ 65 50)   (+ 40 5) (+ 65 58))
+		     (list (+ 40 5) (+ 65 58)   60  130    70 (+ 50 52)))])
+	       (when left?
+		 (for-each
+		  (lambda (spline)
+		    (send dc draw-spline . spline))
+		  wing))
+	       (unless left?
+		 (for-each
+		  (lambda (spline)
+		    (let-values ([(x1 y1 x2 y2 x3 y3) (apply values spline)])
+		      (send dc draw-spline (- 87 x1) y1 (- 86 x2) y2 (- 86 x3) y3)))
+		  wing)))
+
+	     (send dc set-origin dx dy)
+	     (send dc set-scale sx sy))))
+       w h 0 0)))
+
+  (define desktop-machine
+    (opt-lambda (s [style null])
+      (let ([bm (if (memq 'plt style)
+		    (make-object bitmap% (build-path (collection-path "icons") "plt-small-shield.gif"))
+		    #f)])
+	(dc (lambda (dc x y)
+	      (let-values ([(sx sy) (send dc get-scale)]
+			   [(dx dy) (send dc get-origin)]
+			   [(op) (send dc get-pen)]
+			   [(ob) (send dc get-brush)])
+		(send dc set-origin (+ dx x (* s sx 10)) (+ dy y (* s sy 15)))
+		(send dc set-scale (* sx s) (* sy s))
+		
+		(let ([gray (send the-brush-list
+				  find-or-create-brush
+				  "gray"
+				  'solid)])
+		  (send dc set-brush gray)
+		  (send dc draw-polygon (list
+					 (make-object point% 10 60)
+					 (make-object point% 0 80)
+					 (make-object point% 80 80)
+					 (make-object point% 100 60)
+					 (make-object point% 100 0)
+					 (make-object point% 20 0)
+					 (make-object point% 10 5))))
+		(send dc draw-line 80 80 90 60)
+		(send dc draw-rectangle 10 5 80 55)
+		(send dc set-brush (send the-brush-list
+					 find-or-create-brush
+					 "white"
+					 'solid))
+		(send dc draw-rounded-rectangle 15 10 70 45 5)
+
+		(when (memq 'devil style)
+		  (send dc set-font (make-object font% 12 'modern 'normal 'normal))
+		  (let-values ([(w h d a) (send dc get-text-extent "101010")])
+		    (let ([dx (+ (/ (- 70 w) 2) 15)]
+			  [dy (+ (/ (- 45 (* 2 h) 2) 2) 10)])
+		      (send dc draw-text "101010" dx dy)
+		      (send dc draw-text "010101" dx (+ dy h 2))))
+		  
+		  (send dc set-brush (send the-brush-list
+					   find-or-create-brush
+					   "red"
+					   'solid))
+		  (let ([horn (list
+			       (make-object point% 0 17)
+			       (make-object point% 2 0)
+			       (make-object point% 4 17))])
+		    (send dc draw-polygon horn 30 -15)
+		    (send dc draw-polygon horn 70 -15))
+		  
+		  (send dc draw-polygon (list
+					 (make-object point% 0 0)
+					 (make-object point% 10 2)
+					 (make-object point% 0 6))
+			115 32)
+		  
+		  (send dc set-pen (send the-pen-list
+					 find-or-create-pen
+					 "red"
+					 2
+					 'solid))
+		  (send dc draw-line 101 55 110 55)
+		  (send dc draw-spline 110 55   130 50    110  45)
+		  (send dc draw-spline 110 45   90 40    115  35))
+
+		(send dc set-origin dx dy)
+		(send dc set-scale sx sy)
+
+		(send dc set-pen op)
+		(send dc set-brush ob)
+
+		(when (memq 'plt style)
+		  (when (send bm ok?)
+		    (let ([w (send bm get-width)]
+			  [h (send bm get-height)])
+		      (send dc draw-bitmap bm 
+			    (+ x (/ (- (* s 70) w) 2) (* s 25)) 
+			    (+ y (/ (- (* s 45) h) 2) (* s 25))))))))
+	(* s 120) (* s 115) 0 0))))
 
   (define jack-o-lantern
     (opt-lambda (size [pumpkin-color "orange"] [face-color "black"] [stem-color "brown"])
