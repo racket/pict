@@ -522,6 +522,10 @@ it should be.]
 > ellipse                 ; width height -> pict
 > filled-ellipse          ; width height -> pict
 
+  ;; Unfilled and filled rectangle; works for all sizes.
+> rectangle               ; width height -> pict
+> filled--rectangle        ; width height -> pict
+
   ;; Creates an arrow or arrowhead in the specific direction
   ;;  within a size x size pict. (Points on the arrow may
   ;;  extend slightly beyond the box.)

@@ -24,7 +24,9 @@
            filled-ellipse
 	   circle
 	   disk
-
+           rectangle
+           filled-rectangle
+           
 	   cloud
 	   file-icon
 	   jack-o-lantern
@@ -193,6 +195,28 @@
      `((place 0 0 ,(arrow-line dx dy size))
        (place ,dx ,dy ,(arrow-line (- dx) (- dy) size)))))
 
+  (define (filled-rectangle w h)
+    (dc
+     (lambda (dc x y)
+       (send dc draw-rectangle x y w h))
+     w
+     h
+     0
+     0))
+  
+  (define (rectangle w h)
+    (dc
+     (lambda (dc x y)
+       (let ([b (send dc get-brush)])
+         (send dc set-brush (send the-brush-list find-or-create-brush
+                                  "white" 'transparent))
+         (send dc draw-rectangle x y w h)
+         (send dc set-brush b)))
+     w
+     h
+     0
+     0))
+  
   (define (circle size) (ellipse size size))
   
   (define (ellipse width height)
