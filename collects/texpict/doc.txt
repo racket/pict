@@ -321,6 +321,11 @@ Procedures
    ;;  embedded pict
 >  refocus        ; pict pict -> pict
 
+   ;; Given a pict, shifts the given pict's bounding box
+   ;;  to enclose the bounding boxes of all unlaundered
+   ;;  sub-picts
+>  panorama      ; pict -> pict
+
 >  hline        ; w h -> pict
 >  dash-hline   ; w h seg-length -> pict ; default seg-length is 5
 >  vline        ; w h -> pict
