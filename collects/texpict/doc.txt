@@ -61,7 +61,7 @@ and a bitmap-dc% will work fine for bitmap-dc% or canvas% output.
 The `draw-pict' function takes a picture, a device context
 
  ;; Example of prodcuing PostScript output
- (require-library "mrpict.ss" "texpict")
+ (require (lib "mrpict.ss" "texpict"))
 
  ;; Create PS context
  (define ps-dc (make-object post-script-dc%))
