@@ -77,7 +77,7 @@
 	  (add-close (hbl-append p (case (car closes)
 				     [(literal) close-paren/lit-p]
 				     [(template) close-paren/tmpl-p]
-				     [(cond template-cond) close-sq-p]
+				     [(cond template-cond local) close-sq-p]
 				     [else close-paren-p]))
 		     (cdr closes))]))
 
@@ -130,12 +130,15 @@
 
       (define (sub-mode mode)
 	(case mode
-	  [(line cond) #f]
+	  [(line cond local) #f]
 	  [(template-cond) 'template]
 	  [else mode]))
 
       (define (cond? s)
 	(memq (syntax-e s) '(cond))) ;  syntax-rules syntax-case)))
+
+      (define (local? s)
+	(memq (syntax-e s) '(local)))
 
       (define (get-span stx)
 	(syntax-case stx (code:blank)
@@ -174,11 +177,17 @@
 			    (cond
 			     [(null? (cdr is)) (list (loop (car is) (cons mode closes) sub-mode))]
 			     [else (cons (loop (car is) null sub-mode)
-					 (iloop (cdr is) (if (cond? (car is))
-							     (if (eq? mode 'template)
-								 'template-cond
-								 'cond)
-							     sub-mode)))]))])
+					 (iloop (cdr is) (cond
+							  [(cond? (car is))
+							   (if (eq? mode 'template)
+							       'template-cond
+							       'cond)]
+							  [(local? (car is))
+							   'local]
+							  [(eq? sub-mode 'local)
+							   #f]
+							  [else
+							   sub-mode])))]))])
 		 ;; Combine the parts:
 		 (let ([left (or (syntax-column stx) +inf.0)])
 		   (let loop ([stxs is]
@@ -187,7 +196,7 @@
 					     [(literal) open-paren/lit-p]
 					     [(template) open-paren/tmpl-p]
 					     [(comment line) (blank)]
-					     [(cond template-cond) open-sq-p]
+					     [(cond template-cond local) open-sq-p]
 					     [else open-paren-p])]
 			      [col (+ left 1)]
 			      [line (syntax-line stx)]
