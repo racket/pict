@@ -88,7 +88,7 @@ The `draw-pict' function takes a picture, a device context
  ;; Output pict
  (draw-pict p ps-dc 0 0)
  (send ps-dc end-page)
- (send ps-dc end-doc))
+ (send ps-dc end-doc)
 
 If the output dc<%> has a "user scale", it is not reflected in the
 size information reported for pictures. This is consistent with MrEd's

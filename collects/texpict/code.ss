@@ -42,19 +42,39 @@
   (define-signature code^
     (typeset-code 
      comment-color keyword-color id-color literal-color
-     code-align
-     current-keyword-list current-const-list code-colorize-enabled))
+     code-align current-code-tt
+     current-keyword-list current-const-list code-colorize-enabled
+     current-base-color current-id-color current-literal-color))
 
   (define-signature code-params^
     (current-font-size 
      line-sep))
 
+  (define-syntax (define-once stx)
+    (syntax-case stx ()
+      [(_ id v)
+       #'(begin
+	   (define val #f)
+	   (define (get-val)
+	     (unless val
+	       (set! val v))
+	     val)
+	   (define-syntax id
+	     (syntax-id-rules (set)
+	       [(x (... ...)) ,illegal-use-of-once]
+	       [x (get-val)])))]))
+
   (define code@
     (unit/sig code^
       (import code-params^)
       
-      (define (tt s)
+      (define (default-tt s)
 	(text s `(bold . modern) (current-font-size)))
+
+      (define current-code-tt (make-parameter default-tt))
+
+      (define (tt s)
+	((current-code-tt) s))
 
       (define (code-align p)
 	(lift (inset p 0 (pict-height p) 0 0) (pict-height p)))
@@ -75,25 +95,27 @@
 	    (colorize p c)
 	    p))
       
-      (define base-color "brown")
+      (define current-base-color (make-parameter "brown"))
       (define keyword-color "black")
       (define id-color "navy")
+      (define current-id-color (make-parameter id-color))
       (define literal-color (make-object color% 51 135 39))
-      (define comment-color base-color)
+      (define current-literal-color (make-parameter literal-color))
+      (define comment-color (current-base-color))
       
-      (define open-paren-p (colorize (tt "(") base-color))
-      (define close-paren-p (colorize (tt ")") base-color))
-      (define open-sq-p (colorize (tt "[") base-color))
-      (define close-sq-p (colorize (tt "]") base-color))
-      (define quote-p (colorize (tt "'") literal-color))
-      (define syntax-p (colorize (tt "#'") keyword-color))
-      (define semi-p (colorize (tt "; ") comment-color))
-      (define open-paren/lit-p (colorize (tt "(") literal-color))
-      (define close-paren/lit-p (colorize (tt ")") literal-color))
-      (define open-paren/tmpl-p (colorize (tt "(") comment-color))
-      (define close-paren/tmpl-p (colorize (tt ")") comment-color))
+      (define-once open-paren-p (colorize (tt "(") (current-base-color)))
+      (define-once close-paren-p (colorize (tt ")") (current-base-color)))
+      (define-once open-sq-p (colorize (tt "[") (current-base-color)))
+      (define-once close-sq-p (colorize (tt "]") (current-base-color)))
+      (define-once quote-p (colorize (tt "'") (current-literal-color)))
+      (define-once syntax-p (colorize (tt "#'") keyword-color))
+      (define-once semi-p (colorize (tt "; ") comment-color))
+      (define-once open-paren/lit-p (colorize (tt "(") (current-literal-color)))
+      (define-once close-paren/lit-p (colorize (tt ")") (current-literal-color)))
+      (define-once open-paren/tmpl-p (colorize (tt "(") comment-color))
+      (define-once close-paren/tmpl-p (colorize (tt ")") comment-color))
 
-      (define dot-p (colorize (tt " . ") base-color))
+      (define-once dot-p (colorize (tt " . ") (current-base-color)))
 
       (define (get-close mode)
 	(case mode
@@ -135,7 +157,7 @@
 	       (char=? #\_ (string-ref str 0))
 	       (not (char=? #\_ (string-ref str 1))))
 	  (maybe-colorize (text (substring str 1) `(bold italic . modern) (current-font-size))
-			  id-color)]
+			  (current-id-color))]
 	 [(regexp-match #rx"^(.+)_([0-9a-z]+)\\^([0-9a-z]+)$" str)
 	  => (lambda (m)
 	       (hbl-append (colorize-id (cadr m) mode)
@@ -160,11 +182,11 @@
 	  (maybe-colorize
 	   (tt str)
 	   (cond
-	    [(eq? mode 'literal) literal-color]
+	    [(eq? mode 'literal) (current-literal-color)]
 	    [(memq mode '(comment template)) comment-color]
 	    [(member str (current-keyword-list)) keyword-color]
-	    [(member str (current-const-list)) literal-color]
-	    [else id-color]))]))
+	    [(member str (current-const-list)) (current-literal-color)]
+	    [else (current-id-color)]))]))
 
       (define (sub-mode mode)
 	(case mode
@@ -290,7 +312,7 @@
 	    [else
 	     (add-close (if (pict? (syntax-e stx))
 			    (syntax-e stx)
-			    (maybe-colorize (tt (format "~s" (syntax-e stx))) literal-color))
+			    (maybe-colorize (tt (format "~s" (syntax-e stx))) (current-literal-color)))
 			closes)])))
       
       )))
