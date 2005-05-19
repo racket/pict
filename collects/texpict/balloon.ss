@@ -8,6 +8,7 @@
   
   (provide wrap-balloon
 	   place-balloon
+	   pin-balloon
 	   (rename mk-balloon balloon)
            make-balloon
 	   balloon?
@@ -140,16 +141,25 @@
 	 (balloon-point-x b)
 	 (balloon-point-y b)))))
   
-  (define (place-balloon balloon p to find-to)
+  (define (do-place-balloon flip-proc? balloon p to find-to)
     (let-values ([(x y) (if (and (number? to) 
 				 (number? find-to)) 
 			    (values to (- (pict-height p)
 					  find-to))
-			    (find-to p to))])
+			    (if flip-proc?
+				(let-values ([(x y) (find-to p to)])
+				  (values x (- (pict-height p) y)))
+				(find-to p to)))])
       (cons-picture
        p
        `((place ,(- x (balloon-point-x balloon))
                 ,(- y  ; up-side down!
                     (- (pict-height (balloon-pict balloon))
                        (balloon-point-y balloon)))
-                ,(balloon-pict balloon)))))))
+                ,(balloon-pict balloon))))))
+
+  (define (place-balloon balloon p to find-to)
+    (do-place-balloon #f balloon p to find-to))
+
+  (define (pin-balloon balloon p to find-to)
+    (do-place-balloon #t balloon p to find-to)))

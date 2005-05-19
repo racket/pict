@@ -20,6 +20,9 @@
 	   arrowhead/offset
 	   arrow-line
 	   arrows-line
+	   pt-line
+	   pt-arrow-line
+	   pt-arrows-line
 	   
            ellipse
            filled-ellipse
@@ -36,6 +39,10 @@
 	   angel-wing
 	   desktop-machine
 	   standard-fish
+
+	   pin-line
+	   pin-arrow-line
+	   pin-arrows-line
 
 	   add-line
 	   add-arrow-line
@@ -196,6 +203,11 @@
   (define (arrowhead/offset size angle)
     (arrowhead/delta 0 size angle))
 
+  (define (pt-line dx dy size)
+    (picture
+     0 0
+     `((connect 0 0 ,dx ,(- dy)))))
+
   (define (arrow-line dx dy size)
     (let-values ([(a adx ady) (arrowhead/delta 0 size (atan dy dx))])
       (picture
@@ -203,11 +215,17 @@
        `((connect 0 0 ,dx ,dy)
 	 (place ,(+ dx adx) ,(+ ady dy) ,a)))))
 
+  (define (pt-arrow-line dx dy size)
+    (arrow-line dx (- dy) size))
+
   (define (arrows-line dx dy size)
     (picture
      0 0
      `((place 0 0 ,(arrow-line dx dy size))
        (place ,dx ,dy ,(arrow-line (- dx) (- dy) size)))))
+
+  (define (pt-arrows-line dx dy size)
+    (arrows-line dx (- dy) size))
 
   (define (filled-rectangle w h)
     (dc
@@ -741,37 +759,36 @@
             (cc-superimpose base arrows)))))
 
   (define add-line
-    (case-lambda
-      [(base src find-src dest find-dest)
-       (add-line base src find-src dest find-dest #f #f)]
-      [(base src find-src dest find-dest thickness)
-       (add-line base src find-src dest find-dest thickness #f)]
-      [(base src find-src dest find-dest thickness color)
-       (add-line base src find-src dest find-dest thickness color #f)]
-      [(base src find-src dest find-dest thickness color under?)
-       (-add-line base src find-src dest find-dest thickness color #f #f under?)]))
+    (opt-lambda (base src find-src dest find-dest [thickness #f] [color #f] [under? #f])
+      (-add-line base src find-src dest find-dest thickness color #f #f under?)))
   
   (define add-arrow-line
-    (case-lambda
-      [(arrow-size base src find-src dest find-dest)
-       (add-arrow-line arrow-size base src find-src dest find-dest #f #f)]
-      [(arrow-size base src find-src dest find-dest thickness)
-       (add-arrow-line arrow-size base src find-src dest find-dest thickness #f)]
-      [(arrow-size base src find-src dest find-dest thickness color)
-       (-add-line base src find-src dest find-dest thickness color arrow-size #f #f)]
-      [(arrow-size base src find-src dest find-dest thickness color under?)
-       (-add-line base src find-src dest find-dest thickness color arrow-size #f under?)]))
+    (opt-lambda (arrow-size base src find-src dest find-dest [thickness #f] [color #f] [under? #f])
+      (-add-line base src find-src dest find-dest thickness color arrow-size #f under?)))
   
   (define add-arrows-line
-    (case-lambda
-      [(arrow-size base src find-src dest find-dest)
-       (add-arrows-line arrow-size base src find-src dest find-dest #f #f)]
-      [(arrow-size base src find-src dest find-dest thickness)
-       (add-arrows-line arrow-size base src find-src dest find-dest thickness #f)]
-      [(arrow-size base src find-src dest find-dest thickness color)
-       (-add-line base src find-src dest find-dest thickness color arrow-size arrow-size #f)]
-      [(arrow-size base src find-src dest find-dest thickness color under?)
-       (-add-line base src find-src dest find-dest thickness color arrow-size arrow-size under?)]))
+    (opt-lambda (arrow-size base src find-src dest find-dest [thickness #f] [color #f] [under? #f])
+      (-add-line base src find-src dest find-dest thickness color arrow-size arrow-size under?)))
+
+  (define (flip-find-y find-)
+    (lambda (base path)
+      (let-values ([(x y) (find- base path)])
+	(values x (- (pict-height base) y)))))
+
+  (define pin-line
+    (opt-lambda (base src find-src dest find-dest [thickness #f] [color #f] [under? #f])
+      (-add-line base src (flip-find-y find-src) dest (flip-find-y find-dest)
+		 thickness color #f #f under?)))
+  
+  (define pin-arrow-line
+    (opt-lambda (arrow-size base src find-src dest find-dest [thickness #f] [color #f] [under? #f])
+      (-add-line base src (flip-find-y find-src) dest (flip-find-y find-dest)
+		 thickness color arrow-size #f under?)))
+  
+  (define pin-arrows-line
+    (opt-lambda (arrow-size base src find-src dest find-dest [thickness #f] [color #f] [under? #f])
+      (-add-line base src (flip-find-y find-src) dest (flip-find-y find-dest)
+		 thickness color arrow-size arrow-size under?)))
   
   (define black-color (make-object color% 0 0 0))
 
