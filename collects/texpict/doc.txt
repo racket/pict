@@ -386,7 +386,7 @@ Combiners:
 
    Creates a pict with the same bounding box, ascent, and descent
    as the initial argument, but with the second pict placed on top.
-   The dx and dy argument specify how far left and down the second
+   The dx and dy argument specify how far right and down the second
    pict's corner is from the first pict's corner.
    Alternately, the sub-pict and procedure arguments find a point
    in the initial pict for the second pict's corner. The procedure
