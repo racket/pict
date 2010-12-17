@@ -1,6 +1,11 @@
-#lang scheme/gui
+#lang racket/base
 
-  (require "mrpict.ss")
+  (require racket/contract
+           racket/class
+           racket/draw
+           racket/math
+           racket/gui/dynamic
+           "mrpict.ss")
 
   ;; Utilities for use with mrpict
   
@@ -47,7 +52,6 @@
            
            color-series
            scale-color
-	   scale
 	   scale/improve-new-text
            
            cellophane
@@ -56,7 +60,7 @@
            clip
 
 	   hyperlinkize)
-
+  
   (define (pict-path? p)
     (or (pict? p) 
         (and (pair? p)
@@ -64,6 +68,8 @@
              (andmap pict? p))))
   
   (provide/contract 
+   [scale (case-> (-> pict? number? number? pict?)
+                  (-> pict? number? pict?))]
    [pin-line (->* (pict?
                    pict-path? (-> pict? pict-path? (values number? number?))
                    pict-path? (-> pict? pict-path? (values number? number?)))
@@ -885,8 +891,10 @@
     (let ([bm (cond
 	       [(bitmap-draft-mode) #f]
 	       [(filename . is-a? . bitmap%) filename]
-	       [(filename . is-a? . image-snip%) (send filename get-bitmap)]
-	       [else (make-object bitmap% filename 'unknown/mask)])])
+	       [(path-string? filename) (make-object bitmap% filename 'unknown/mask)]
+	       [(and (gui-available?)
+                     (filename . is-a? . (gui-dynamic-require 'image-snip%)))
+                (send filename get-bitmap)])])
       (if (and bm (send bm ok?))
 	  (let ([w (send bm get-width)]
 		[h (send bm get-height)])
