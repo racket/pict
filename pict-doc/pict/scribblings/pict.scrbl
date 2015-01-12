@@ -674,10 +674,12 @@ Like @racket[pin-over], but @racket[pict] is drawn before
 
 @defproc[(table [ncols exact-positive-integer?]
                 [picts (non-empty-listof pict?)]
-                [col-aligns (list*of (->* () #:rest (listof pict?) pict?))]
-                [row-aligns (list*of (->* () #:rest (listof pict?) pict?))]
-                [col-seps (list*of real?)]
-                [row-seps (list*of real?)])
+                [col-aligns (or/c (list*of (->* () #:rest (listof pict?) pict?))
+                                  (listof (->* () #:rest (listof pict?) pict?)))]
+                [row-aligns (or/c (list*of (->* () #:rest (listof pict?) pict?))
+                                  (listof (->* () #:rest (listof pict?) pict?)))]
+                [col-seps (or/c (list*of real?) (listof real?))]
+                [row-seps (or/c (list*of real?) (listof real?))])
          pict?]{
 
 Creates a table given a list of picts. The @racket[picts] list is a

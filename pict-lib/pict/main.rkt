@@ -28,10 +28,12 @@
  (contract-out
   [table (->i ([ncols exact-positive-integer?]
                [picts (non-empty-listof pict?)]
-               [col-aligns (list*of (->* () #:rest (listof pict?) pict?))]
-               [row-aligns (list*of (->* () #:rest (listof pict?) pict?))]
-               [col-seps (list*of real?)]
-               [row-seps (list*of real?)])
+               [col-aligns (or/c (list*of (->* () #:rest (listof pict?) pict?))
+                                 (listof (->* () #:rest (listof pict?) pict?)))]
+               [row-aligns (or/c (list*of (->* () #:rest (listof pict?) pict?))
+                                 (listof (->* () #:rest (listof pict?) pict?)))]
+               [col-seps (or/c (listof real?) (list*of real?))]
+               [row-seps (or/c (listof real?) (list*of real?))])
               #:pre (ncols picts)
               (zero? (remainder (length picts) ncols))
               [result pict?])]
