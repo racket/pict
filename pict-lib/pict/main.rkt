@@ -71,20 +71,20 @@
                          pict?)]
   [pin-under
    (->i ([base pict?]
-         [dx/fp (or/c real? pict?)]
+         [dx/fp (or/c real? pict-path?)]
          [dy/f (dx/fp)
                (if (real? dx/fp)
                    real?
-                   (-> pict? pict? (values real? real?)))]
+                   (-> pict? pict-path? (values real? real?)))]
          [pict pict?])
         [result pict?])]
   [pin-over
    (->i ([base pict?]
-         [dx/fp (or/c real? pict?)]
+         [dx/fp (or/c real? pict-path?)]
          [dy/f (dx/fp)
                (if (real? dx/fp)
                    real?
-                   (-> pict? pict? (values real? real?)))]
+                   (-> pict? pict-path? (values real? real?)))]
          [pict pict?])
         [result pict?])]
   [disk (->* ((and/c rational? (not/c negative?))) (#:draw-border? any/c) pict?)]))
