@@ -841,6 +841,12 @@ Like the @racket[scale] procedure, but also sets
 A parameter that determines whether @racket[colorize] uses color or
 black-and-white colors.}
 
+@defproc[(freeze [pict pict?]) pict?]{
+
+Freeze internally crops @racket[pict] and renders it to a bitmap. This is usually used to improve
+rendering performance. Any sub-picts remain intact within the new pict.}
+
+
 @; ------------------------------------------------------------------------
 
 @section{Bounding Box Adjusters}
