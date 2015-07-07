@@ -841,6 +841,18 @@ Like the @racket[scale] procedure, but also sets
 A parameter that determines whether @racket[colorize] uses color or
 black-and-white colors.}
 
+@defproc[(freeze [pict pict?]) pict?]{
+ Creates a bitmap with the same size as @racket[pict], draws
+ @racket[pict] into the bitmap, and then returns a pict that
+ draws with the bitmap.
+
+ This has the effect of speeding up subsequent drawing of
+ the pict and also of cropping it to its bounding box. Any
+ sub-picts of @racket[pict] remain intact within the new
+ pict.
+}
+
+
 @; ------------------------------------------------------------------------
 
 @section{Bounding Box Adjusters}
