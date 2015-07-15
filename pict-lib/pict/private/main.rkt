@@ -241,10 +241,17 @@
     (send bm set-argb-pixels 0 0 w h b)
     (bitmap bm))
 
+  (define (freeze p)
+    (define frozen (bitmap (pict->bitmap p)))
+    (struct-copy pict p [draw (pict-draw frozen)]))
+
   (provide hline vline
            frame
            pict-path?
            pin-line pin-arrow-line pin-arrows-line
+           freeze
+
+
            (except-out (all-from-out "pict.rkt")
                        
                        dash-hline dash-vline
