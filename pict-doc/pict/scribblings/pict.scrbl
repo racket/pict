@@ -843,8 +843,10 @@ black-and-white colors.}
 
 @defproc[(freeze [pict pict?]) pict?]{
 
-Freeze internally crops @racket[pict] and renders it to a bitmap. This is usually used to improve
-rendering performance. Any sub-picts remain intact within the new pict.}
+freeze creates a bitmap with the same size as @racket[pict], draws @racket[pict] into the bitmap and
+then returns a pict that draws with the bitmap. This has the effect of speeding up subsequent
+drawing of the pict and also of cropping it to it's bounding box. Any sub-picts of @racket[pict]
+remain intact within the new pict.}
 
 
 @; ------------------------------------------------------------------------
