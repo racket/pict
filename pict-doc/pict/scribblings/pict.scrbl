@@ -973,6 +973,10 @@ pict with the same shape and location.}
 
 @; ----------------------------------------
 
+@include-section["conditional.scrbl"]
+
+@; ----------------------------------------
+
 @include-section["tree-layout.scrbl"]
 
 @; ----------------------------------------
