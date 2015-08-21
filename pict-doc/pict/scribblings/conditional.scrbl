@@ -46,7 +46,7 @@ invisible images using @racket[combine-expr], defaulting to
 
 @examples[#:eval the-eval
 (let ([f (lambda (x)
-           (pict-cond
+           (pict-cond #:combine cc-superimpose
              [(eq? x 'circle) (circle 20)]
              [(eq? x 'disk) (disk 40)]
              [(eq? x 'text) (text "ok" null 20)]))])
