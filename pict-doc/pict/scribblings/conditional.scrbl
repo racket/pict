@@ -23,7 +23,7 @@ change with each slide but its size and position will not.
 Chooses either @racket[then-expr] or @racket[else-expr] based on
 @racket[test-expr], similarly to @racket[if].  Combines the chosen, visible
 image with the other, invisible image using @racket[combine-expr], defaulting to
-@racket[pict-combine].
+@racket[lbl-superimpose].
 
 @examples[#:eval the-eval
 (let ([f (lambda (x)
@@ -42,7 +42,7 @@ image with the other, invisible image using @racket[combine-expr], defaulting to
 Chooses a @racket[pict-expr] based on the first successful @racket[test-expr],
 similarly to @racket[cond].  Combines the chosen, visible image with the other,
 invisible images using @racket[combine-expr], defaulting to
-@racket[pict-combine].
+@racket[lbl-superimpose].
 
 @examples[#:eval the-eval
 (let ([f (lambda (x)
@@ -63,7 +63,7 @@ invisible images using @racket[combine-expr], defaulting to
 Chooses a @racket[pict-expr] based on @racket[test-expr] and each list of
 @racket[literals], similarly to @racket[case].  Combines the chosen, visible
 image with the other, invisible images using @racket[combine-expr], defaulting
-to @racket[pict-combine].
+to @racket[lbl-superimpose].
 
 @examples[#:eval the-eval
 (let ([f (lambda (x)
@@ -84,7 +84,7 @@ to @racket[pict-combine].
 Chooses a @racket[pict-expr] based on @racket[test-expr] and each
 @racket[pattern], similarly to @racket[match].  Combines the chosen, visible
 image with the other, invisible images using @racket[combine-expr], defaulting
-to @racket[pict-combine].
+to @racket[lbl-superimpose].
 
 }
 
