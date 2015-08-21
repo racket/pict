@@ -969,6 +969,10 @@ pict with the same shape and location.}
 
 @; ----------------------------------------
 
+@include-section["color.scrbl"]
+
+@; ----------------------------------------
+
 @include-section["tree-layout.scrbl"]
 
 @; ----------------------------------------
