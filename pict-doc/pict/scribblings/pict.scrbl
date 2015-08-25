@@ -747,17 +747,26 @@ scale while drawing the original @racket[pict].
 
 }
 
-@defproc*[([(scale-to-fit [pict pict?] [size-pict pict?]) pict?]
-           [(scale-to-fit [pict pict?] [width real?] [height real?]) pict?])]{
+@defproc*[([(scale-to-fit [pict pict?] [size-pict pict?]
+                          [#:mode mode (or/c 'preserve 'inset 'distort) 'preserve])
+                          pict?]
+           [(scale-to-fit [pict pict?] [width real?] [height real?]
+                          [#:mode mode (or/c 'preserve 'inset 'distort) 'preserve])
+                          pict?])]{
   Scales @racket[pict] so that it fits within the bounding box of
          @racket[size-pict] (if two arguments are supplied) or
          into a box of size @racket[width] by @racket[height] 
          (if three arguments are supplied).
-         
-         The aspect ratio of the pict is preserved, so the resulting pict
-         will have either the width or the height of the @racket[size-pict]
-         (or @racket[width] by @racket[height] box), but not necessarily
-         both.
+
+         If @racket[mode] is @racket['preserve], the width and height are
+         scaled by the same factor so @racket[pict]'s aspect ratio is
+         preserved; the result's bounding box may be smaller than
+         @racket[width] by @racket[height].
+         If @racket[mode] is @racket['inset], the aspect ratio is preserved as
+         with @racket['preserve], but the resulting pict is centered in a
+         bounding box of exactly @racket[width] by @racket[height].
+         If @racket[mode] is @racket['distort], the width and height are scaled
+         separately.
 }
 
 

@@ -69,8 +69,9 @@
   (provide/contract 
    [scale (case-> (-> pict? number? number? pict?)
                   (-> pict? number? pict?))]
-   [scale-to-fit (case-> (-> pict? number? number? pict?)
-                         (-> pict? pict? pict?))]
+   [scale-to-fit (->* (pict? (or/c number? pict?))
+                      (number? #:mode (or/c 'preserve 'inset 'distort))
+                      pict?)]
    [rotate (case-> (-> pict? number? pict?))]
    [pin-line (->* (pict?
                    pict-path? (-> pict? pict-path? (values number? number?))
@@ -1071,13 +1072,37 @@
           (s (send c green))
           (s (send c blue))))))
   
-  (define scale-to-fit
-    (case-lambda
-      [(main-pict size-pict)
-       (scale-to-fit main-pict (pict-width size-pict) (pict-height size-pict))]
-      [(main-pict w h)
-       (scale main-pict (min (/ w (pict-width main-pict))
-                             (/ h (pict-height main-pict))))]))
+  ;; arg spec is not great. started as a case-lambda, then grew a keyword arg
+  (define (scale-to-fit main-pict w-or-size-pict [h-or-false #f]
+                        #:mode [mode 'preserve]) ; or: 'inset 'distort
+    (cond [(not h-or-false) ; scale to the size of another pict
+           (define size-pict w-or-size-pict)
+           (unless (pict? size-pict)
+             (raise-type-error 'scale-to-fit "pict?" size-pict))
+           (scale-to-fit main-pict
+                         (pict-width size-pict)
+                         (pict-height size-pict)
+                         #:mode mode)]
+          [else
+           (define w w-or-size-pict)
+           (define h h-or-false)
+           (define w0 (pict-width main-pict))
+           (define h0 (pict-height main-pict))
+           (define wfactor0 (if (zero? w0) 1 (/ w w0)))
+           (define hfactor0 (if (zero? h0) 1 (/ h h0)))
+           (define-values (wfactor hfactor)
+             (case mode
+               ((preserve inset)
+                (let ([factor (min wfactor0 hfactor0)])
+                  (values factor factor)))
+               ((distort)
+                (values wfactor0 hfactor0))))
+           (define scaled-pict (scale main-pict wfactor hfactor))
+           (case mode
+             ((inset)
+              (cc-superimpose (blank w h) scaled-pict))
+             (else
+              scaled-pict))]))
   
 (define scale
   (case-lambda

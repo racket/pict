@@ -62,3 +62,14 @@
  (for ([i 1000])
    (define-values (l p) (generate-pict))
    (check-pict=? p (freeze p) (format "~a" l))))
+
+(test-case
+ "scale-to-fit"
+ (define p (rectangle 10 20))
+ (check-pict=? (scale-to-fit p p) p)
+ (check-pict=? (scale-to-fit p (scale p 2)) (scale p 2))
+ (check-pict=? (scale-to-fit p 40 40) (scale p 2))
+ (check-pict=? (scale-to-fit p 40 40 #:mode 'inset)
+               (cc-superimpose (blank 40 40)
+                               (scale p 2)))
+ (check-pict=? (scale-to-fit p 40 40 #:mode 'distort) (scale p 4 2)))
