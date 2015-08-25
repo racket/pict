@@ -14,7 +14,8 @@
          0 0
          (send b get-width)
          (send b get-height)
-         its))
+         its)
+  its)
 
 (define-binary-check (check-pict=? actual expected)
   (equal? (->bitmap actual) (->bitmap expected)))
