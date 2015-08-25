@@ -88,4 +88,15 @@ to @racket[lbl-superimpose].
 
 }
 
+@deftogether[(
+@defproc[(show [pict pict?] [show? truth/c #t]) pict?]
+@defproc[(hide [pict pict?] [hide? truth/c #t]) pict?]
+)]{
+
+These functions conditionally show or hide an image, essentially choosing
+between @racket[pict] and @racket[(ghost pict)].  The only difference between
+the two is the default behavior and the opposite meaning of the @racket[show?]
+and @racket[hide?] booleans.  Both functions are provided for mnemonic purposes.
+}
+
 @(close-eval the-eval)
