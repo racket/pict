@@ -312,48 +312,83 @@ override settings supplied by the context.
   (frame (circle 30) #:color "chartreuse" #:line-width 3)
 ]}
 
-@defproc*[([(ellipse [w real?] [h real?]) pict?]
-           [(circle [diameter real?]) pict?]
-           [(filled-ellipse [w real?] [h real?] [#:draw-border? draw-border? any/c #t]) pict?]
+@defproc*[([(ellipse [w real?] [h real?]
+                     [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                     [#:border-width border-width (or/c #f real?) #f])
+                     pict?]
+           [(circle [diameter real?]
+                    [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                    [#:border-width border-width (or/c #f real?) #f])
+                    pict?]
+           [(filled-ellipse [w real?] [h real?] [#:draw-border? draw-border? any/c #t]
+                            [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
+                            [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                            [#:border-width border-width (or/c #f real?) #f])
+                            pict?]
            [(disk [diameter (and/c rational? (not/c negative?))]
-                  [#:draw-border? draw-border? any/c #t]) pict?])]{
+                  [#:draw-border? draw-border? any/c #t]
+                  [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
+                  [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                  [#:border-width border-width (or/c #f real?) #f])
+                  pict?])]{
 
 Unfilled and filled ellipses.
 
 If @racket[draw-border?] is @racket[#f], then the pen is set to be transparent
 before drawing the ellipse.
+The @racket[color], @racket[border-color] and @racket[border-width] arguments
+control the fill color, color of the border, and width of the border,
+respectively. Values of @racket[#f] use the color and width of the current pen
+(for the border) or brush (for the fill color).
 
 @examples[#:eval ss-eval
   (ellipse 40 30)
   (circle 30)
   (filled-ellipse 30 40)
   (disk 30)
+  (disk 40 #:color "Chartreuse" #:border-color "Medium Aquamarine" #:border-width 5)
 ]}
 
-@defproc*[([(rectangle [w real?] [h real?]) pict?]
+@defproc*[([(rectangle [w real?] [h real?]
+                       [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                       [#:border-width border-width (or/c #f real?)])
+                       pict?]
            [(filled-rectangle [w real?]
                               [h real?]
-                              [#:draw-border? draw-border? any/c #t])
+                              [#:draw-border? draw-border? any/c #t]
+                              [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
+                              [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                              [#:border-width border-width (or/c #f real?)])
             pict?])]{
 
 Unfilled and filled rectangles.
 
 If @racket[draw-border?] is @racket[#f], then the pen is set to be transparent
 before drawing the rectangle.
+The @racket[color], @racket[border-color] and @racket[border-width] arguments
+control the fill color, color of the border, and width of the border,
+respectively. Values of @racket[#f] use the color and width of the current pen
+(for the border) or brush (for the fill color).
 
 @examples[#:eval ss-eval
   (rectangle 50 50)
   (filled-rectangle 50 80)
+  (filled-rectangle 60 70 #:color "Thistle" #:border-color "Gainsboro" #:border-width 10)
 ]}
 
 @defproc*[([(rounded-rectangle [w real?] [h real?] 
                                [corner-radius real? -0.25]
-                               [#:angle angle real? 0])
+                               [#:angle angle real? 0]
+                               [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                               [#:border-width border-width (or/c #f real?)])
             pict?]
            [(filled-rounded-rectangle [w real?] [h real?]
                                       [corner-radius real? -0.25]
                                       [#:angle angle real? 0] 
-                                      [#:draw-border? draw-border? any/c #t])
+                                      [#:draw-border? draw-border? any/c #t]
+                                      [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
+                                      [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                                      [#:border-width border-width (or/c #f real?)])
             pict?])]{
 
 Unfilled and filled rectangles with rounded corners.  The
@@ -371,10 +406,15 @@ rotated, in radians.
 
 If @racket[draw-border?] is @racket[#f], then the pen is set to be transparent
 before drawing the rectangle.
+The @racket[color], @racket[border-color] and @racket[border-width] arguments
+control the fill color, color of the border, and width of the border,
+respectively. Values of @racket[#f] use the color and width of the current pen
+(for the border) or brush (for the fill color).
 
 @examples[#:eval ss-eval
   (rounded-rectangle 40 40 -0.3 #:angle (/ pi 4))
   (filled-rounded-rectangle 50 40)
+  (filled-rounded-rectangle 70 30 #:color "Burlywood" #:border-color "Bisque" #:border-width 8)
 ]}
 
 @defproc[(bitmap [img (or/c path-string?

@@ -87,7 +87,12 @@
                    (-> pict? pict-path? (values real? real?)))]
          [pict pict?])
         [result pict?])]
-  [disk (->* ((and/c rational? (not/c negative?))) (#:draw-border? any/c) pict?)]))
+  [disk (->* ((and/c rational? (not/c negative?)))
+             (#:draw-border? any/c
+              #:color (or/c #f string? (is-a?/c color%))
+              #:border-color (or/c #f string? (is-a?/c color%))
+              #:border-width (or/c #f real?))
+             pict?)]))
 
 (define (does-draw-restore-the-state-after-being-called? draw)
   (define bdc (new bitmap-dc% [bitmap (make-bitmap 1 1)]))

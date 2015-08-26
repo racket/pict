@@ -274,93 +274,101 @@
   (define (pip-arrows-line dx dy size)
     (arrows-line dx (- dy) size))
 
-  (define (filled-rectangle w h #:draw-border? [draw-border? #t])
-    (dc
-     (lambda (dc x y)
-       (let ([b (send dc get-brush)]
-             [p (send dc get-pen)])
-         (send dc set-brush (send the-brush-list find-or-create-brush
-                                  (send p get-color)
-                                  'solid))
-         (unless draw-border?
-           (send dc set-pen "black" 1 'transparent))
-	 (send dc draw-rectangle x y w h)
-         (send dc set-brush b)
-         (send dc set-pen p)))
-     w
-     h))
-  
-  (define (rectangle w h)
-    (dc
-     (lambda (dc x y)
-       (let ([b (send dc get-brush)])
-         (send dc set-brush (send the-brush-list find-or-create-brush
-                                  "white" 'transparent))
-         (send dc draw-rectangle x y w h)
-         (send dc set-brush b)))
-     w
-     h))
-  
-  (define (rounded-rectangle w h [corner-radius -0.25] #:angle [angle 0])
-    (let ([dc-path (new dc-path%)])
-      (send dc-path rounded-rectangle 0 0 w h corner-radius)
-      (send dc-path rotate angle)
-      (let-values ([(x y w h) (send dc-path get-bounding-box)])
-        (dc (λ (dc dx dy) 
-              (let ([brush (send dc get-brush)])
-                (send dc set-brush (send the-brush-list find-or-create-brush
-                                         "white" 'transparent))
-                (send dc draw-path dc-path (- dx x) (- dy y))
-                (send dc set-brush brush)))
-            w
-            h))))
-  
-  (define (filled-rounded-rectangle w h [corner-radius -0.25] #:angle [angle 0] #:draw-border? [draw-border? #t])
-    (let ([dc-path (new dc-path%)])
-      (send dc-path rounded-rectangle 0 0 w h corner-radius)
-      (send dc-path rotate angle)
-      (let-values ([(x y w h) (send dc-path get-bounding-box)])
-        (dc (λ (dc dx dy) 
-              (let ([brush (send dc get-brush)]
-                    [pen (send dc get-pen)])
-                (send dc set-brush (send the-brush-list find-or-create-brush
-                                         (send (send dc get-pen) get-color)
-                                         'solid))
-                (unless draw-border?
-                  (send dc set-pen "black" 1 'transparent))
-                (send dc draw-path dc-path (- dx x) (- dy y))
-                (send dc set-brush brush)
-                (send dc set-pen pen)))
-            w
-            h))))
-  
-  (define (circle size) (ellipse size size))
-  
-  (define (ellipse width height)
-    (dc (lambda (dc x y)
-	  (let ([b (send dc get-brush)])
-	    (send dc set-brush (send the-brush-list find-or-create-brush
-				     "white" 'transparent))
-	    (send dc draw-ellipse x y width height)
-	    (send dc set-brush b)))
-	width height))
+  (define (draw-shape/border dc-path color [border-color #f] [border-width #f]
+                             #:draw-border? [draw-border? #t])
+    (define-values (color* style)
+      (if color
+          (values color 'solid)
+          (values "white" 'transparent)))
+    (let-values ([(x y w h) (send dc-path get-bounding-box)])
+      (dc (λ (dc dx dy)
+            (define old-brush (send dc get-brush))
+            (define old-pen   (send dc get-pen))
+            (send dc set-brush
+                  (send the-brush-list find-or-create-brush color* style))
+            (if draw-border?
+                (when (or border-color border-width)
+                  ;; otherwise, leave pen as is
+                  (send dc set-pen (send the-pen-list
+                                         find-or-create-pen
+                                         (or border-color
+                                             (send old-pen get-color))
+                                         (or border-width
+                                             (send old-pen get-width))
+                                         (send old-pen get-style))))
+                (send dc set-pen "black" 1 'transparent))
+            (send dc draw-path dc-path (- dx x) (- dy y))
+            (send dc set-brush old-brush)
+            (send dc set-pen   old-pen))
+          w h)))
 
-  (define (disk size #:draw-border? [draw-border? #t])
-    (filled-ellipse size size #:draw-border? draw-border?))
+  (define (filled-rectangle w h
+                            #:draw-border? [draw-border? #t]
+                            #:color        [color #f]
+                            #:border-color [border-color #f]
+                            #:border-width [border-width #f])
+    (define dc-path (new dc-path%))
+    (send dc-path rectangle 0 0 w h)
+    (draw-shape/border dc-path (or color "black") border-color border-width
+                       #:draw-border? draw-border?))
   
-  (define (filled-ellipse width height #:draw-border? [draw-border? #t])
-    (dc (lambda (dc x y)
-	  (define b (send dc get-brush))
-          (define p (send dc get-pen))
-          (send dc set-brush (send the-brush-list find-or-create-brush
-                                   (send (send dc get-pen) get-color)
-                                   'solid))
-          (unless draw-border?
-            (send dc set-pen "black" 1 'transparent))
-          (send dc draw-ellipse x y width height)
-          (send dc set-brush b)
-          (send dc set-pen p))
-	width height))
+  (define (rectangle w h
+                     #:border-color [border-color #f]
+                     #:border-width [border-width #f])
+    (filled-rectangle w h #:color "white"
+                      #:border-color border-color #:border-width border-width))
+  
+  (define (rounded-rectangle w h [corner-radius -0.25]
+                             #:angle        [angle 0]
+                             #:border-color [border-color #f]
+                             #:border-width [border-width #f])
+    (filled-rounded-rectangle w h #:angle angle #:color "white"
+                              #:border-color border-color
+                              #:border-width border-width))
+  
+  (define (filled-rounded-rectangle w h [corner-radius -0.25]
+                                    #:angle        [angle 0]
+                                    #:draw-border? [draw-border? #t]
+                                    #:color        [color #f]
+                                    #:border-color [border-color #f]
+                                    #:border-width [border-width #f])
+    (let ([dc-path (new dc-path%)])
+      (send dc-path rounded-rectangle 0 0 w h corner-radius)
+      (send dc-path rotate angle)
+      (draw-shape/border dc-path (or color "black") border-color border-width
+                         #:draw-border? draw-border?)))
+  
+  (define (circle size
+                  #:border-color [border-color #f]
+                  #:border-width [border-width #f])
+    (ellipse size size #:border-color border-color #:border-width border-width))
+  
+  (define (ellipse width height
+                   #:border-color [border-color #f]
+                   #:border-width [border-width #f])
+    (filled-ellipse width height #:color "white"
+                    #:border-color border-color
+                    #:border-width border-width))
+
+  (define (disk size
+                #:draw-border? [draw-border? #t]
+                #:color        [color #f]
+                #:border-color [border-color #f]
+                #:border-width [border-width #f])
+    (filled-ellipse size size #:draw-border? draw-border?
+                    #:color color
+                    #:border-color border-color
+                    #:border-width border-width))
+  
+  (define (filled-ellipse width height
+                          #:draw-border? [draw-border? #t]
+                          #:color        [color #f]
+                          #:border-color [border-color #f]
+                          #:border-width [border-width #f])
+    (define dc-path (new dc-path%))
+    (send dc-path ellipse 0 0 width height)
+    (draw-shape/border dc-path (or color "black") border-color border-width
+                       #:draw-border? draw-border?))
 
   (define cloud
     (case-lambda
