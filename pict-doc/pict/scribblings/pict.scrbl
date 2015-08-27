@@ -340,6 +340,8 @@ The @racket[color], @racket[border-color] and @racket[border-width] arguments
 control the fill color, color of the border, and width of the border,
 respectively. Values of @racket[#f] use the color and width of the current pen
 (for the border) or brush (for the fill color).
+Passing non-@racket[#f] values as @racket[border-color] or @racket[border-width]
+when @racket[draw-border?] is @racket[#f] results in a contract violation.
 
 @examples[#:eval ss-eval
   (ellipse 40 30)
@@ -369,6 +371,8 @@ The @racket[color], @racket[border-color] and @racket[border-width] arguments
 control the fill color, color of the border, and width of the border,
 respectively. Values of @racket[#f] use the color and width of the current pen
 (for the border) or brush (for the fill color).
+Passing non-@racket[#f] values as @racket[border-color] or @racket[border-width]
+when @racket[draw-border?] is @racket[#f] results in a contract violation.
 
 @examples[#:eval ss-eval
   (rectangle 50 50)
@@ -410,6 +414,8 @@ The @racket[color], @racket[border-color] and @racket[border-width] arguments
 control the fill color, color of the border, and width of the border,
 respectively. Values of @racket[#f] use the color and width of the current pen
 (for the border) or brush (for the fill color).
+Passing non-@racket[#f] values as @racket[border-color] or @racket[border-width]
+when @racket[draw-border?] is @racket[#f] results in a contract violation.
 
 @examples[#:eval ss-eval
   (rounded-rectangle 40 40 -0.3 #:angle (/ pi 4))
