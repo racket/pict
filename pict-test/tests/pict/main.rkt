@@ -266,3 +266,18 @@
  (for ([i 1000])
    (define-values (old new trace) (generate-shapes 4))
    (check-pict=?/msg old new (format "~a" trace))))
+
+;; a few that caused issues with previous version of the new implementation
+(check-pict=? (ellipse 7 3) (old-ellipse 7 3))
+(check-pict=? (hc-append (hc-append (circle 3) (ellipse 0 0))
+                         (rectangle 0 9))
+              (hc-append (hc-append (old-circle 3) (old-ellipse 0 0))
+                         (old-rectangle 0 9)))
+(check-pict=? (rectangle 1 3) (old-rectangle 1 3))
+(check-pict=? (ht-append (ellipse 3 1)
+                         (hb-append (filled-rectangle 8 2 #:draw-border? #t)
+                                    (ellipse 5 0)))
+              (ht-append (old-ellipse 3 1)
+                         (hb-append (old-filled-rectangle 8 2 #:draw-border? #t)
+                                    (old-ellipse 5 0))))
+(check-pict=? (rectangle 0 3) (old-rectangle 0 3))
