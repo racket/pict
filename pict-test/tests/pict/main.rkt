@@ -22,9 +22,11 @@
      (send b get-argb-pixels 0 0 w h its #t))
   its)
 
-(define-check (check-pict=? actual expected msg)
+(define-check (check-pict=?/msg actual expected msg)
   (unless (equal? (->bitmap actual) (->bitmap expected))
     (fail-check msg)))
+(define-syntax-rule (check-pict=? actual expected)
+  (check-pict=?/msg actual expected ""))
 
 (define-syntax (gen-case stx)
   (syntax-parse stx
@@ -61,7 +63,7 @@
  "freeze random testing"
  (for ([i 1000])
    (define-values (l p) (generate-pict))
-   (check-pict=? p (freeze p) (format "~a" l))))
+   (check-pict=?/msg p (freeze p) (format "~a" l))))
 
 (test-case
  "scale-to-fit"
