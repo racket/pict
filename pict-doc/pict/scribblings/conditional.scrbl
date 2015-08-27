@@ -78,16 +78,6 @@ to @racket[lbl-superimpose].
 ]
 }
 
-@defform/subs[(pict-match test-expr maybe-combine [pattern pict-expr] ...)
-              ([maybe-combine code:blank (code:line #:combine combine-expr)])]{
-
-Chooses a @racket[pict-expr] based on @racket[test-expr] and each
-@racket[pattern], similarly to @racket[match].  Combines the chosen, visible
-image with the other, invisible images using @racket[combine-expr], defaulting
-to @racket[lbl-superimpose].
-
-}
-
 @deftogether[(
 @defproc[(show [pict pict?] [show? truth/c #t]) pict?]
 @defproc[(hide [pict pict?] [hide? truth/c #t]) pict?]
