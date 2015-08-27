@@ -8,7 +8,7 @@
 (provide/contract
  [hide (->* [pict?] [any/c] pict?)]
  [show (->* [pict?] [any/c] pict?)])
-(provide pict-if pict-cond pict-case pict-match)
+(provide pict-if pict-cond pict-case)
 
 ;; The original API in unstable/gui/pict provided a syntax parameter to control
 ;; the default combiner. This made the API more complex, and potentially scary
