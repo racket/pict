@@ -283,7 +283,9 @@
             (define old-pen   (send dc get-pen))
             (send dc set-brush
                   (send the-brush-list find-or-create-brush
-                        (or color (send old-pen get-color))
+                        (cond [transparent? "white"]
+                              [color        color]
+                              [else         (send old-pen get-color)])
                         (if transparent? 'transparent 'solid)))
             (if draw-border?
                 (when (or border-color border-width)
