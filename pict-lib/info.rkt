@@ -12,4 +12,4 @@
 
 (define pkg-authors '(mflatt robby))
 
-(define version "1.3")
+(define version "1.4")
