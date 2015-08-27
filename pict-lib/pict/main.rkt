@@ -102,7 +102,12 @@
                           #:border-color [border-color (or/c #f string? (is-a?/c color%))]
                           #:border-width [border-width (or/c #f (and/c rational? (not/c negative?)))])
                          #:pre (draw-border? border-color border-width)
-                         (if (not draw-border?) (not (or border-width border-color)) #t)
+                         (if (not draw-border?)
+                             (and (or (unsupplied-arg? border-color)
+                                      (not border-color))
+                                  (or (unsupplied-arg? border-width)
+                                      (not border-width)))
+                             #t)
                          [_ pict?])]
   [rounded-rectangle (->* ((and/c rational? (not/c negative?))
                            (and/c rational? (not/c negative?)))
@@ -120,7 +125,12 @@
                                   #:border-color [border-color (or/c #f string? (is-a?/c color%))]
                                   #:border-width [border-width (or/c #f (and/c rational? (not/c negative?)))])
                                  #:pre (draw-border? border-color border-width)
-                                 (if (not draw-border?) (not (or border-width border-color)) #t)
+                                 (if (not draw-border?)
+                                     (and (or (unsupplied-arg? border-color)
+                                              (not border-color))
+                                          (or (unsupplied-arg? border-width)
+                                              (not border-width)))
+                                     #t)
                                  [_ pict?])]
   [circle (->* ((and/c rational? (not/c negative?)))
                (#:border-color (or/c #f string? (is-a?/c color%))
@@ -132,7 +142,12 @@
               #:border-color [border-color (or/c #f string? (is-a?/c color%))]
               #:border-width [border-width (or/c #f (and/c rational? (not/c negative?)))])
              #:pre (draw-border? border-color border-width)
-             (if (not draw-border?) (not (or border-width border-color)) #t)
+             (if (not draw-border?)
+                 (and (or (unsupplied-arg? border-color)
+                          (not border-color))
+                      (or (unsupplied-arg? border-width)
+                          (not border-width)))
+                 #t)
              [_ pict?])]
   [ellipse (->* ((and/c rational? (not/c negative?))
                  (and/c rational? (not/c negative?)))
@@ -146,7 +161,12 @@
                         #:border-color [border-color (or/c #f string? (is-a?/c color%))]
                         #:border-width [border-width (or/c #f (and/c rational? (not/c negative?)))])
                        #:pre (draw-border? border-color border-width)
-                       (if (not draw-border?) (not (or border-width border-color)) #t)
+                       (if (not draw-border?)
+                           (and (or (unsupplied-arg? border-color)
+                                    (not border-color))
+                                (or (unsupplied-arg? border-width)
+                                    (not border-width)))
+                           #t)
                        [_ pict?])]))
 
 (define (does-draw-restore-the-state-after-being-called? draw)
