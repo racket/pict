@@ -338,8 +338,9 @@ If @racket[draw-border?] is @racket[#f], then the pen is set to be transparent
 before drawing the ellipse.
 The @racket[color], @racket[border-color] and @racket[border-width] arguments
 control the fill color, color of the border, and width of the border,
-respectively. Values of @racket[#f] use the color and width of the current pen
-(for the border) or brush (for the fill color).
+respectively.
+If these arguments are @racket[#f], values set using @racket[linewidth] and
+@racket[colorize] are used instead.
 Passing non-@racket[#f] values as @racket[border-color] or @racket[border-width]
 when @racket[draw-border?] is @racket[#f] results in a contract violation.
 
@@ -369,8 +370,9 @@ If @racket[draw-border?] is @racket[#f], then the pen is set to be transparent
 before drawing the rectangle.
 The @racket[color], @racket[border-color] and @racket[border-width] arguments
 control the fill color, color of the border, and width of the border,
-respectively. Values of @racket[#f] use the color and width of the current pen
-(for the border) or brush (for the fill color).
+respectively.
+If these arguments are @racket[#f], values set using @racket[linewidth] and
+@racket[colorize] are used instead.
 Passing non-@racket[#f] values as @racket[border-color] or @racket[border-width]
 when @racket[draw-border?] is @racket[#f] results in a contract violation.
 
@@ -412,8 +414,9 @@ If @racket[draw-border?] is @racket[#f], then the pen is set to be transparent
 before drawing the rectangle.
 The @racket[color], @racket[border-color] and @racket[border-width] arguments
 control the fill color, color of the border, and width of the border,
-respectively. Values of @racket[#f] use the color and width of the current pen
-(for the border) or brush (for the fill color).
+respectively.
+If these arguments are @racket[#f], values set using @racket[linewidth] and
+@racket[colorize] are used instead.
 Passing non-@racket[#f] values as @racket[border-color] or @racket[border-width]
 when @racket[draw-border?] is @racket[#f] results in a contract violation.
 
