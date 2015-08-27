@@ -42,6 +42,33 @@
              (list? p)
              (andmap pict? p))))
 
+  (define (label-line label pict src-pict src-coord-fn dest-pict dest-coord-fn
+                      #:x-adjust [x-adjust 0] #:y-adjust [y-adjust 0])
+    (let-values ([(src-x src-y) (src-coord-fn pict src-pict)]
+                 [(dest-x dest-y) (dest-coord-fn pict dest-pict)])
+      (let* ([src (make-rectangular src-x src-y)]
+             [dest (make-rectangular dest-x dest-y)]
+             [adjust (make-rectangular x-adjust y-adjust)]
+             [v (- dest src)]
+             [h2 (pict-height label)])
+        ;; Ensure that the src is left of dest
+        (when (< (real-part v) 0)
+          (set! v (- v))
+          (set! src dest))
+        (let ([p (+ src
+                    ;; Move the label to sit atop the line.
+                    (/ (* h2 -i v) (magnitude v) 2)
+                    ;; Center the label in the line.
+                    (/ (- v (make-rectangular (pict-width label)
+                                              (pict-height label)))
+                       2)
+                    adjust)])
+          (pin-over
+           pict
+           (real-part p)
+           (imag-part p)
+           label)))))
+
   (define (pin-line p 
                     src src-find
                     dest dest-find
@@ -52,16 +79,24 @@
                     #:line-width [lw #f]
                     #:under? [under? #f]
                     #:solid? [solid? #t]
-                    #:style [style #f])
-    (if (not (or sa ea))
-        (finish-pin (launder (t:pin-line (ghost p)
-                                         src src-find 
-                                         dest dest-find
-                                         #:style style))
-                    p lw col alpha under?)
-        (pin-curve* #f #f p src src-find dest dest-find
-                    sa ea sp ep 0 col lw under? #t
-                    style alpha)))
+                    #:style [style #f]
+                    #:label [label #f]
+                    #:x-adjust-label [x-adjust 0]
+                    #:y-adjust-label [y-adjust 0])
+    (define line
+      (if (not (or sa ea))
+          (finish-pin (launder (t:pin-line (ghost p)
+                                           src src-find 
+                                           dest dest-find
+                                           #:style style))
+                      p lw col alpha under?)
+          (pin-curve* #f #f p src src-find dest dest-find
+                      sa ea sp ep 0 col lw under? #t
+                      style alpha)))
+    (if label
+        (label-line label line src src-find dest dest-find
+                    #:x-adjust x-adjust #:y-adjust y-adjust)
+        line))
 
   (define (pin-arrow-line sz p 
                           src src-find
@@ -74,18 +109,26 @@
                           #:under? [under? #f]
                           #:solid? [solid? #t]
                           #:style [style #f]
-                          #:hide-arrowhead? [hide-arrowhead? #f])
-    (if (not (or sa ea))
-        (finish-pin (launder (t:pin-arrow-line sz (ghost p)
-                                               src src-find 
-                                               dest dest-find
-                                               #f #f #f solid?
-                                               #:hide-arrowhead? hide-arrowhead?
-                                               #:style style))
-                    p lw col alpha under?)
-        (pin-curve* #f (not hide-arrowhead?) p src src-find dest dest-find
-                    sa ea sp ep sz col lw under? solid?
-                    style alpha)))
+                          #:hide-arrowhead? [hide-arrowhead? #f]
+                          #:label [label #f]
+                          #:x-adjust-label [x-adjust 0]
+                          #:y-adjust-label [y-adjust 0])
+    (define line
+      (if (not (or sa ea))
+          (finish-pin (launder (t:pin-arrow-line sz (ghost p)
+                                                 src src-find 
+                                                 dest dest-find
+                                                 #f #f #f solid?
+                                                 #:hide-arrowhead? hide-arrowhead?
+                                                 #:style style))
+                      p lw col alpha under?)
+          (pin-curve* #f (not hide-arrowhead?) p src src-find dest dest-find
+                      sa ea sp ep sz col lw under? solid?
+                      style alpha)))
+    (if label
+        (label-line label line src src-find dest dest-find
+                    #:x-adjust x-adjust #:y-adjust y-adjust)
+        line))
   
     (define (pin-arrows-line sz p 
                              src src-find
@@ -98,19 +141,27 @@
                              #:under? [under? #f]
                              #:solid? [solid? #t]
                              #:style [style #f]
-                             #:hide-arrowhead? [hide-arrowhead? #f])
-      (if (not (or sa ea))
-          (finish-pin (launder (t:pin-arrows-line sz (ghost p)
-                                                  src src-find 
-                                                  dest dest-find
-                                                  #f #f #f solid?
-                                                  #:hide-arrowhead? hide-arrowhead?
-                                                  #:style style))
-                      p lw col alpha under?)
-          (pin-curve* (not hide-arrowhead?) (not hide-arrowhead?)
-                      p src src-find dest dest-find
-                      sa ea sp ep sz col lw under? solid? 
-                      style alpha)))
+                             #:hide-arrowhead? [hide-arrowhead? #f]
+                             #:label [label #f]
+                             #:x-adjust-label [x-adjust 0]
+                             #:y-adjust-label [y-adjust 0])
+      (define line
+        (if (not (or sa ea))
+            (finish-pin (launder (t:pin-arrows-line sz (ghost p)
+                                                    src src-find 
+                                                    dest dest-find
+                                                    #f #f #f solid?
+                                                    #:hide-arrowhead? hide-arrowhead?
+                                                    #:style style))
+                        p lw col alpha under?)
+            (pin-curve* (not hide-arrowhead?) (not hide-arrowhead?)
+                        p src src-find dest dest-find
+                        sa ea sp ep sz col lw under? solid? 
+                        style alpha)))
+      (if label
+          (label-line label line src src-find dest dest-find
+                      #:x-adjust x-adjust #:y-adjust y-adjust)
+          line))
     
   (define (pin-curve* start-arrow? end-arrow? p 
                       src src-find

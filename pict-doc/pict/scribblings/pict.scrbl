@@ -474,7 +474,10 @@ argument for consistency with the other functions.}
                                                'xor-dot 'xor-long-dash 'xor-short-dash 
                                                'xor-dot-dash)
                                'solid]
-                      [#:under? under? any/c #f])
+                      [#:under? under? any/c #f]
+                      [#:label label pict? (blank)]
+                      [#:x-adjust-label x-adjust-label real? 0]
+                      [#:y-adjust-label y-adjust-label real? 0])
             pict?]
            [(pin-arrow-line [arrow-size real?] [pict pict?]
                       [src pict-path?]
@@ -494,6 +497,9 @@ argument for consistency with the other functions.}
                                                'xor-dot-dash)
                                'solid]
                       [#:under? under? any/c #f]
+                      [#:label label pict? (blank)]
+                      [#:x-adjust-label x-adjust-label real? 0]
+                      [#:y-adjust-label y-adjust-label real? 0]
                       [#:solid? solid? any/c #t]
 		      [#:hide-arrowhead? hide-arrowhead? any/c #f])
             pict?]
@@ -514,6 +520,9 @@ argument for consistency with the other functions.}
                                                'xor-dot 'xor-long-dash 'xor-short-dash 
                                                'xor-dot-dash)]
                       [#:under? under? any/c #f]
+                      [#:label label pict? (blank)]
+                      [#:x-adjust-label x-adjust-label real? 0]
+                      [#:y-adjust-label y-adjust-label real? 0]
                       [#:solid? solid? any/c #t]
 		      [#:hide-arrowhead? hide-arrowhead? any/c #f])
             pict?])]{
@@ -551,6 +560,9 @@ When the @racket[hide-arrowhead?] argument is a true value, then space
 for an arrowhead is kept around the line, but the arrowhead itself is
 not drawn.
 
+When the @racket[label] argument is non-false, the given pict is used as a
+label for the line, and moved by (@racket[x-adjust-label], @racket[y-adjust-label]).
+
 @defexamples[#:eval ss-eval
   (define pict-a (rectangle 40 40))
   (define pict-b (circle 40))
@@ -563,7 +575,8 @@ not drawn.
                   pict-b lc-find
                   #:line-width 3
                   #:style 'long-dash
-                  #:color "medium goldenrod")
+                  #:color "medium goldenrod"
+                  #:label (text "From Square to Circle"))
   (pin-arrows-line 30 combined
                    pict-a rc-find
                    pict-b lc-find
