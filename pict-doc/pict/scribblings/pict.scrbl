@@ -1035,6 +1035,10 @@ pict with the same shape and location.}
 
 @; ----------------------------------------
 
+@include-section["shadow.scrbl"]
+
+@; ----------------------------------------
+
 @include-section["conditional.scrbl"]
 
 @; ----------------------------------------
