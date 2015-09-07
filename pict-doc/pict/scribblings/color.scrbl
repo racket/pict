@@ -1,6 +1,6 @@
 #lang scribble/manual
 
-@(require (for-label pict/color)
+@(require (for-label pict pict/color racket/base racket/contract)
           scribble/eval)
 
 @(define the-eval (make-base-eval))

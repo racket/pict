@@ -1,6 +1,6 @@
 #lang scribble/manual
 
-@(require (for-label pict/conditional)
+@(require (for-label pict pict/conditional racket/base racket/contract)
           scribble/eval)
 
 @(define the-eval (make-base-eval))
@@ -79,8 +79,8 @@ to @racket[lbl-superimpose].
 }
 
 @deftogether[(
-@defproc[(show [pict pict?] [show? truth/c #t]) pict?]
-@defproc[(hide [pict pict?] [hide? truth/c #t]) pict?]
+@defproc[(show [pict pict?] [show? any/c #t]) pict?]
+@defproc[(hide [pict pict?] [hide? any/c #t]) pict?]
 )]{
 
 These functions conditionally show or hide an image, essentially choosing
