@@ -3,8 +3,10 @@
           scribble/eval
           (for-label (except-in racket only drop)
                      pict/code
+                     pict/code/eval
                      pict
-                     racket/gui/base))
+                     racket/gui/base
+                     (only-in scribble/eval make-base-eval)))
 
 @(define stx-obj
   (tech #:doc '(lib "scribblings/reference/reference.scrbl") "syntax object"))
@@ -13,6 +15,7 @@
 @(interaction-eval #:eval ss-eval 
   (begin
    (require pict/code
+            pict/code/eval
             pict
             (for-syntax racket/base))
    (current-code-tt (lambda (s) (text s "monospace" 14)))
@@ -388,6 +391,45 @@ The same as @racket[pict-last], provided for backward compatibility.}
 
 Mainly for backward compatibility: returns @racket[(if bl-pict
 (use-last pict (or (pict-last bl-pict) bl-pict)))].}
+
+@; ----------------------------------------
+
+@section{Typeseting Evaluation}
+
+@defmodule[pict/code/eval]
+
+@defproc[(typeset-interaction [#:eval eval procedure? (make-base-eval)]
+                              [stx syntax?] ...)
+         pict?]{
+
+Typesets syntax as Racket code, like @racket[typeset-code], but typesets each
+@racket[stx] like an expression in a REPL. Each @racket[stx] is prefixed with
+a prompt obtained via @racket[get-current-code-interaction-prompt]. Additionally,
+each @racket[stx] is evaluated with @racket[eval], and its result is typeset
+in a single color, as determined by @racket[current-result-color].}
+
+@defform[(interaction maybe-eval datum ...)
+         #:grammar
+         ([maybe-eval (code:line)
+                      (code:line #:eval eval-expr)])]{
+
+The macro form of @racket[typeset-interaction]. Each @racket[datum] will be
+evaluated with @racket[eval-expr] and typeset on a separate line.
+
+@(examples
+  #:eval ss-eval
+  (interaction
+   (+ 1 2 3)
+   (apply string-append '("Hello," " " "world!"))))}
+
+@defparam[get-current-code-interaction-prompt pict (-> pict?)]{
+
+A parameter used to access the pict that should be used as the prompt before each
+expression to evaluate in @racket[typeset-interaction].}
+
+@defparam[current-result-color color (or/c string? (is-a?/c color%))]{
+
+A parameter for the color of the results from @racket[typeset-interaction].}
 
 @; ----------------------------------------
 

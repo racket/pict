@@ -8,6 +8,7 @@
                      "slideshow-doc"
                      "draw-lib"
                      "gui-lib"
+                     "scribble-doc"
                      "scribble-lib"
                      "slideshow-lib"
                      "pict-lib"
