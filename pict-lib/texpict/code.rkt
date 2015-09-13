@@ -696,11 +696,25 @@
                                     stx)
                      closes
                      mode))]
-	    [else
+            [#(e ...)
+             (code-htl-append (mode-colorize mode 'literal (tt "#"))
+                              (loop (datum->syntax stx
+                                                   (syntax->list #'(e ...))
+                                                   (list (syntax-source stx)
+                                                         (syntax-line stx)
+                                                         (and (syntax-column stx)
+                                                              (+ (syntax-column stx) 1))
+                                                         (and (syntax-position stx)
+                                                              (+ (syntax-position stx) 1))
+                                                         (and (syntax-span stx)
+                                                              (max 0 (- (syntax-span stx) 1)))))
+                                    closes
+                                    mode))]
+            [else
 	     (add-close (if (pict? (syntax-e stx))
 			    (syntax-e stx)
 			    (mode-colorize mode 'literal
-					   (tt (format "~s" (syntax-e stx))) ))
+					   (tt (format "~s" (syntax-e stx)))))
 			closes)])))
       
       ))
