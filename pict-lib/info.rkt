@@ -7,6 +7,7 @@
                "compatibility-lib"
                "draw-lib"
                "pict-lib"
+               "sandbox-lib"
                "scribble-lib"))
 (define build-deps '("rackunit-lib"))
 

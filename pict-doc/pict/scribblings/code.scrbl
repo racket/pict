@@ -431,6 +431,16 @@ expression to evaluate in @racket[typeset-interaction].}
 
 A parameter for the color of the results from @racket[typeset-interaction].}
 
+@defparam[current-output-color color (or/c string? (is-a?/c color%))]{
+
+A parameter for the color of data printed to @racket[current-output-port]
+within @racket[typeset-interaction].}
+
+@defparam[current-error-color color (or/c string? (is-a?/c color%))]{
+
+A parameter for the color of exceptions and other data printed to
+@racket[current-error-port] within @racket[typeset-interaction].}
+
 @; ----------------------------------------
 
 @(close-eval ss-eval)
