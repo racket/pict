@@ -31,6 +31,7 @@ These functions apply appropriate colors to picture @racket[p].
 @examples[#:eval the-eval
 (red (disk 20))
 ]
+@history[#:added "1.4"]{}
 }
 
 @deftogether[(
@@ -45,12 +46,16 @@ These functions produce ligher or darker versions of a color.
            (colorize (disk 20) (dark "red"))
            (colorize (disk 20) (light "red")))
 ]
+
+@history[#:added "1.4"]{}
 }
 
 @defthing[color/c flat-contract?]{
 
 This contract recognizes color strings, @racket[color%] instances, and RGB color
 lists.
+
+@history[#:added "1.4"]{}
 }
 
 @(close-eval the-eval)

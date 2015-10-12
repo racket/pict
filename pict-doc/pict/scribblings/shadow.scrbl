@@ -41,7 +41,9 @@ the pict should be @racket[inset] by the blur radius.
 @examples[#:eval the-eval
 (inset (blur (text "more blur" null 40) 10) 10)
 ]
-}               
+
+@history[#:added "1.4"]{}
+}
 
 @defproc[(shadow [p pict?]
                  [radius (and/c real? (not/c negative?))]
@@ -70,6 +72,8 @@ The resulting pict has the same bounding box as @racket[p].
                5 0 2 #:color "white" #:shadow-color "red")
        10)
 ]
+
+@history[#:added "1.4"]{}
 }
 
 @defproc[(shadow-frame [pict pict?] ...
@@ -106,6 +110,8 @@ previous measurements are pre-blur measurements.
 @examples[#:eval the-eval
 (shadow-frame (text "text in a nifty frame" null 60))
 ]
+
+@history[#:added "1.4"]{}
 }
 
 @(close-eval the-eval)

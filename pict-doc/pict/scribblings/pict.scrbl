@@ -350,7 +350,10 @@ when @racket[draw-border?] is @racket[#f] results in a contract violation.
   (filled-ellipse 30 40)
   (disk 30)
   (disk 40 #:color "Chartreuse" #:border-color "Medium Aquamarine" #:border-width 5)
-]}
+]
+
+@history[#:changed "1.4" @elem{Added @racket[#:color], @racket[#:border-color] and @racket[#:border-width] arguments.}]{}
+}
 
 @defproc*[([(rectangle [w real?] [h real?]
                        [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
@@ -380,7 +383,10 @@ when @racket[draw-border?] is @racket[#f] results in a contract violation.
   (rectangle 50 50)
   (filled-rectangle 50 80)
   (filled-rectangle 60 70 #:color "Thistle" #:border-color "Gainsboro" #:border-width 10)
-]}
+]
+
+@history[#:changed "1.4" @elem{Added @racket[#:color], @racket[#:border-color] and @racket[#:border-width] arguments.}]{}
+}
 
 @defproc*[([(rounded-rectangle [w real?] [h real?] 
                                [corner-radius real? -0.25]
@@ -424,7 +430,10 @@ when @racket[draw-border?] is @racket[#f] results in a contract violation.
   (rounded-rectangle 40 40 -0.3 #:angle (/ pi 4))
   (filled-rounded-rectangle 50 40)
   (filled-rounded-rectangle 70 30 #:color "Burlywood" #:border-color "Bisque" #:border-width 8)
-]}
+]
+
+@history[#:changed "1.4" @elem{Added @racket[#:color], @racket[#:border-color] and @racket[#:border-width] arguments.}]{}
+}
 
 @defproc[(bitmap [img (or/c path-string?
                             (is-a?/c bitmap%)
@@ -592,7 +601,10 @@ label for the line, and moved by (@racket[x-adjust-label], @racket[y-adjust-labe
                    #:start-angle (/ pi 11)
                    #:end-angle (- (/ pi 11))
                    #:solid? #f)
-]}
+]
+
+@history[#:changed "1.4" @elem{Added @racket[#:label], @racket[#:x-adjust-label] and @racket[#:y-adjust-label] arguments.}]{}
+}
 
 
 @defthing[text-style/c contract?]{
@@ -829,6 +841,8 @@ scale while drawing the original @racket[pict].
          bounding box of exactly @racket[width] by @racket[height].
          If @racket[mode] is @racket['distort], the width and height are scaled
          separately.
+
+@history[#:changed "1.4" @elem{Added @racket[#:mode] argument.}]{}
 }
 
 

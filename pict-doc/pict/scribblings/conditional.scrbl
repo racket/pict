@@ -34,6 +34,8 @@ image with the other, invisible image using @racket[combine-expr], defaulting to
              (frame (f #t))
              (frame (f #f))))
 ]
+
+@history[#:added "1.4"]{}
 }
 
 @defform/subs[(pict-cond maybe-combine [test-expr pict-expr] ...)
@@ -55,6 +57,8 @@ invisible images using @racket[combine-expr], defaulting to
              (frame (f 'disk))
              (frame (f 'text))))
 ]
+
+@history[#:added "1.4"]{}
 }
 
 @defform/subs[(pict-case test-expr maybe-combine [literals pict-expr] ...)
@@ -76,6 +80,8 @@ to @racket[lbl-superimpose].
              (frame (f 'disk))
              (frame (f 'text))))
 ]
+
+@history[#:added "1.4"]{}
 }
 
 @deftogether[(
@@ -87,6 +93,8 @@ These functions conditionally show or hide an image, essentially choosing
 between @racket[pict] and @racket[(ghost pict)].  The only difference between
 the two is the default behavior and the opposite meaning of the @racket[show?]
 and @racket[hide?] booleans.  Both functions are provided for mnemonic purposes.
+
+@history[#:added "1.4"]{}
 }
 
 @(close-eval the-eval)
