@@ -1,6 +1,7 @@
 #lang racket/base
 
 (require racket/class racket/contract racket/draw
+         "convert.rkt"
          pict)
 
 (define color/c
@@ -11,18 +12,18 @@
 
 (provide/contract
  [color/c flat-contract?]
- [red     (-> pict? pict?)]
- [orange  (-> pict? pict?)]
- [yellow  (-> pict? pict?)]
- [green   (-> pict? pict?)]
- [blue    (-> pict? pict?)]
- [purple  (-> pict? pict?)]
- [black   (-> pict? pict?)]
- [brown   (-> pict? pict?)]
- [gray    (-> pict? pict?)]
- [white   (-> pict? pict?)]
- [cyan    (-> pict? pict?)]
- [magenta (-> pict? pict?)]
+ [red     (-> pict-convertible? pict?)]
+ [orange  (-> pict-convertible? pict?)]
+ [yellow  (-> pict-convertible? pict?)]
+ [green   (-> pict-convertible? pict?)]
+ [blue    (-> pict-convertible? pict?)]
+ [purple  (-> pict-convertible? pict?)]
+ [black   (-> pict-convertible? pict?)]
+ [brown   (-> pict-convertible? pict?)]
+ [gray    (-> pict-convertible? pict?)]
+ [white   (-> pict-convertible? pict?)]
+ [cyan    (-> pict-convertible? pict?)]
+ [magenta (-> pict-convertible? pict?)]
  [light (-> color/c color/c)]
  [dark (-> color/c color/c)])
 

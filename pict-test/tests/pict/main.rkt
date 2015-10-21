@@ -1,6 +1,8 @@
-#lang racket
+#lang debug racket
 (require pict rackunit
          (for-syntax syntax/parse)
+         pict/shadow
+         pict/conditional
          racket/draw racket/class)
 
 (define (->bitmap p)
@@ -26,8 +28,10 @@
 (define-check (check-pict=?/msg actual expected msg)
   (unless (equal? (->bitmap actual) (->bitmap expected))
     (fail-check msg)))
-(define-syntax-rule (check-pict=? actual expected)
-  (check-pict=?/msg actual expected ""))
+(define-syntax check-pict=?
+  (syntax-parser
+    [(_ actual expected) #'(check-pict=?/msg actual expected "")]
+    [(_ actual expected msg) #'(check-pict=?/msg actual expected msg)]))
 
 (define-syntax (gen-case stx)
   (syntax-parse stx
@@ -281,3 +285,79 @@
                          (hb-append (old-filled-rectangle 8 2 #:draw-border? #t)
                                     (old-ellipse 5 0))))
 (check-pict=? (rectangle 0 3) (old-rectangle 0 3))
+
+;; check that loading pict-convertables as picts doesn't cause odd behavior
+(require pict/convert)
+(struct wrap (pict)
+  #:property prop:pict-convertible
+  (lambda (x) (pict-convert (wrap-pict x))))
+
+(define-syntax (gen-wrapping-case stx)
+  (syntax-parse stx
+    [(_ e:expr [(n) (m:id b:expr ...)] ...)
+     (with-syntax ([((i ...) ...) (map generate-temporaries (syntax->list #'((b ...) ...)))])
+       #`(case e
+           [(n)
+            (define i (call-with-values (lambda () b) list)) ...
+            (with-handlers ([void (lambda (ex) (displayln `(m ,(last i) ...)) (raise ex))])
+              (values
+               (m (first i) ...)
+               (wrap (m (if (or (null? (rest i))
+                                (null? (rest (rest i))))
+                            (first i)
+                            (second i))
+                        ...))
+               `(m ,(last i) ...)))]
+           ...))]))
+
+(define (generate-pict/wrap)
+  (define-values (l p m)
+    (let loop ([depth 0])
+      (define (gen) (loop (add1 depth)))
+      (gen-wrapping-case
+       (if (> depth 6) (random 3) (random 26))
+       [(0) (text "sefsefse")]
+       [(1) (rectangle (random 10) (random 10))]
+       [(2) (arrow (random 10) (random 10))]
+       [(3) (frame (gen))]
+       [(4) (cc-superimpose (gen) (gen))]
+       [(5) (vl-append (gen) (gen))]
+       [(6) (hbl-append (gen) (gen))]
+       [(7) (rb-superimpose (gen) (gen))]
+       [(8) (panorama (gen))]
+       [(9) (scale (gen) (add1 (random)))]
+       [(10) (inset (gen) (random 10) (random 10) (random 10) (random 10))]
+       [(11) (baseless (gen))]
+       [(12) (scale-to-fit (gen) (add1 (random 100)) (add1 (random 100)))]
+       [(13) (rotate (gen) (* 1/2 pi (random 4)))]
+       [(14) (ghost (gen))]
+       [(15) (linewidth (random 10) (gen))]
+       [(16) (linestyle (first (shuffle (list'transparent 'solid 'xor 'hilite
+                                                          'dot 'long-dash 'short-dash 'dot-dash
+                                                          'xor-dot 'xor-long-dash 'xor-short-dash
+                                                          'xor-dot-dash)))
+                        (gen))]
+       [(17) (colorize (gen) (list (random 254) (random 254) (random 254)))]
+       [(18) (cellophane (gen) (random))]
+       [(19) (clip (gen))]
+       [(20) (freeze (gen))]
+       [(21) (blur (gen) (add1 (random 10)))]
+       [(22) (shadow-frame (gen))]
+       [(23) (pict-if (> .5 (random))
+                      (gen)
+                      (gen))]
+       [(24) (show (gen) (> .5 (random)))]
+       [(25) (hyperlinkize (gen))])))
+  (values l p m))
+
+(test-case "auto pict conversion random tests"
+  (for ([i 2000])
+    (define-values (l r m) (generate-pict/wrap))
+    (check-pict=? l r (~a m))))
+
+
+(define (run-forever)
+  (let loop ()
+    (define-values (l r _) (generate-pict/wrap))
+    (check-pict=? l r (~a _))
+    (loop)))

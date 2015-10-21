@@ -3,6 +3,7 @@
          racket/class
          racket/draw
          "main.rkt"
+         "convert.rkt"
          "private/tidier.rkt"
          "private/layout.rkt"
          "private/hv.rkt"
@@ -13,7 +14,7 @@
   [rename _tree-layout
           tree-layout
           (->* () 
-               (#:pict pict?) 
+               (#:pict pict-convertible?) 
                #:rest (listof (or/c tree-edge? tree-layout? #f))
                tree-layout?)]
   [rename _tree-edge

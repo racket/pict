@@ -6,6 +6,7 @@
            racket/math
            file/convertible
            racket/gui/dynamic
+           "convertible.rkt"
            "pict.rkt")
 
   (provide cons-colorized-picture
@@ -67,13 +68,13 @@
              (andmap pict? p))))
   
   (provide/contract 
-   [scale (case-> (-> pict? number? number? pict?)
-                  (-> pict? number? pict?))]
-   [scale-to-fit (->* (pict? (or/c number? pict?))
+   [scale (case-> (-> pict-convertible? number? number? pict?)
+                  (-> pict-convertible? number? pict?))]
+   [scale-to-fit (->* (pict-convertible? (or/c number? pict-convertible?))
                       (number? #:mode (or/c 'preserve 'inset 'distort))
                       pict?)]
-   [rotate (case-> (-> pict? number? pict?))]
-   [pin-line (->* (pict?
+   [rotate (case-> (-> pict-convertible? number? pict?))]
+   [pin-line (->* (pict-convertible?
                    pict-path? (-> pict? pict-path? (values number? number?))
                    pict-path? (-> pict? pict-path? (values number? number?)))
                   ((or/c false/c number?)
@@ -82,7 +83,7 @@
                    #:style (or/c false/c symbol?))
                   pict?)]
    [pin-arrow-line (->* (number?
-                         pict?
+                         pict-convertible?
                          pict-path? (-> pict? pict-path? (values number? number?))
                          pict-path? (-> pict? pict-path? (values number? number?)))
                         ((or/c false/c number?) 
@@ -92,9 +93,9 @@
                          #:style (or/c false/c symbol?)
                          #:hide-arrowhead? any/c)
                         pict?)]
-   [pin-arrows-line (->* (number? pict?
-                           pict-path? (-> pict? pict-path? (values number? number?))
-                           pict-path? (-> pict? pict-path? (values number? number?)))
+   [pin-arrows-line (->* (number? pict-convertible?
+                           pict-path? (-> pict-convertible? pict-path? (values number? number?))
+                           pict-path? (-> pict-convertible? pict-path? (values number? number?)))
                           ((or/c false/c number?)
                            (or/c false/c string?)
                            boolean?
@@ -1097,7 +1098,7 @@
                         #:mode [mode 'preserve]) ; or: 'inset 'distort
     (cond [(not h-or-false) ; scale to the size of another pict
            (define size-pict w-or-size-pict)
-           (unless (pict? size-pict)
+           (unless (pict-convertible? size-pict)
              (raise-type-error 'scale-to-fit "pict?" size-pict))
            (scale-to-fit main-pict
                          (pict-width size-pict)

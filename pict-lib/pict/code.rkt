@@ -10,6 +10,7 @@
          racket/string
          syntax-color/lexer-contract
          syntax-color/racket-lexer
+         "convert.rkt"
          (for-syntax racket/base
                      syntax/to-string
                      mzlib/list))
@@ -58,7 +59,7 @@
   [current-const-color (parameter/c (or/c string? (is-a?/c color%)))]
   [current-base-color (parameter/c (or/c string? (is-a?/c color%)))]
   [current-reader-forms (parameter/c (listof symbol?))]
-  [code-align (-> pict? pict?)]
+  [code-align (-> pict-convertible? pict?)]
   [current-keyword-list (parameter/c (listof string?))]
   [current-const-list (parameter/c (listof string?))]
   [current-literal-list (parameter/c (listof string?))]

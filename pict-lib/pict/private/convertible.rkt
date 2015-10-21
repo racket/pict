@@ -1,5 +1,6 @@
 #lang racket/base
-(provide prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert)
+(provide prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
+         pict-convertible-ref)
 
 (define-values (prop:pict-convertible -pict-convertible? pict-convertible-ref)
   (make-struct-type-property 'pict-convertible))
