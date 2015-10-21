@@ -1,5 +1,5 @@
 #lang racket/base
-(require "main.rkt"
+(require "private/pict.rkt"
          racket/contract/base
          "private/convertible.rkt")
 

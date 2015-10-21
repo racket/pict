@@ -3,6 +3,7 @@
                       [hline t:hline]
                       [vline t:vline]
                       [frame t:frame])
+           "convertible.rkt"
            (rename-in "utils.rkt"
                       [pin-line t:pin-line]
                       [pin-arrow-line t:pin-arrow-line]
@@ -24,9 +25,10 @@
                  #:color [col #f]
                  #:line-width [lw #f]
                  #:segment [seg #f])
-    (let* ([f (if seg
-                  (dash-frame (launder (ghost p)) seg)
-                  (t:frame (launder (ghost p))))]
+    (let* ([p (pict-convert p)]
+           [f (if seg
+                     (dash-frame (launder (ghost p)) seg)
+                     (t:frame (launder (ghost p))))]
            [f (if col
                   (colorize f col)
                   f)]
@@ -37,10 +39,10 @@
                p)))
 
   (define (pict-path? p)
-    (or (pict? p)
+    (or (pict-convertible? p)
         (and (pair? p)
              (list? p)
-             (andmap pict? p))))
+             (andmap pict-convertible? p))))
 
   (define (label-line label pict src-pict src-coord-fn dest-pict dest-coord-fn
                       #:x-adjust [x-adjust 0] #:y-adjust [y-adjust 0])
@@ -293,8 +295,9 @@
     (bitmap bm))
 
   (define (freeze p)
-    (define frozen (bitmap (pict->bitmap p)))
-    (struct-copy pict p [draw (pict-draw frozen)]))
+    (define p* (pict-convert p))
+    (define frozen (bitmap (pict->bitmap p*)))
+    (struct-copy pict p* [draw (pict-draw frozen)]))
 
   (provide hline vline
            frame

@@ -1,5 +1,6 @@
 #lang racket/base
 (require "private/main.rkt"
+         "convert.rkt"
          racket/contract
          racket/class
          racket/draw
@@ -7,7 +8,7 @@
 
 (define a-number 0)
 
-(provide 
+(provide
  (except-out (all-from-out "private/main.rkt")
              use-last
              use-last*
@@ -27,16 +28,27 @@
              hb-append
              htl-append
              hbl-append
+           pin-line pin-arrow-line pin-arrows-line
              cellophane
+             frame
              dc
              table)
+
+ pin-arrow-line
+ pin-arrows-line
+ pin-line
  (contract-out
+  [frame (->* (pict-convertible?)
+              (#:segment (or/c #f real?)
+               #:color (or/c #f string? (is-a?/c color%))
+               #:line-width (or/c #f real?))
+              pict?)]
   [table (->i ([ncols exact-positive-integer?]
-               [picts (non-empty-listof pict?)]
-               [col-aligns (or/c (list*of (->* () #:rest (listof pict?) pict?))
-                                 (listof (->* () #:rest (listof pict?) pict?)))]
-               [row-aligns (or/c (list*of (->* () #:rest (listof pict?) pict?))
-                                 (listof (->* () #:rest (listof pict?) pict?)))]
+               [picts (non-empty-listof pict-convertible?)]
+               [col-aligns (or/c (list*of (->* () #:rest (listof pict-convertible?) pict-convertible?))
+                                 (listof (->* () #:rest (listof pict-convertible?) pict-convertible?)))]
+               [row-aligns (or/c (list*of (->* () #:rest (listof pict-convertible?) pict-convertible?))
+                                 (listof (->* () #:rest (listof pict-convertible?) pict-convertible?)))]
                [col-seps (or/c (listof real?) (list*of real?))]
                [row-seps (or/c (listof real?) (list*of real?))])
               #:pre (ncols picts)
@@ -49,7 +61,7 @@
             [a (or/c #f real?)])
            #:pre (draw) (does-draw-restore-the-state-after-being-called? draw)
            [p pict?])]
-  [cellophane (-> pict? (real-in 0 1) pict?)]
+  [cellophane (-> pict-convertible? (real-in 0 1) pict?)]
   [vl-append *-append/c]
   [vc-append *-append/c]
   [vr-append *-append/c]
@@ -59,41 +71,41 @@
   [htl-append *-append/c]
   [hbl-append *-append/c]
 
-  [use-last (-> pict? pict-path? pict?)]
-  [use-last* (-> pict? pict? pict?)]
-  
-  [colorize (-> pict? 
+  [use-last (-> pict-convertible? pict-path? pict?)]
+  [use-last* (-> pict-convertible? pict-convertible? pict?)]
+
+  [colorize (-> pict-convertible? 
                 (or/c string? 
                       (is-a?/c color%)
                       (list/c byte? byte? byte?))
                 pict?)]
-                
-  [pict->bitmap (->* (pict?)
+
+  [pict->bitmap (->* (pict-convertible?)
                      ((or/c 'unsmoothed 'smoothed 'aligned))
                      (is-a?/c bitmap%))]
-  [pict->argb-pixels (->* (pict?) 
+  [pict->argb-pixels (->* (pict-convertible?)
                           ((or/c 'unsmoothed 'smoothed 'aligned))
                           (and/c bytes? multiple-of-four-bytes?))]
-  [argb-pixels->pict (-> (and/c bytes? multiple-of-four-bytes?) 
+  [argb-pixels->pict (-> (and/c bytes? multiple-of-four-bytes?)
                          exact-nonnegative-integer?
                          pict?)]
   [pin-under
-   (->i ([base pict?]
+   (->i ([base pict-convertible?]
          [dx/fp (or/c real? pict-path?)]
          [dy/f (dx/fp)
                (if (real? dx/fp)
                    real?
-                   (-> pict? pict-path? (values real? real?)))]
-         [pict pict?])
+                   (-> pict-convertible? pict-path? (values real? real?)))]
+         [pict pict-convertible?])
         [result pict?])]
   [pin-over
-   (->i ([base pict?]
+   (->i ([base pict-convertible?]
          [dx/fp (or/c real? pict-path?)]
          [dy/f (dx/fp)
                (if (real? dx/fp)
                    real?
-                   (-> pict? pict-path? (values real? real?)))]
-         [pict pict?])
+                   (-> pict-convertible? pict-path? (values real? real?)))]
+         [pict pict-convertible?])
         [result pict?])]
   [rectangle (->* ((and/c rational? (not/c negative?))
                    (and/c rational? (not/c negative?)))
@@ -174,6 +186,8 @@
                            #t)
                        [_ pict?])]))
 
+(define find/c (pict? pict-path? . -> . (values real? real?)))
+
 (define (does-draw-restore-the-state-after-being-called? draw)
   (define bdc (new bitmap-dc% [bitmap (make-bitmap 1 1)]))
   (randomize-state bdc)
@@ -192,17 +206,17 @@
   (send dc set-text-background (random-color))
   (send dc set-text-foreground (random-color))
   (send dc set-text-mode 'transparent)
-  (send dc set-font (send the-font-list find-or-create-font 
+  (send dc set-font (send the-font-list find-or-create-font
                           (+ 1 (random 254))
                           (pick-one 'default 'decorative 'roman 'script
                                     'swiss 'modern 'symbol 'system)
                           (pick-one 'normal 'italic 'slant)
                           (pick-one 'normal 'bold 'light)))
-  ;; set-transformation is relatively expensive 
+  ;; set-transformation is relatively expensive
   ;; at the moment, so we don't randomize it
   #;
   (send dc set-transformation
-        (vector (vector (random-real) (random-real) (random-real) 
+        (vector (vector (random-real) (random-real) (random-real)
                         (random-real) (random-real) (random-real))
                 (random-real) (random-real) (random-real) (random-real) (random-real))))
 
@@ -222,7 +236,7 @@
           (send dc get-transformation)
           (color->vec (send dc get-text-foreground))))
 
-(define (pen->vec pen) 
+(define (pen->vec pen)
   (vector (color->vec (send pen get-color))
           (send pen get-width)
           (send pen get-style)))
@@ -237,29 +251,29 @@
           (send font get-style)
           (send font get-weight)))
 
-(define (color->vec c) 
+(define (color->vec c)
   (vector (send c red) (send c green) (send c blue)))
 
 (define *-append/c
   (->* ()
        ()
-       #:rest (or/c (cons/c real? (listof pict?))
-                    (listof pict?))
-       pict?))
+       #:rest (or/c (cons/c real? (listof pict-convertible?))
+                    (listof pict-convertible?))
+       pict-convertible?))
 
 (define (multiple-of-four-bytes? b)
   (zero? (modulo (bytes-length b) 4)))
-  
+
 (require "private/play-pict.rkt")
 (provide
  (contract-out
-  [fade-pict (->* ((real-in 0.0 1.0) pict? pict?) (#:combine (-> pict? pict? pict?)) pict?)]
-  [slide-pict (-> pict? pict? pict? pict? (real-in 0.0 1.0) pict?)]
-  [slide-pict/center (-> pict? pict? pict? pict? (real-in 0.0 1.0) pict?)]
-  [fade-around-pict (-> (real-in 0.0 1.0) pict? (-> pict? pict?) pict?)]
-  [sequence-animations (->* () #:rest (listof (-> (real-in 0.0 1.0) pict?))
+  [fade-pict (->* ((real-in 0.0 1.0) pict-convertible? pict-convertible?) (#:combine (-> pict-convertible? pict-convertible? pict?)) pict?)]
+  [slide-pict (-> pict-convertible? pict-convertible? pict-convertible? pict-convertible? (real-in 0.0 1.0) pict?)]
+  [slide-pict/center (-> pict-convertible? pict-convertible? pict-convertible? pict-convertible? (real-in 0.0 1.0) pict?)]
+  [fade-around-pict (-> (real-in 0.0 1.0) pict-convertible? (-> pict-convertible? pict?) pict?)]
+  [sequence-animations (->* () #:rest (listof (-> (real-in 0.0 1.0) pict-convertible?))
                             (-> (real-in 0.0 1.0) pict?))]
-  [reverse-animations (->* () #:rest (listof (-> (real-in 0.0 1.0) pict?))
+  [reverse-animations (->* () #:rest (listof (-> (real-in 0.0 1.0) pict-convertible?))
                            (-> (real-in 0.0 1.0) pict?))]
   [fast-start (-> (real-in 0.0 1.0) (real-in 0.0 1.0))]
   [fast-end (-> (real-in 0.0 1.0) (real-in 0.0 1.0))]

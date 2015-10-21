@@ -3,11 +3,12 @@
 (require pict
          racket/contract/base
          racket/stxparam
+         "convert.rkt"
          (for-syntax racket/base))
 
 (provide/contract
- [hide (->* [pict?] [any/c] pict?)]
- [show (->* [pict?] [any/c] pict?)])
+ [hide (->* [pict-convertible?] [any/c] pict?)]
+ [show (->* [pict-convertible?] [any/c] pict-convertible?)])
 (provide pict-if pict-cond pict-case)
 
 ;; The original API in unstable/gui/pict provided a syntax parameter to control

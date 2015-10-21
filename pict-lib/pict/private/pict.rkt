@@ -5,8 +5,11 @@
          (except-in racket/list drop)
          racket/contract/base
          racket/class
+         racket/generic
          (prefix-in file: file/convertible)
-         "convertible.rkt")
+         racket/promise
+         (for-syntax racket/base racket/syntax
+                     racket/struct-info))
 
 (provide dc-for-text-size
          convert-bounds-padding
@@ -15,7 +18,7 @@
          dc
          linewidth
          linestyle
-         
+
          draw-pict
          make-pict-drawer
 
@@ -28,7 +31,6 @@
 
          text-style/c
 
-         
          (struct-out pict)
          (struct-out child)
 
@@ -147,14 +149,73 @@
 
 ;; ; ----------------------------------------
 
-(define-struct pict (draw       ; drawing instructions
-                     width      ; total width
-                     height     ; total height >= ascent + desecnt
-                     ascent     ; portion of height above top baseline
-                     descent    ; portion of height below bottom baseline
-                     children   ; list of child records
-                     panbox     ; panorama box, computed on demand
-                     last)      ; a descendent for the bottom-right
+(define-values (prop:pict-convertible -pict-convertible? pict-convertible-ref)
+  (make-struct-type-property 'pict-convertible))
+
+(define-values (prop:pict-convertible? pict-convertible?? pict-convertible?-ref)
+  (make-struct-type-property 'pict-convertible?))
+
+(begin-for-syntax
+  (struct pict-wrapper (macro)
+    #:property prop:procedure (struct-field-index macro)
+    #:property prop:struct-info
+    (lambda (_)
+      (list #'struct:pict
+            #'make-pict
+            #'pict?
+            (reverse (list #'pict-draw
+                           #'pict-width
+                           #'pict-height
+                           #'pict-ascent
+                           #'pict-descent
+                           #'pict-children
+                           #'pict-panbox
+                           #'pict-last))
+            (list #f
+                  #f
+                  #f
+                  #f
+                  #f
+                  #f
+                  #f
+                  #f)
+            #t))))
+
+(define-syntax pict
+  (pict-wrapper
+   (lambda (stx)
+     (syntax-case stx ()
+       [(id a ...) #'(pict a ...)]
+       [id #'in:pict]))))
+
+(define-syntax (define-pict-wrap stx)
+  (syntax-case stx ()
+    [(_ name)
+     (with-syntax* ([f (format-id stx "~a-~a" 'pict #'name)]
+                    [a (format-id stx "in:~a-~a" 'pict #'name)])
+       #`(define (f p)
+           (a (if (pict? p)
+                  p
+                  (pict-convert p)))))]))
+
+(define-pict-wrap draw)
+(define-pict-wrap width)
+(define-pict-wrap height)
+(define-pict-wrap ascent)
+(define-pict-wrap descent)
+(define-pict-wrap children)
+(define-pict-wrap panbox)
+(define-pict-wrap last)
+
+(define-struct in:pict (draw       ; drawing instructions
+                        width      ; total width
+                        height     ; total height >= ascent + desecnt
+                        ascent     ; portion of height above top baseline
+                        descent    ; portion of height below bottom baseline
+                        children   ; list of child records
+                        panbox     ; panorama box, computed on demand
+                        last)      ; a descendent for the bottom-right
+  #:reflection-name 'pict
   #:mutable
   #:property prop:pict-convertible (λ (v) v)
   #:property file:prop:convertible (lambda (v mode default)
@@ -166,8 +227,71 @@
                                 #f
                                 (or (current-load-relative-directory)
                                     (current-directory))))
+
+(define make-pict make-in:pict)
+(define pict? in:pict?)
+(define struct:pict struct:in:pict)
+
+(define-syntax (define-pict-setter stx)
+  (syntax-case stx ()
+    [(_ name)
+     (with-syntax ([f (format-id stx "~a-~a!" 'set-pict #'name)]
+                    [a (format-id stx "~a-~a!" 'set-in:pict #'name)])
+       #'(define f a))]))
+
+(define-pict-setter draw)
+(define-pict-setter width)
+(define-pict-setter height)
+(define-pict-setter ascent)
+(define-pict-setter descent)
+(define-pict-setter children)
+(define-pict-setter panbox)
+(define-pict-setter last)
+
 (define-struct child (pict dx dy sx sy syx sxy))
 (define-struct bbox (x1 y1 x2 y2 ay dy))
+
+(define (pict-convertible? x)
+  (or (pict? x)
+      (and (-pict-convertible? x)
+           (if (pict-convertible?? x)
+               ((pict-convertible?-ref x) x)
+               #t))))
+
+(define (pict-convert v)
+  (cond [(pict? v) v]
+        [(not (pict-convertible? v))
+         (raise-type-error 'pict-convert "pict-convertible" v)]
+        [else
+         (define converted ((pict-convertible-ref v) v))
+         (converted-pict
+          (pict-draw converted)
+          (pict-width converted)
+          (pict-height converted)
+          (pict-ascent converted)
+          (pict-descent converted)
+          (pict-children converted)
+          (pict-panbox converted)
+          (pict-last converted)
+          v)]))
+
+(struct converted-pict pict (parent))
+
+(define (pict-path-element=? a b)
+  (or (eq? a b)
+      (if (converted-pict? a)
+          (if (converted-pict? b)
+              (eq? (converted-pict-parent a) (converted-pict-parent b))
+              (eq? (converted-pict-parent a) b))
+          (if (converted-pict? b)
+              (eq? (converted-pict-parent b) a)
+              #f))))
+
+(module+ convertible
+  (provide prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
+           pict-convertible-ref
+
+           pict-path-element=?))
 
 ;; ----------------------------------------
 
@@ -228,10 +352,10 @@
               [not-found (lambda () (error 'find-XX
                                            "sub-pict: ~a not found in: ~a" 
                                            subbox pict))])
-    (if (eq? box subbox)
+    (if (pict-path-element=? subbox box)
         (found dx dy)
         (let loop ([c (pict-children box)])
-          (if (null? c) 
+          (if (null? c)
               (not-found)
               (floop (child-pict (car c))
                      (lambda (dx dy)
@@ -247,7 +371,7 @@
                        (loop (cdr c)))))))))
 
 (define (find-lbx pict subbox-path dx dy)
-  (if (pict? subbox-path)
+  (if (pict-convertible? subbox-path)
       (single-pict-offset pict subbox-path dx dy)
       (let loop ([l (cons pict subbox-path)])
         (if (null? (cdr l))
@@ -279,9 +403,10 @@
                 (lambda (pict pict-path)
                   (let ([p (let loop ([path pict-path])
                              (cond
-                              [(pict? path) path]
-                              [(null? (cdr path)) (loop (car path))]
-                              [else (loop (cdr path))]))])
+                               [(pict? path) path]
+                               [(pict-convertible? path) (pict-convert path)]
+                               [(null? (cdr path)) (loop (car path))]
+                               [else (loop (cdr path))]))])
                     (let ([w (pict-width p)]
                           [h (pict-height p)]
                           [d (pict-descent p)]
@@ -340,7 +465,13 @@
             (flip find-rtl)
             (flip find-rbl))))
 
-(define (launder box)
+(define (launder box*)
+  ;; we might be given a pict-convertable
+  ;; but set-pict-foo! isn't defined on those
+  (define box
+    (if (pict? box*)
+        box*
+        (pict-convert box*)))
   (unless (pict-panbox box)
     (panorama-box! box))
   (let ([b (extend-pict box 0 0 0 0 0 #f)])
@@ -353,7 +484,7 @@
       (set-pict-last! box #f) ; preserve invariants
       (cond
        [(not l) b]
-       [else 
+       [else
         (let-values ([(x y) (lt-find box l)]
                      [(l) (let loop ([l l])
                             (if (pair? l)
@@ -380,7 +511,7 @@
                    (pict-ascent p))
                d2
                (map (lambda (c)
-                      (make-child 
+                      (make-child
                        (child-pict c)
                        (child-dx c)
                        (+ dh (child-dy c))
@@ -412,8 +543,8 @@
 
 (define (refocus p c)
   (let-values ([(x y) (find-lt p c)])
-    (let ([p (inset p 
-                    (- x) (- y (pict-height p)) 
+    (let ([p (inset p
+                    (- x) (- y (pict-height p))
                     (- (- (pict-width p) x (pict-width c)))
                     (- (pict-height c) y))])
       (make-pict (pict-draw p)
@@ -423,8 +554,9 @@
                  #f
                  (last* c)))))
 
-(define (panorama-box! p)
-  (let ([bb (pict-panbox p)])
+(define (panorama-box! p*)
+  (let* ([p (pict-convert p*)]
+         [bb (pict-panbox p)])
     (if bb
         (values (bbox-x1 bb) (bbox-y1 bb) (bbox-x2 bb) (bbox-y2 bb)
                 (bbox-ay bb) (bbox-dy bb))
@@ -509,19 +641,21 @@
   (let ([l (pict-last sub-p)])
     (cond
      [(not l) sub-p]
-     [(eq? l sub-p) sub-p]
-     [(pair? l) (if (eq? (car l) sub-p)
+     [(pair? l) (if (pict-path-element=? (car l) sub-p)
                     l
                     (cons sub-p l))]
+     [(pict-path-element=? l sub-p) sub-p]
      [else (list sub-p l)])))
 
 (define (use-last p sub-p)
   (if (let floop ([p p] [sub-p sub-p])
-        (or (eq? p sub-p)
-            (and (pair? sub-p)
-                 (eq? p (car sub-p))
-                 (or (null? (cdr sub-p))
-                     (floop p (cdr sub-p))))
+        (or
+         (if (not (pair? sub-p))
+             (pict-path-element=? p sub-p)
+             (and (not (pair? (car sub-p)))
+                  (pict-path-element=? p (car sub-p))
+                  (or (null? (cdr sub-p))
+                      (floop p (cdr sub-p)))))
             (ormap (lambda (c) (floop (child-pict c) sub-p))
                    (pict-children p))))
       (use-last/unchecked p sub-p)
@@ -538,12 +672,12 @@
              #f
              sub-p))
 
-(define dash-frame 
+(define dash-frame
   (case-lambda
    [(box) (dash-frame box default-seg)]
    [(box seg)
-    (let ([w (pict-width box)]
-          [h (pict-height box)])
+    (let* ([w (pict-width box)]
+           [h (pict-height box)])
       (extend-pict
        box 0 0 0 0 0
        `(picture
@@ -555,7 +689,8 @@
          (put ,w 0 ,(pict-draw (dash-vline 0 h seg))))))]))
 
 (define (frame box)
-  (dash-frame box (max (pict-width box) (pict-height box))))
+  (let ([box (pict-convert box)])
+    (dash-frame box (max (pict-width box) (pict-height box)))))
 
 (define (dash-line width height rotate seg)
   (let ([vpos (quotient* height 2)])
@@ -666,9 +801,9 @@
                     (let append-boxes ([args args])
                       (cond
                        [(null? args) (blank)]
-                       [(null? (cdr args)) (car args)]
+                       [(null? (cdr args)) (pict-convert (car args))]
                        [else
-                        (let* ([first (car args)]
+                        (let* ([first (pict-convert (car args))]
                                [rest (append-boxes (cdr args))]
                                [w (wcomb (pict-width first) (pict-width rest) sep first rest)]
                                [h (hcomb (pict-height first) (pict-height rest) sep first rest)]
@@ -792,14 +927,23 @@
                 cc-superimpose
                 ctl-superimpose
                 cbl-superimpose)
-  (let ([make-superimpose 
+  (let ([make-superimpose
          (lambda (get-h get-v get-th name)
-           (lambda boxes
-             (when (null? boxes)
+           (lambda boxes*
+             (when (null? boxes*)
                (error name "expected at least one argument, got none"))
-             (unless (andmap pict? boxes)
-               (error name "expected all picts as arguments, got ~a"
-                      (apply string-append (add-between (map (λ (x) (format "~e" x)) boxes) " "))))
+             (define boxes
+               (map
+                (lambda (p)
+                  (cond
+                    [(pict? p) p]
+                    [(pict-convertible? p)
+                     (pict-convert p)]
+                    [else
+                     (raise-argument-error
+                      name "all picts as arguments"
+                      (apply string-append (add-between (map (λ (x) (format "~e" x)) boxes*) " ")))]))
+                boxes*))
              (let ([max-w (apply max (map pict-width boxes))]
                    [max-h (apply max (map pict-height boxes))]
                    [max-a (apply max (map pict-ascent boxes))]
@@ -888,7 +1032,7 @@
                           (let loop ([c w][cells cells][one-acc null])
                             (if (zero? c)
                                 (rloop (sub1 r) cells (cons (list->vector (reverse one-acc)) r-acc))
-                                (loop (sub1 c) (cdr cells) (cons (car cells) one-acc))))))]
+                                (loop (sub1 c) (cdr cells) (cons (pict-convert (car cells)) one-acc))))))]
              [imp-list->vector (lambda (l n)
                                  (let ([v (make-vector n)])
                                    (let loop ([l l][p 0])

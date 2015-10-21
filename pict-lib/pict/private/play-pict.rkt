@@ -1,7 +1,8 @@
 #lang racket/base
 (require racket/list
          racket/math
-         "main.rkt")
+         "main.rkt"
+         "convertible.rkt")
 
 (provide fade-pict
          slide-pict
