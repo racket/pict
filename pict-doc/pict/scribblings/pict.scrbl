@@ -245,7 +245,14 @@ The @racket[style] argument must be one of the following:
  @item{@racket[(cons 'italic style)]}
  @item{@racket[(cons 'subscript style)]}
  @item{@racket[(cons 'superscript style)]}
- @item{@racket[(cons 'caps style)]}
+
+@item{@racket[(cons 'large-script style)] --- makes subscripts and
+      superscripts larger, which is more suitable for small text sizes
+      as might appear in print
+
+      @history[#:added "1.5"]}
+
+@item{@racket[(cons 'caps style)]}
 
  @item{@racket[(cons 'combine style)] --- allows kerning and ligatures
       (the default, unless the @racket['modern] family is specified)}

@@ -182,7 +182,9 @@
          family/c
          string? ;; could be more specific, I guess.
          (cons/c string? family/c)
-         (cons/c (or/c 'bold 'italic 'superscript 'subscript 'combine 'no-combine 'caps
+         (cons/c (or/c 'bold 'italic 'superscript 'subscript
+                       'large-script
+                       'combine 'no-combine 'caps
                        'outline 'aligned 'unaligned
                        (is-a?/c color%))
                  text-style/c))))
@@ -1395,6 +1397,7 @@
                   (memq (car style)
                         '(superscript 
                           subscript
+                          large-script
                           bold italic
                           aligned unaligned)))
              (let ([font (loop (cdr style))]
@@ -1438,6 +1441,7 @@
                      [else (loop (cdr style))]))]
         [sub? (memq* 'subscript orig-style)]
         [sup? (memq* 'superscript orig-style)]
+        [large-script? (memq* 'large-script orig-style)]
         [outline? (memq* 'outline orig-style)]
         [color (let loop ([style orig-style])
                  (cond
@@ -1447,7 +1451,10 @@
                   [else (loop (cdr style))]))])
     (let ([s-font (if (or sub? sup?)
                       (extend-font font
-                                   (floor (* 6/10 (send font get-point-size)))
+                                   (floor (* (if large-script?
+                                                 85/100
+                                                 6/10)
+                                             (send font get-point-size)))
                                    (send font get-style)
                                    (send font get-weight)
                                    (send font get-hinting))
@@ -1495,8 +1502,15 @@
               (prog-picture (make-draw
                              (lambda (x) x)
                              (lambda (y) (if sub?
-                                             (+ y (- wh h))
-                                             y))
+                                        (+ y
+                                           (if large-script?
+                                               (+ (* (- wh wd ws) 4/10)
+                                                  (- ws s))
+                                               (- wh h)))
+                                        (+ y
+                                           (if large-script?
+                                               (* (- wh wd ws) -3/10)
+                                               0))))
                              0)
                             w wh (- wh wd) wd))
             (if (zero? angle)
