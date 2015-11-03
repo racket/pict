@@ -7,7 +7,7 @@
          (for-syntax racket/base))
 
 (provide/contract
- [hide (->* [pict-convertible?] [any/c] pict-convertible?)]
+ [hide (->* [pict-convertible?] [any/c] pict?)]
  [show (->* [pict-convertible?] [any/c] pict-convertible?)])
 (provide pict-if pict-cond pict-case)
 

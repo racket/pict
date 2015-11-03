@@ -7,7 +7,6 @@
          racket/class
          racket/generic
          (prefix-in file: file/convertible)
-         "convertible.rkt"
          racket/promise
          (for-syntax racket/base racket/syntax
                      racket/struct-info))
@@ -150,6 +149,15 @@
 
 ;; ; ----------------------------------------
 
+(define-values (prop:pict-convertible -pict-convertible? pict-convertible-ref)
+  (make-struct-type-property 'pict-convertible))
+
+(define-values (prop:pict-convertible? pict-convertible?? pict-convertible?-ref)
+  (make-struct-type-property 'pict-convertible?))
+
+(define-values (prop:pict-post-equality pict-post-equality? pict-post-equality-ref)
+  (make-struct-type-property 'prop:pict-post-equality))
+
 (begin-for-syntax
   (struct pict-wrapper (macro)
     #:property prop:procedure (struct-field-index macro)
@@ -213,6 +221,7 @@
                      in:last)      ; a descendent for the bottom-right
   #:mutable
   #:property prop:pict-convertible (λ (v) v)
+  #:property prop:pict-post-equality equal?
   #:property file:prop:convertible (lambda (v mode default)
                                      (convert-pict v mode default))
   #:property prop:serializable (make-serialize-info
@@ -241,6 +250,53 @@
 
 (define-struct child (pict dx dy sx sy syx sxy))
 (define-struct bbox (x1 y1 x2 y2 ay dy))
+
+(define (pict-convertible? x)
+    (and (-pict-convertible? x)
+         (if (pict-convertible?? x)
+             ((pict-convertible?-ref x) x)
+             #t)))
+
+(define (pict-convert v)
+  (unless (pict-convertible? v)
+    (raise-type-error 'pict-convert "pict-convertible" v))
+  (define converted ((pict-convertible-ref v) v))
+  (if (pict-post-equality? v)
+      converted
+      (converted-pict
+       (pict-draw converted)
+       (pict-width converted)
+       (pict-height converted)
+       (pict-ascent converted)
+       (pict-descent converted)
+       (pict-children converted)
+       (pict-panbox converted)
+       (pict-last converted)
+       v)))
+
+
+(struct converted-pict pict (parent))
+
+(define (post-pict=? a b)
+  (or (eq? a b)
+      ((get-post-pict=? a) a b)
+      ((get-post-pict=? b) b a)))
+
+;; pict-convertible? -> (Any Any -> Boolean)
+(define (get-post-pict=? a)
+  (define =?
+    (if (pict-post-equality? a)
+        (pict-post-equality-ref a)
+        (lambda (a b)
+          (and (converted-pict? b)
+               (equal? a (converted-pict-parent b))))))
+  (lambda (a b) (or (equal? a b) (=? a b))))
+
+(module+ convertible
+  (provide prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
+           pict-convertible-ref
+           prop:pict-post-equality pict-post-equality?
+           pict-post-equality-ref post-pict=?))
 
 ;; ----------------------------------------
 
@@ -301,10 +357,10 @@
               [not-found (lambda () (error 'find-XX
                                            "sub-pict: ~a not found in: ~a" 
                                            subbox pict))])
-    (if (eq? box subbox)
+    (if (post-pict=? subbox box)
         (found dx dy)
         (let loop ([c (pict-children box)])
-          (if (null? c) 
+          (if (null? c)
               (not-found)
               (floop (child-pict (car c))
                      (lambda (dx dy)
@@ -359,7 +415,7 @@
                           [h (pict-height p)]
                           [d (pict-descent p)]
                           [a (pict-ascent p)])
-                      (find-lbx pict pict-path
+                      (find-lbx (pict-convert pict) pict-path
                                 (get-x 0 1 w 0 0)
                                 (get-y 0 1 h d a))))))])
     (values (find lb rt)
@@ -589,19 +645,21 @@
   (let ([l (pict-last sub-p)])
     (cond
      [(not l) sub-p]
-     [(eq? l sub-p) sub-p]
-     [(pair? l) (if (eq? (car l) sub-p)
+     [(pair? l) (if (post-pict=? (car l) sub-p)
                     l
                     (cons sub-p l))]
+     [(post-pict=? l sub-p) sub-p]
      [else (list sub-p l)])))
 
 (define (use-last p sub-p)
   (if (let floop ([p p] [sub-p sub-p])
-        (or (eq? p sub-p)
-            (and (pair? sub-p)
-                 (eq? p (car sub-p))
-                 (or (null? (cdr sub-p))
-                     (floop p (cdr sub-p))))
+        (or
+         (if (not (pair? sub-p))
+             (post-pict=? p sub-p)
+             (and (not (pair? (car sub-p)))
+                  (post-pict=? p (car sub-p))
+                  (or (null? (cdr sub-p))
+                      (floop p (cdr sub-p)))))
             (ormap (lambda (c) (floop (child-pict c) sub-p))
                    (pict-children p))))
       (use-last/unchecked p sub-p)
@@ -618,7 +676,7 @@
              #f
              sub-p))
 
-(define dash-frame 
+(define dash-frame
   (case-lambda
    [(box) (dash-frame box default-seg)]
    [(box seg)
@@ -977,7 +1035,7 @@
                           (let loop ([c w][cells cells][one-acc null])
                             (if (zero? c)
                                 (rloop (sub1 r) cells (cons (list->vector (reverse one-acc)) r-acc))
-                                (loop (sub1 c) (cdr cells) (cons (car cells) one-acc))))))]
+                                (loop (sub1 c) (cdr cells) (cons (pict-convert (car cells)) one-acc))))))]
              [imp-list->vector (lambda (l n)
                                  (let ([v (make-vector n)])
                                    (let loop ([l l][p 0])

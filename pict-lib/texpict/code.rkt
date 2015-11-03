@@ -1,5 +1,6 @@
 (module code racket/base
   (require pict/private/pict
+           pict/convert
            (prefix-in r: racket/base)
            mzlib/class
            mzlib/list
@@ -544,7 +545,7 @@
                     (apply htl-append 
                            (color-semi-p)
                            (map (lambda (s)
-                                  (if (pict? (syntax-e s))
+                                  (if (pict-convertible? (syntax-e s))
                                       (syntax-e s)
                                       (maybe-colorize (tt (syntax-e s)) (current-comment-color))))
                                 (syntax->list #'(s ...))))])
@@ -715,7 +716,7 @@
                                     closes
                                     mode))]
             [else
-	     (add-close (if (pict? (syntax-e stx))
+	     (add-close (if (pict-convertible? (syntax-e stx))
 			    (syntax-e stx)
 			    (mode-colorize mode 'literal
 					   (tt (format "~s" (syntax-e stx)))))

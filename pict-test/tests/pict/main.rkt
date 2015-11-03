@@ -1,8 +1,11 @@
-#lang debug racket
+#lang racket
 (require pict rackunit
-         (for-syntax syntax/parse)
+         (for-syntax syntax/parse
+                     racket/sequence)
          pict/shadow
+         pict/code
          pict/conditional
+         pict/balloon
          racket/draw racket/class)
 
 (define (->bitmap p)
@@ -287,77 +290,174 @@
 (check-pict=? (rectangle 0 3) (old-rectangle 0 3))
 
 ;; check that loading pict-convertables as picts doesn't cause odd behavior
+
 (require pict/convert)
 (struct wrap (pict)
   #:property prop:pict-convertible
   (lambda (x) (pict-convert (wrap-pict x))))
 
-(define-syntax (gen-wrapping-case stx)
-  (syntax-parse stx
-    [(_ e:expr [(n) (m:id b:expr ...)] ...)
-     (with-syntax ([((i ...) ...) (map generate-temporaries (syntax->list #'((b ...) ...)))])
-       #`(case e
-           [(n)
-            (define i (call-with-values (lambda () b) list)) ...
-            (with-handlers ([void (lambda (ex) (displayln `(m ,(last i) ...)) (raise ex))])
-              (values
-               (m (first i) ...)
-               (wrap (m (if (or (null? (rest i))
-                                (null? (rest (rest i))))
-                            (first i)
-                            (second i))
-                        ...))
-               `(m ,(last i) ...)))]
-           ...))]))
+(test-case "check pict-post"
+  (local-require (submod pict/private/pict convertible))
+  (let ([x (wrap (text "xx"))])
+    (check-true (post-pict=? x (pict-convert x)))))
+
+(test-case "find-XX with wrapping tests"
+  (check-not-exn
+   (let ([x (wrap (text "sefse"))])
+     (thunk (lt-find (pict-convert x) x))))
+  (check-not-exn
+   (let ([x (wrap (text "sefse"))])
+     (thunk (lt-find x x)))))
+
+(define-syntax gen-wrapping-case
+  (syntax-parser
+    [(_ gen:id cut:id s:id e:expr cls ...)
+     (with-syntax ([(c ...) (for/list ([c (syntax->list #'(cls ...))]
+                                       [i (in-naturals)])
+                              (transform-clause c i #'gen #'cut))])
+       #`(let ([s #,(length (syntax->list #'(c ...)))])
+           (let ([n e])
+             (case n c ... [else (error 'cs "unknown case ~a" n)]))))]))
+
+(define-for-syntax (transform-clause stx i gen cut)
+  (with-syntax ([n i])
+    (syntax-parse stx
+      [[#:skip b]
+       #`[(n) b]]
+      [(m:id b:expr ...)
+       (with-syntax ([(i ...) (generate-temporaries (syntax->list #'(b ...)))])
+         (define num
+           (for/sum ([x (in-syntax #'(b ...))])
+             (syntax-parse x
+               [(g)
+                #:when (free-identifier=? #'g gen)
+                1]
+               [_ 0])))
+         #`[(n)
+            (parameterize ([#,cut #,num])
+              (define i (call-with-values (lambda () b) list)) ...
+              (with-handlers ([void (lambda (ex) (displayln `(m ,(last i) ...)) (raise ex))])
+                (values
+                 (m (first i) ...)
+                 (wrap (m (if (or (null? (rest i))
+                                  (null? (rest (rest i))))
+                              (first i)
+                              (second i))
+                          ...))
+                 `(m ,(last i) ...))))])])))
 
 (define (generate-pict/wrap)
   (define-values (l p m)
-    (let loop ([depth 0])
-      (define (gen) (loop (add1 depth)))
-      (gen-wrapping-case
-       (if (> depth 6) (random 3) (random 26))
-       [(0) (text "sefsefse")]
-       [(1) (rectangle (random 10) (random 10))]
-       [(2) (arrow (random 10) (random 10))]
-       [(3) (frame (gen))]
-       [(4) (cc-superimpose (gen) (gen))]
-       [(5) (vl-append (gen) (gen))]
-       [(6) (hbl-append (gen) (gen))]
-       [(7) (rb-superimpose (gen) (gen))]
-       [(8) (panorama (gen))]
-       [(9) (scale (gen) (add1 (random)))]
-       [(10) (inset (gen) (random 10) (random 10) (random 10) (random 10))]
-       [(11) (baseless (gen))]
-       [(12) (scale-to-fit (gen) (add1 (random 100)) (add1 (random 100)))]
-       [(13) (rotate (gen) (* 1/2 pi (random 4)))]
-       [(14) (ghost (gen))]
-       [(15) (linewidth (random 10) (gen))]
-       [(16) (linestyle (first (shuffle (list'transparent 'solid 'xor 'hilite
-                                                          'dot 'long-dash 'short-dash 'dot-dash
-                                                          'xor-dot 'xor-long-dash 'xor-short-dash
-                                                          'xor-dot-dash)))
-                        (gen))]
-       [(17) (colorize (gen) (list (random 254) (random 254) (random 254)))]
-       [(18) (cellophane (gen) (random))]
-       [(19) (clip (gen))]
-       [(20) (freeze (gen))]
-       [(21) (blur (gen) (add1 (random 10)))]
-       [(22) (shadow-frame (gen))]
-       [(23) (pict-if (> .5 (random))
-                      (gen)
-                      (gen))]
-       [(24) (show (gen) (> .5 (random)))]
-       [(25) (hyperlinkize (gen))])))
+    (let loop ([fuel 20])
+      (define cut (make-parameter 1))
+      (define (gen [fuel-cut (cut)])
+        (loop (floor (/ (sub1 fuel) fuel-cut))))
+      (gen-wrapping-case gen cut count
+       (if (= fuel 0) (random 3) (random count))
+       (text "sefsefse")
+       (rectangle (add1 (random 10)) (add1 (random 10)))
+       (arrow (add1 (random 10)) (add1 (random 10)))
+       (frame (gen))
+       (cc-superimpose (gen) (gen))
+       (vl-append (gen) (gen))
+       (hbl-append (gen) (gen))
+       (rb-superimpose (gen) (gen))
+       (panorama (gen))
+       (scale (gen) (add1 (random)))
+       (inset (gen) (random 10) (random 10) (random 10) (random 10))
+       (baseless (gen))
+       (scale-to-fit (gen) (add1 (random 100)) (add1 (random 100)))
+       (rotate (gen) (* 1/2 pi (random 4)))
+       (ghost (gen))
+       (linewidth (random 10) (gen))
+       (linestyle (first (shuffle (list'transparent 'solid 'xor 'hilite
+                                                     'dot 'long-dash 'short-dash 'dot-dash
+                                                     'xor-dot 'xor-long-dash 'xor-short-dash
+                                                     'xor-dot-dash)))
+                   (gen))
+        (colorize (gen) (list (random 254) (random 254) (random 254)))
+        (cellophane (gen) (random))
+        (clip (gen))
+        (freeze (gen))
+        (blur (gen) (add1 (random 10)))
+        (shadow-frame (gen))
+        (pict-if (> .5 (random))
+                 (gen)
+                 (gen))
+        (show (gen) (> .5 (random)))
+        (hyperlinkize (gen))
+        (pin-over (gen)
+                  (random 10)
+                  (random 10)
+                  (gen))
+        (table 2
+               (let-values ([(l1 r1 m1) (gen 4)]
+                            [(l2 r2 m2) (gen 4)]
+                            [(l3 r3 m3) (gen 4)]
+                            [(l4 r4 m4) (gen 4)])
+                 (values (list l1 l2 l3 l4)
+                         (list r1 r2 r3 r4)
+                         `(list ,m1 ,m2 ,m3 ,m4)))
+               cc-superimpose
+               cc-superimpose
+               (random 5)
+               (random 5))
+       [#:skip
+        (let-values ([(l w m) (gen)])
+          (with-handlers ([void (lambda (e)
+                                  (displayln `(code (+ 1 #,m)))
+                                  (raise e))])
+            (values (code (+ 1 #,l))
+                    (wrap (code (+ 1 #,w)))
+                    `(code (+ 1 #,m)))))]
+       (code-align (gen))
+       (pip-wrap-balloon (gen)
+                         (first (shuffle (list 'n 's 'e 'w 'ne 'se 'sw 'nw)))
+                         (random 10)
+                         (random 10))
+       (fade-pict (random) (gen) (gen))
+       [#:skip
+        (let*-values ([(l1 r1 m1) (gen)]
+                      [(l2 r2 m2) (gen)]
+                      [(l3) (hbl-append l1 l2)]
+                      [(r3) (hbl-append r1 r2)]
+                      [(m3) `(hbl-append ,m1 ,m2)])
+          (with-handlers ([void (lambda (e) (displayln `(use-last ,m3 (pict-last ,m3))) (raise e))])
+            (values
+             (use-last l3 (pict-last l3))
+             (use-last r3 (pict-last r3))
+             `(use-last ,m3 (pict-last ,m3)))))]
+       [#:skip
+        (let-values ([(l1 r1 m1) (gen 3)]
+                     [(l2 r2 m2) (gen 3)]
+                     [(l3 r3 m3) (gen 3)]
+                     [(f) (random)])
+          (with-handlers ([void (lambda (e)
+                                  (displayln `(slide-pict ,m3
+                                                          (hbl-append ,m1 m2)
+                                                          m1
+                                                          m2
+                                                          ,f))
+                                  (raise e))])
+            (define (mk i l r)
+              (slide-pict i (hbl-append l r) l r f))
+            (values (mk l3 l1 l2)
+                    (mk r3 r1 r2)
+                    `(slide-pict ,m3
+                                 (hbl-append ,m1 m2)
+                                 m1
+                                 m2
+                                 ,f))))])))
   (values l p m))
 
-(test-case "auto pict conversion random tests"
-  (for ([i 2000])
-    (define-values (l r m) (generate-pict/wrap))
-    (check-pict=? l r (~a m))))
 
-
-(define (run-forever)
-  (let loop ()
-    (define-values (l r _) (generate-pict/wrap))
-    (check-pict=? l r (~a _))
-    (loop)))
+(require rackunit/text-ui)
+(run-tests
+ (make-test-suite
+  "auto pict conversion"
+  (for/list ([i 1000])
+    (test-suite ""
+      (check-not-exn
+       (thunk
+        (define-values (l r m) (generate-pict/wrap))
+        (check-pict=? l r (~a m))))))))

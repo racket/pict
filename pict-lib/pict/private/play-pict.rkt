@@ -1,7 +1,8 @@
 #lang racket/base
 (require racket/list
          racket/math
-         "main.rkt")
+         "main.rkt"
+         "convertible.rkt")
 
 (provide fade-pict
          slide-pict
@@ -35,70 +36,70 @@
   (let ([orig (combine (cellophane a (- 1.0 n))
                        (cellophane b n))])
     (cond
-     [(zero? n) (refocus orig a)]
-     [(= n 1.0) (refocus orig b)]
-     [else
-      (let-values ([(atx aty) (ltl-find orig a)]
-                   [(abx aby) (rbl-find orig a)]
-                   [(btx bty) (ltl-find orig b)]
-                   [(bbx bby) (rbl-find orig b)])
-        (let ([da (+ aty (* (- bty aty) n))]
-              [dd (- (pict-height orig)
-                     (+ aby (* (- bby aby) n)))]
-              [orig 
-               ;; Generate intermediate last-pict
-               (let ([ap (or (pict-last a) a)]
-                     [bp (or (pict-last b) b)])
-                 (let-values ([(al at) (lt-find orig (if (pair? ap) (cons a ap) (list a ap)))]
-                              [(bl bt) (lt-find orig (if (pair? bp) (cons b bp) (list b bp)))]
-                              [(ae) (single-pict ap)]
-                              [(be) (single-pict bp)])
-                   (let ([ar (+ al (pict-width ae))]
-                         [ab (+ at (pict-height ae))]
-                         [br (+ bl (pict-width be))]
-                         [bb (+ bt (pict-height be))])
-                     (let ([atl (+ at (pict-ascent ae))]
-                           [abl (- ab (pict-descent ae))]
-                           [btl (+ bt (pict-ascent be))]
-                           [bbl (- bb (pict-descent be))]
-                           [btw (lambda (a b)
-                                  (+ a (* (- b a) n)))])
-                       (let ([t (btw at bt)]
-                             [l (btw al bl)])
-                         (let ([b (max t (btw ab bb))]
-                               [r (max l (btw ar br))])
-                           (let ([tl (max t (min (btw atl btl) b))]
-                                 [bl (max t (min (btw abl bbl) b))])
-                             (let ([p (blank (- r l) (- b t)
-                                             (- tl t) (- b bl))])
-                               (let ([orig+p (pin-over orig l t p)])
-                                 (use-last orig+p p))))))))))])
-          (let ([p (make-pict (pict-draw orig)
-                              (pict-width orig)
-                              (pict-height orig)
-                              da
-                              dd
-                              (list (make-child orig 0 0 1 1 0 0))
-                              #f
-                              (pict-last orig))])
-            (let ([left (+ atx (* (- btx atx) n))]
-                  [right (+ abx (* (- bbx abx) n))])
-              (let ([hp (inset p
-                               (- left)
-                               0
-                               (- right (pict-width p))
-                               0)])
-                (let-values ([(atx aty) (lt-find hp a)]
-                             [(abx aby) (lb-find hp a)]
-                             [(btx bty) (lt-find hp b)]
-                             [(bbx bby) (lb-find hp b)])
-                  (let ([top (+ aty (* (- bty aty) n))]
-                        [bottom (+ aby (* (- bby aby) n))])
-                    (inset hp
-                           0
-                           (- top)
-                           0
-                           (- bottom (pict-height hp))))))))))])))
+      [(zero? n) (refocus orig a)]
+      [(= n 1.0) (refocus orig b)]
+      [else
+       (let-values ([(atx aty) (ltl-find orig a)]
+                    [(abx aby) (rbl-find orig a)]
+                    [(btx bty) (ltl-find orig b)]
+                    [(bbx bby) (rbl-find orig b)])
+         (let ([da (+ aty (* (- bty aty) n))]
+               [dd (- (pict-height orig)
+                      (+ aby (* (- bby aby) n)))]
+               [orig 
+                ;; Generate intermediate last-pict
+                (let ([ap (or (pict-last a) a)]
+                      [bp (or (pict-last b) b)])
+                  (let-values ([(al at) (lt-find orig (if (pair? ap) (cons a ap) (list a ap)))]
+                               [(bl bt) (lt-find orig (if (pair? bp) (cons b bp) (list b bp)))]
+                               [(ae) (single-pict ap)]
+                               [(be) (single-pict bp)])
+                    (let ([ar (+ al (pict-width ae))]
+                          [ab (+ at (pict-height ae))]
+                          [br (+ bl (pict-width be))]
+                          [bb (+ bt (pict-height be))])
+                      (let ([atl (+ at (pict-ascent ae))]
+                            [abl (- ab (pict-descent ae))]
+                            [btl (+ bt (pict-ascent be))]
+                            [bbl (- bb (pict-descent be))]
+                            [btw (lambda (a b)
+                                   (+ a (* (- b a) n)))])
+                        (let ([t (btw at bt)]
+                              [l (btw al bl)])
+                          (let ([b (max t (btw ab bb))]
+                                [r (max l (btw ar br))])
+                            (let ([tl (max t (min (btw atl btl) b))]
+                                  [bl (max t (min (btw abl bbl) b))])
+                              (let ([p (blank (- r l) (- b t)
+                                              (- tl t) (- b bl))])
+                                (let ([orig+p (pin-over orig l t p)])
+                                  (use-last orig+p p))))))))))])
+           (let ([p (make-pict (pict-draw orig)
+                               (pict-width orig)
+                               (pict-height orig)
+                               da
+                               dd
+                               (list (make-child orig 0 0 1 1 0 0))
+                               #f
+                               (pict-last orig))])
+             (let ([left (+ atx (* (- btx atx) n))]
+                   [right (+ abx (* (- bbx abx) n))])
+               (let ([hp (inset p
+                                (- left)
+                                0
+                                (- right (pict-width p))
+                                0)])
+                 (let-values ([(atx aty) (lt-find hp a)]
+                              [(abx aby) (lb-find hp a)]
+                              [(btx bty) (lt-find hp b)]
+                              [(bbx bby) (lb-find hp b)])
+                   (let ([top (+ aty (* (- bty aty) n))]
+                         [bottom (+ aby (* (- bby aby) n))])
+                     (inset hp
+                            0
+                            (- top)
+                            0
+                            (- bottom (pict-height hp))))))))))])))
 
 ;; Pin `p' into `base', sliding from `p-from' to `p-to'
 ;;  (which are picts within `base') as `n' goes from 0.0 to 1.0.

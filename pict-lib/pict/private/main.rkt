@@ -39,10 +39,10 @@
                p)))
 
   (define (pict-path? p)
-    (or (pict? p)
+    (or (pict-convertible? p)
         (and (pair? p)
              (list? p)
-             (andmap pict? p))))
+             (andmap pict-convertible? p))))
 
   (define (label-line label pict src-pict src-coord-fn dest-pict dest-coord-fn
                       #:x-adjust [x-adjust 0] #:y-adjust [y-adjust 0])

@@ -8,7 +8,7 @@
 
 (define a-number 0)
 
-(provide 
+(provide
  (except-out (all-from-out "private/main.rkt")
              use-last
              use-last*
@@ -28,11 +28,32 @@
              hb-append
              htl-append
              hbl-append
+           pin-line pin-arrow-line pin-arrows-line
              cellophane
              frame
              dc
              table)
+
+ pin-arrow-line
+ pin-arrows-line
+ pin-line
  (contract-out
+  #;
+  [pin-line
+   (->* (pict? pict-path? find/c pict-path? find/c)
+        (#:start-angle (or/c real? #f)
+         #:end-angle (or/c real? #f)
+         #:start-pull start-pull
+         #:end-pull end-pull
+         #:line-width line-width
+         #:color color
+         #:alpha alpha
+         #:style style
+         #:under? under?
+         #:label label
+         #:x-adjust-label x-adjust-label
+         #:y-adjust-label y-adjust-label)
+        pict?)]
   [frame (->* (pict-convertible?)
               (#:segment (or/c #f real?)
                #:color (or/c #f string? (is-a?/c color%))
@@ -66,22 +87,22 @@
   [htl-append *-append/c]
   [hbl-append *-append/c]
 
-  [use-last (-> pict? pict-path? pict?)]
-  [use-last* (-> pict? pict? pict?)]
-  
+  [use-last (-> pict-convertible? pict-path? pict?)]
+  [use-last* (-> pict-convertible? pict-convertible? pict?)]
+
   [colorize (-> pict-convertible? 
                 (or/c string? 
                       (is-a?/c color%)
                       (list/c byte? byte? byte?))
                 pict?)]
-                
+
   [pict->bitmap (->* (pict-convertible?)
                      ((or/c 'unsmoothed 'smoothed 'aligned))
                      (is-a?/c bitmap%))]
-  [pict->argb-pixels (->* (pict-convertible?) 
+  [pict->argb-pixels (->* (pict-convertible?)
                           ((or/c 'unsmoothed 'smoothed 'aligned))
                           (and/c bytes? multiple-of-four-bytes?))]
-  [argb-pixels->pict (-> (and/c bytes? multiple-of-four-bytes?) 
+  [argb-pixels->pict (-> (and/c bytes? multiple-of-four-bytes?)
                          exact-nonnegative-integer?
                          pict?)]
   [pin-under
@@ -181,6 +202,8 @@
                            #t)
                        [_ pict?])]))
 
+(define find/c (pict? pict-path? . -> . (values real? real?)))
+
 (define (does-draw-restore-the-state-after-being-called? draw)
   (define bdc (new bitmap-dc% [bitmap (make-bitmap 1 1)]))
   (randomize-state bdc)
@@ -199,19 +222,19 @@
   (send dc set-text-background (random-color))
   (send dc set-text-foreground (random-color))
   (send dc set-text-mode 'transparent)
-  (send dc set-font (send the-font-list find-or-create-font 
+  (send dc set-font (send the-font-list find-or-create-font
                           (+ 1 (random 254))
                           (pick-one 'default 'decorative 'roman 'script
                                     'swiss 'modern 'symbol 'system)
                           (pick-one 'normal 'italic 'slant)
                           (pick-one 'normal 'bold 'light)))
-  ;; set-transformation is relatively expensive 
+  ;; set-transformation is relatively expensive
   ;; at the moment, so we don't randomize it
   #;
   (send dc set-transformation
-        (vector (vector (random-real) (random-real) (random-real) 
-                        (random-real) (random-real) (random-real))
-                (random-real) (random-real) (random-real) (random-real) (random-real))))
+  (vector (vector (random-real) (random-real) (random-real)
+  (random-real) (random-real) (random-real))
+(random-real) (random-real) (random-real) (random-real) (random-real))))
 
 (define (random-real) (+ (random 1000) (random)))
 (define (random-color) (make-object color% (random 255) (random 255) (random 255)))
@@ -229,7 +252,7 @@
           (send dc get-transformation)
           (color->vec (send dc get-text-foreground))))
 
-(define (pen->vec pen) 
+(define (pen->vec pen)
   (vector (color->vec (send pen get-color))
           (send pen get-width)
           (send pen get-style)))
@@ -244,7 +267,7 @@
           (send font get-style)
           (send font get-weight)))
 
-(define (color->vec c) 
+(define (color->vec c)
   (vector (send c red) (send c green) (send c blue)))
 
 (define *-append/c
@@ -256,7 +279,7 @@
 
 (define (multiple-of-four-bytes? b)
   (zero? (modulo (bytes-length b) 4)))
-  
+
 (require "private/play-pict.rkt")
 (provide
  (contract-out
