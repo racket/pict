@@ -999,7 +999,7 @@ reported by @racket[pict-last]) set to @racket[sub-pict]. The
 @racket[sub-pict] must exist as a sub-pict (or path of sub-picts)
 within @racket[pict].}
 
-@defproc[(use-last* [pict pict?] [sub-pict pict-path?]) pict?]{
+@defproc[(use-last* [pict pict?] [sub-pict pict?]) pict?]{
 
 Propagates the last element of @racket[sub-pict] to @racket[pict].
 

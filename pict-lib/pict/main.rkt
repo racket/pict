@@ -9,6 +9,8 @@
 
 (provide 
  (except-out (all-from-out "private/main.rkt")
+             use-last
+             use-last*
              pict->bitmap
              pict->argb-pixels
              argb-pixels->pict
@@ -56,6 +58,9 @@
   [hb-append *-append/c]
   [htl-append *-append/c]
   [hbl-append *-append/c]
+
+  [use-last (-> pict? pict-path? pict?)]
+  [use-last* (-> pict? pict? pict?)]
   
   [colorize (-> pict? 
                 (or/c string? 
