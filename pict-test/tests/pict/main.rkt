@@ -353,10 +353,14 @@
       (define (gen [fuel-cut (cut)])
         (loop (floor (/ (sub1 fuel) fuel-cut))))
       (gen-wrapping-case gen cut count
-       (if (= fuel 0) (random 3) (random count))
+       (if (= fuel 0) (random 5) (random count))
        (text "sefsefse")
        (rectangle (add1 (random 10)) (add1 (random 10)))
        (arrow (add1 (random 10)) (add1 (random 10)))
+       (jack-o-lantern (add1 (random 10)))
+       (standard-fish 100 50)
+       ;; disabled because this + linestyle can cause cairo to segfault...
+       #;(thermometer)
        (frame (gen))
        (cc-superimpose (gen) (gen))
        (vl-append (gen) (gen))
@@ -436,9 +440,9 @@
                      [(f) (random)])
           (with-handlers ([void (lambda (e)
                                   (displayln `(slide-pict ,m3
-                                                          (hbl-append ,m1 m2)
-                                                          m1
-                                                          m2
+                                                          (hbl-append ,m1 ,m2)
+                                                          ,m1
+                                                          ,m2
                                                           ,f))
                                   (raise e))])
             (define (mk i l r)
