@@ -378,6 +378,8 @@
         (colorize (gen) (list (random 254) (random 254) (random 254)))
         (cellophane (gen) (random))
         (clip (gen))
+        (clip-descent (gen))
+        (clip-ascent (gen))
         (freeze (gen))
         (blur (gen) (add1 (random 10)))
         (shadow-frame (gen))
