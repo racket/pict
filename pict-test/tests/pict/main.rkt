@@ -346,6 +346,7 @@
                           ...))
                  `(m ,(last i) ...))))])])))
 
+(require (prefix-in htdp: 2htdp/image))
 (define (generate-pict/wrap)
   (define-values (l p m)
     (let loop ([fuel 20])
@@ -353,12 +354,13 @@
       (define (gen [fuel-cut (cut)])
         (loop (floor (/ (sub1 fuel) fuel-cut))))
       (gen-wrapping-case gen cut count
-       (if (= fuel 0) (random 5) (random count))
+       (if (= fuel 0) (random 6) (random count))
        (text "sefsefse")
        (rectangle (add1 (random 10)) (add1 (random 10)))
        (arrow (add1 (random 10)) (add1 (random 10)))
        (jack-o-lantern (add1 (random 10)))
        (standard-fish 100 50)
+       (htdp:triangle (add1 (random 40)) "solid" "tan")
        ;; disabled because this + linestyle can cause cairo to segfault...
        #;(thermometer)
        (frame (gen))
