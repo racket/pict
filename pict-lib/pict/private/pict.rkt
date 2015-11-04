@@ -221,7 +221,7 @@
                      in:last)      ; a descendent for the bottom-right
   #:mutable
   #:property prop:pict-convertible (λ (v) v)
-  #:property prop:pict-post-equality equal?
+  #:property prop:pict-post-equality eq?
   #:property file:prop:convertible (lambda (v mode default)
                                      (convert-pict v mode default))
   #:property prop:serializable (make-serialize-info
@@ -252,10 +252,12 @@
 (define-struct bbox (x1 y1 x2 y2 ay dy))
 
 (define (pict-convertible? x)
-    (and (-pict-convertible? x)
-         (if (pict-convertible?? x)
-             ((pict-convertible?-ref x) x)
-             #t)))
+  (if (pict? x)
+      x
+      (and (-pict-convertible? x)
+           (if (pict-convertible?? x)
+               ((pict-convertible?-ref x) x)
+               #t))))
 
 (define (pict-convert v)
   (unless (pict-convertible? v)
@@ -289,8 +291,8 @@
         (pict-post-equality-ref a)
         (lambda (a b)
           (and (converted-pict? b)
-               (equal? a (converted-pict-parent b))))))
-  (lambda (a b) (or (equal? a b) (=? a b))))
+               (eq? a (converted-pict-parent b))))))
+  (lambda (a b) (=? a b)))
 
 (module+ convertible
   (provide prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
