@@ -174,15 +174,14 @@
                   #'pict-children
                   #'pict-panbox
                   #'pict-last)
-            (list #f ;#'set-pict-draw!
-                  #f ;#'set-pict-width!
-                  #f ;#'set-pict-height!
-                  #f ;#'set-pict-ascent!
-                  #f ;#'set-pict-descent!
-                  #f ;#'set-pict-children!
-                  #f ;#'set-pict-panbox!
-                  #f ;#'set-pict-last!
-                  )
+            (list #f
+                  #f
+                  #f
+                  #f
+                  #f
+                  #f
+                  #f
+                  #f)
             #t))))
 
 (define-syntax pict-wrapper
@@ -221,7 +220,6 @@
                      in:last)      ; a descendent for the bottom-right
   #:mutable
   #:property prop:pict-convertible (λ (v) v)
-  #:property prop:pict-post-equality eq?
   #:property file:prop:convertible (lambda (v mode default)
                                      (convert-pict v mode default))
   #:property prop:serializable (make-serialize-info
@@ -252,47 +250,44 @@
 (define-struct bbox (x1 y1 x2 y2 ay dy))
 
 (define (pict-convertible? x)
-  (if (pict? x)
-      x
+  (or (pict? x)
       (and (-pict-convertible? x)
            (if (pict-convertible?? x)
                ((pict-convertible?-ref x) x)
                #t))))
 
 (define (pict-convert v)
-  (unless (pict-convertible? v)
-    (raise-type-error 'pict-convert "pict-convertible" v))
-  (define converted ((pict-convertible-ref v) v))
-  (if (pict-post-equality? v)
-      converted
-      (converted-pict
-       (pict-draw converted)
-       (pict-width converted)
-       (pict-height converted)
-       (pict-ascent converted)
-       (pict-descent converted)
-       (pict-children converted)
-       (pict-panbox converted)
-       (pict-last converted)
-       v)))
+  (cond [(pict? v) v]
+        [(not (pict-convertible? v))
+         (raise-type-error 'pict-convert "pict-convertible" v)]
+        [else
+         (define converted ((pict-convertible-ref v) v))
+         (if (pict-post-equality? v)
+             converted
+             (converted-pict
+              (pict-draw converted)
+              (pict-width converted)
+              (pict-height converted)
+              (pict-ascent converted)
+              (pict-descent converted)
+              (pict-children converted)
+              (pict-panbox converted)
+              (pict-last converted)
+              v))]))
 
-
-(struct converted-pict pict (parent))
+(struct converted-pict pict (parent)
+  #:property prop:pict-post-equality
+  (lambda (a b) (eq? (converted-pict-parent a) b)))
 
 (define (post-pict=? a b)
   (or (eq? a b)
-      ((get-post-pict=? a) a b)
-      ((get-post-pict=? b) b a)))
+      (inner-post-pict=? a b)
+      (inner-post-pict=? b a)))
 
 ;; pict-convertible? -> (Any Any -> Boolean)
-(define (get-post-pict=? a)
-  (define =?
-    (if (pict-post-equality? a)
-        (pict-post-equality-ref a)
-        (lambda (a b)
-          (and (converted-pict? b)
-               (eq? a (converted-pict-parent b))))))
-  (lambda (a b) (=? a b)))
+(define (inner-post-pict=? a b)
+  (and (pict-post-equality? a)
+       ((pict-post-equality-ref a) a b)))
 
 (module+ convertible
   (provide prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
