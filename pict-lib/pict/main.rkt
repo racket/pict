@@ -38,22 +38,6 @@
  pin-arrows-line
  pin-line
  (contract-out
-  #;
-  [pin-line
-   (->* (pict? pict-path? find/c pict-path? find/c)
-        (#:start-angle (or/c real? #f)
-         #:end-angle (or/c real? #f)
-         #:start-pull start-pull
-         #:end-pull end-pull
-         #:line-width line-width
-         #:color color
-         #:alpha alpha
-         #:style style
-         #:under? under?
-         #:label label
-         #:x-adjust-label x-adjust-label
-         #:y-adjust-label y-adjust-label)
-        pict?)]
   [frame (->* (pict-convertible?)
               (#:segment (or/c #f real?)
                #:color (or/c #f string? (is-a?/c color%))
@@ -275,7 +259,7 @@
        ()
        #:rest (or/c (cons/c real? (listof pict-convertible?))
                     (listof pict-convertible?))
-       pict?))
+       pict-convertible?))
 
 (define (multiple-of-four-bytes? b)
   (zero? (modulo (bytes-length b) 4)))
