@@ -405,6 +405,7 @@
                 (lambda (pict pict-path)
                   (let ([p (let loop ([path pict-path])
                              (cond
+                               [(pict? path) path]
                                [(pict-convertible? path) (pict-convert path)]
                                [(null? (cdr path)) (loop (car path))]
                                [else (loop (cdr path))]))])
@@ -412,7 +413,7 @@
                           [h (pict-height p)]
                           [d (pict-descent p)]
                           [a (pict-ascent p)])
-                      (find-lbx (pict-convert pict) pict-path
+                      (find-lbx pict pict-path
                                 (get-x 0 1 w 0 0)
                                 (get-y 0 1 h d a))))))])
     (values (find lb rt)
