@@ -8,5 +8,6 @@
 
 (define pkg-authors '())
 (define build-deps '("pict-lib"
-                     "rackunit-lib"))
+                     "rackunit-lib"
+                     "draw-lib"))
 (define update-implies '("pict-lib"))
