@@ -149,7 +149,10 @@
 	   (syntax-case stx ()
 	     [(_ expr) #`(typeset-code #,(cvt #'expr))]
 	     [(_ expr (... ...))
-	      #`(typeset-code #,(cvt #'(code:line expr (... ...))))])))]
+	      #`(typeset-code #,(cvt
+                                 ;; Avoid a syntax location for the synthesized `code:line` wrapper,
+                                 ;; otherwise the `expr`s will be arranged relative to it:
+                                 (datum->syntax #f (cons 'code:line #'(expr (... ...))))))])))]
       [(_ code typeset-code) #'(define-code code typeset-code unsyntax)]))
   
   (define-signature code^
