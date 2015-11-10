@@ -560,6 +560,7 @@
                                ((syntax-position i) . > . pos)
                                (syntax-position i)))])
                (and pos 
+                    (syntax-position #'a)
                     ((syntax-position #'a) . > . (syntax-position #'b))
                     ((syntax-position #'a) . < . (syntax-position #'c))))
              ;; position of `a' is after `b', while everything else is in
