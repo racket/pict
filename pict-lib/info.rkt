@@ -5,7 +5,10 @@
 (define deps '("scheme-lib"
                "base"
                "compatibility-lib"
-               "draw-lib"))
+               "draw-lib"
+               "pict-lib"
+               "sandbox-lib"
+               "scribble-lib"))
 (define build-deps '("rackunit-lib"))
 
 (define pkg-desc "implementation (no documentation) part of \"pict\"")
