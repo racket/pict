@@ -170,9 +170,15 @@
 
 (define (tokenize/color s)
   (define lang (read-language (open-input-string s)))
-  (define lexer (lang 'color-lexer #f))
-  ;; TODO we assume we get the 7-return values version for now, o/w want to wrap. should be easy
-  (define port (open-input-string s))
+  (define pre-lexer (lang 'color-lexer #f))
+  (define lexer ; based on framework/private/color
+    (if (procedure-arity-includes? pre-lexer 3)
+        pre-lexer ; new interface, we're good
+        (lambda (in offset mode) ; old interface, need an adapter
+          (let-values ([(lexeme type data new-token-start new-token-end)
+                        (pre-lexer in)])
+            (values lexeme type data new-token-start new-token-end 0 #f)))))
+  (define port (open-input-string s)) ; reopen, to start from the beginning
   (port-count-lines! port)
   (let loop ([acc            #f]
              [rev-tokens+classes '()])
