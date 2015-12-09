@@ -391,4 +391,41 @@ Mainly for backward compatibility: returns @racket[(if bl-pict
 
 @; ----------------------------------------
 
+@section{Codeblocks}
+
+@(require (for-label (only-in scribble/manual codeblock)))
+
+@defproc[(codeblock-pict [code string?]) pict?]{
+
+Like Scribble's @racket[codeblock] but generates picts.
+
+Unlike @racket[code], @racket[codeblock-pict] formats and colors based on the
+code's language's lexer, which makes it suitable for use with code that doesn't
+use Racket syntax.
+
+@(ss-eval '(require racket/string))
+@defexamples[#:eval ss-eval
+(codeblock-pict
+  (string-join
+    '("#lang 2d racket"
+      "(require 2d/cond)"
+      "(define (same? a b)"
+      "  #2dcond"
+      "  ╔═════════════╦═══════════════════════╦═════════════╗"
+      "  ║             ║       (pair? a)       ║ (number? a) ║"
+      "  ╠═════════════╬═══════════════════════╬═════════════╣"
+      "  ║ (pair? b)   ║ (and (same? (car a)   ║     #f      ║"
+      "  ║             ║             (car b))  ║             ║"
+      "  ║             ║      (same? (cdr a)   ║             ║"
+      "  ║             ║             (cdr b))) ║             ║"
+      "  ╠═════════════╬═══════════════════════╬═════════════╣"
+      "  ║ (number? b) ║          #f           ║   (= a b)   ║"
+      "  ╚═════════════╩═══════════════════════╩═════════════╝)")
+    "\n"))
+]
+
+}
+
+@; ----------------------------------------
+
 @(close-eval ss-eval)

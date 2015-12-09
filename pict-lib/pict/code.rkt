@@ -5,6 +5,10 @@
          racket/contract
          racket/class
          racket/draw
+         racket/list
+         racket/match
+         racket/string
+         syntax-color/lexer-contract
          (for-syntax racket/base
                      syntax/to-string
                      mzlib/list))
@@ -56,7 +60,8 @@
   [code-align (-> pict? pict?)]
   [current-keyword-list (parameter/c (listof string?))]
   [current-const-list (parameter/c (listof string?))]
-  [current-literal-list (parameter/c (listof string?))]))
+  [current-literal-list (parameter/c (listof string?))]
+  [codeblock-pict (-> string? pict?)]))
 
 (provide define-exec-code/scale
          define-exec-code)
@@ -158,3 +163,72 @@
   (syntax-rules ()
     [(_ (a b c) . r)
      (define-exec-code/scale 1 (a b c) . r)]))
+
+
+;;------------------------------------------------
+;; codeblock-pict
+
+(define (tokenize/color s)
+  (define lang (read-language (open-input-string s)))
+  (define lexer (lang 'color-lexer #f))
+  ;; TODO we assume we get the 7-return values version for now, o/w want to wrap. should be easy
+  (define port (open-input-string s))
+  (port-count-lines! port)
+  (let loop ([acc            #f]
+             [rev-tokens+classes '()])
+    (define-values (_1 token-class _3 start end _6 next-acc)
+      (lexer port 0 acc))
+    (cond
+     [(equal? token-class 'eof)
+      (reverse rev-tokens+classes)]
+     [else
+      ;; if the token has newlines, split them up, so we can recognize them
+      ;; more easily later
+      (define token (substring s (sub1 start) (sub1 end)))
+      (define lines (add-between (string-split token "\n" #:trim? #f) "\n"))
+      (define new-tokens+classes
+        (for/list ([l (in-list lines)])
+          (cons l token-class)))
+      (loop (if (dont-stop? next-acc)
+                (dont-stop-val next-acc)
+                next-acc)
+            (append (reverse new-tokens+classes) rev-tokens+classes))])))
+
+(define (tokens->pict ts)
+  ;; cache parameter lookups
+  (define tt (current-code-tt))
+  (define id-color (current-id-color))
+  (define comment-color (current-comment-color))
+  (define base-color (current-base-color))
+  (define literal-color (current-literal-color))
+  (define keyword-color (current-keyword-color))
+  (define (token-class->color c)
+    (case c
+      [(symbol) id-color]
+      [(white-space) "white"]
+      [(comment) comment-color]
+      [(no-color) base-color]
+      [(parenthesis) base-color] ; really? pict has no color for parens?
+      [(constant) literal-color]
+      [(hash-colon-keyword) keyword-color]
+      [else base-color])) ; 'other, or others
+  (define (token->pict t)
+    (match-define `(,token . ,color) t)
+    (colorize (tt token) (token-class->color color)))
+  (define (not-newline? x) (not (equal? (car x) "\n")))
+  (let loop ([ts ts])
+    (cond
+     [(empty? ts)
+      (blank)]
+     [else
+      ;; take the next line, and typeset it
+      (define-values (next-line rest)
+        (splitf-at ts not-newline?))
+      (vl-append (apply hbl-append (map token->pict next-line))
+                 (loop (if (pair? rest) ; there is a newline to skip
+                           (cdr rest)
+                           rest)))])))
+
+(define (codeblock-pict s)
+  (tokens->pict (tokenize/color s)))
+;; TODO: allow specifying the language for string without #lang lines (to typeset excerpts)
