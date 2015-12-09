@@ -61,7 +61,7 @@
   [current-keyword-list (parameter/c (listof string?))]
   [current-const-list (parameter/c (listof string?))]
   [current-literal-list (parameter/c (listof string?))]
-  [codeblock-pict (-> string? pict?)]))
+  [codeblock-pict (->* (string?) (#:keep-lang-line? any/c) pict?)]))
 
 (provide define-exec-code/scale
          define-exec-code)
@@ -200,7 +200,7 @@
                 next-acc)
             (append (reverse new-tokens+classes) rev-tokens+classes))])))
 
-(define (tokens->pict ts)
+(define (tokens->pict ts #:keep-lang-line? [keep-lang-line? #t])
   ;; cache parameter lookups
   (define tt (current-code-tt))
   (define id-color (current-id-color))
@@ -222,19 +222,26 @@
     (match-define `(,token . ,color) t)
     (colorize (tt token) (token-class->color color)))
   (define (not-newline? x) (not (equal? (car x) "\n")))
-  (let loop ([ts ts])
-    (cond
-     [(empty? ts)
-      (blank)]
-     [else
-      ;; take the next line, and typeset it
-      (define-values (next-line rest)
-        (splitf-at ts not-newline?))
-      (vl-append (apply hbl-append (map token->pict next-line))
-                 (loop (if (pair? rest) ; there is a newline to skip
-                           (cdr rest)
-                           rest)))])))
+  (define lines
+    (let loop ([ts ts])
+      (cond
+       [(empty? ts)
+        '()]
+       [else
+        ;; take the next line
+        (define-values (next-line rest)
+          (splitf-at ts not-newline?))
+        (cons next-line
+              (loop (if (pair? rest) ; there is a newline to skip
+                        (cdr rest)
+                        rest)))])))
+  (apply vl-append
+         (for/list ([line (in-list (if keep-lang-line?
+                                       lines
+                                       ;; FIXME: #lang can span lines
+                                       ;;   (codeblock has same issue)
+                                       (cdr lines)))])
+           (apply hbl-append (map token->pict line)))))
 
-(define (codeblock-pict s)
-  (tokens->pict (tokenize/color s)))
-;; TODO: allow specifying the language for string without #lang lines (to typeset excerpts)
+(define (codeblock-pict s #:keep-lang-line? [keep-lang-line? #t])
+  (tokens->pict (tokenize/color s) #:keep-lang-line? keep-lang-line?))

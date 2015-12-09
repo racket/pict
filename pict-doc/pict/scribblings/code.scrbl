@@ -406,6 +406,7 @@ use Racket syntax.
 @(ss-eval '(require racket/string))
 @defexamples[#:eval ss-eval
 (codeblock-pict
+  #:keep-lang-line? #f
   (string-join
     '("#lang 2d racket"
       "(require 2d/cond)"
