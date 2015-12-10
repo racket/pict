@@ -11,7 +11,8 @@
                      "scribble-lib"
                      "slideshow-lib"
                      "pict-lib"
-                     "racket-doc"))
+                     "racket-doc"
+                     "scribble-doc"))
 (define deps '("base"))
 (define update-implies '("pict-lib"))
 
