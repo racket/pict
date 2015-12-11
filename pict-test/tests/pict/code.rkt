@@ -54,5 +54,17 @@ END
 (define rdc (new record-dc%))
 (draw-pict (codeblock-pict example) rdc 0 0)
 (define commands (send rdc get-recorded-datum))
-(define hash (md5 (format "~s" commands)))
-(check-equal? hash #"1227e7286a911a52d8b76888792e77a5")
+;; commands may include literal floating-point numbers
+;; of course, this means that different machines, with different FPUs, may
+;; compute different results, which changes the hash
+;; KAAAAHAAAAAAAAAAAN!
+(define rounded-commands
+  (let loop ([commands commands])
+    (cond [(list? commands)
+           (map loop commands)]
+          [(flonum? commands) ; round the float
+           (real->decimal-string commands 2)]
+          [else
+           commands])))
+(define hash (md5 (format "~s" rounded-commands)))
+(check-equal? hash #"0f05f3af365639d7bea1773376b6303d")
