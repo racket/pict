@@ -6,7 +6,7 @@
 
 (define pkg-desc "tests for \"pict-lib\"")
 
-(define pkg-authors '())
+(define pkg-authors '(mflatt robby stamourv))
 (define build-deps '("pict-lib"
                      "rackunit-lib"
                      "draw-lib"))
