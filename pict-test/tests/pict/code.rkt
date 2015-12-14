@@ -68,3 +68,7 @@ END
            commands])))
 (define hash (md5 (format "~s" rounded-commands)))
 (check-equal? hash #"0f05f3af365639d7bea1773376b6303d")
+
+;; for debugging why the hash is different on different machines
+;; should be removed once that's done, to avoid huge drdr printouts
+(printf "~s\n" rounded-commands)
