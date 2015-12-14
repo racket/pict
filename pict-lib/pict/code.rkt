@@ -9,6 +9,7 @@
          racket/match
          racket/string
          syntax-color/lexer-contract
+         syntax-color/racket-lexer
          (for-syntax racket/base
                      syntax/to-string
                      mzlib/list))
@@ -169,8 +170,17 @@
 ;; codeblock-pict
 
 (define (tokenize/color s)
-  (define lang (read-language (open-input-string s)))
-  (define pre-lexer (lang 'color-lexer #f))
+  (define lang
+    (read-language (open-input-string s)
+                   (lambda () (raise-argument-error
+                               'codeblock-pict
+                               "string containing program with #lang"
+                               s))))
+  (define pre-lexer
+    (or (lang 'color-lexer #f)
+        ;; #lang racket doesn't have a color lexer, so fall back to
+        ;; the Racket lexer if we don't find one.
+        racket-lexer))
   (define lexer ; based on framework/private/color
     (if (procedure-arity-includes? pre-lexer 3)
         pre-lexer ; new interface, we're good
