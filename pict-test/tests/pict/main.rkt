@@ -361,8 +361,7 @@
        (jack-o-lantern (add1 (random 10)))
        (standard-fish 100 50)
        (htdp:triangle (add1 (random 40)) "solid" "tan")
-       ;; disabled because this + linestyle can cause cairo to segfault...
-       #;(thermometer)
+       (thermometer)
        (frame (gen))
        (cc-superimpose (gen) (gen))
        (vl-append (gen) (gen))
