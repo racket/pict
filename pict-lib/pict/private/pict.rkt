@@ -31,7 +31,7 @@
 
          text-style/c
 
-         (struct-out pict-wrapper)
+         (struct-out pict)
          (struct-out child)
 
          black-and-white
@@ -163,7 +163,7 @@
     #:property prop:procedure (struct-field-index macro)
     #:property prop:struct-info
     (lambda (_)
-      (list #'pict
+      (list #'struct:in:pict
             #'make-pict
             #'pict?
             (list #'pict-draw
@@ -184,7 +184,7 @@
                   #f)
             #t))))
 
-(define-syntax pict-wrapper
+(define-syntax pict
   (pict-wrapper
    (lambda (stx)
      (syntax-case stx ()
@@ -195,7 +195,7 @@
   (syntax-case stx ()
     [(_ name)
      (with-syntax* ([f (format-id stx "~a-~a" 'pict #'name)]
-                    [a (format-id stx "~a-in:~a" 'pict #'name)])
+                    [a (format-id stx "in:~a-~a" 'pict #'name)])
        #`(define (f p)
            (a (if (pict? p)
                   p
@@ -210,14 +210,14 @@
 (define-pict-wrap panbox)
 (define-pict-wrap last)
 
-(define-struct pict (in:draw       ; drawing instructions
-                     in:width      ; total width
-                     in:height     ; total height >= ascent + desecnt
-                     in:ascent     ; portion of height above top baseline
-                     in:descent    ; portion of height below bottom baseline
-                     in:children   ; list of child records
-                     in:panbox     ; panorama box, computed on demand
-                     in:last)      ; a descendent for the bottom-right
+(define-struct in:pict (draw       ; drawing instructions
+                        width      ; total width
+                        height     ; total height >= ascent + desecnt
+                        ascent     ; portion of height above top baseline
+                        descent    ; portion of height below bottom baseline
+                        children   ; list of child records
+                        panbox     ; panorama box, computed on demand
+                        last)      ; a descendent for the bottom-right
   #:mutable
   #:property prop:pict-convertible (λ (v) v)
   #:property file:prop:convertible (lambda (v mode default)
@@ -230,11 +230,14 @@
                                 (or (current-load-relative-directory)
                                     (current-directory))))
 
+(define make-pict make-in:pict)
+(define pict? in:pict?)
+
 (define-syntax (define-pict-setter stx)
   (syntax-case stx ()
     [(_ name)
      (with-syntax ([f (format-id stx "~a-~a!" 'set-pict #'name)]
-                    [a (format-id stx "~a-in:~a!" 'set-pict #'name)])
+                    [a (format-id stx "~a-~a!" 'set-in:pict #'name)])
        #'(define f a))]))
 
 (define-pict-setter draw)
@@ -807,16 +810,16 @@
                        [else
                         (let* ([first (pict-convert (car args))]
                                [rest (append-boxes (cdr args))]
-                               [w (wcomb (pict-in:width first) (pict-in:width rest) sep first rest)]
-                               [h (hcomb (pict-in:height first) (pict-in:height rest) sep first rest)]
-                               [fw (pict-in:width first)]
-                               [fh (pict-in:height first)]
-                               [rw (pict-in:width rest)]
-                               [rh (pict-in:height rest)]
-                               [fd1 (pict-in:ascent first)]
-                               [fd2 (pict-in:descent first)]
-                               [rd1 (pict-in:ascent rest)]
-                               [rd2 (pict-in:descent rest)]
+                               [w (wcomb (pict-width first) (pict-width rest) sep first rest)]
+                               [h (hcomb (pict-height first) (pict-height rest) sep first rest)]
+                               [fw (pict-width first)]
+                               [fh (pict-height first)]
+                               [rw (pict-width rest)]
+                               [rh (pict-height rest)]
+                               [fd1 (pict-ascent first)]
+                               [fd2 (pict-descent first)]
+                               [rd1 (pict-ascent rest)]
+                               [rd2 (pict-descent rest)]
                                [dx1 (fxoffset fw fh rw rh sep fd1 fd2 rd1 rd2)]
                                [dy1 (fyoffset fw fh rw rh sep fd1 fd2 rd1 rd2 h)]
                                [dx2 (rxoffset fw fh rw rh sep fd1 fd2 rd1 rd2)]
@@ -826,10 +829,10 @@
                              ,w ,h
                              (put ,dx1
                                   ,dy1
-                                  ,(pict-in:draw first))
+                                  ,(pict-draw first))
                              (put ,dx2
                                   ,dy2
-                                  ,(pict-in:draw rest)))
+                                  ,(pict-draw rest)))
                            w h
                            (combine-ascent fd1 rd1 fd2 rd2 fh rh h (+ dy1 fh) (+ dy2 rh))
                            (combine-descent fd2 rd2 fd1 rd1 fh rh h (- h dy1) (- h dy2))
@@ -852,13 +855,13 @@
         [max2 (lambda (a b . args) (max a b))]
         [3+ (lambda (a b c . args) (+ a b c))]
         [a-max (lambda (a b c first rest)
-                 (+ (max (pict-in:ascent first) (pict-in:ascent rest))
-                    (max (- (pict-in:height first) (pict-in:ascent first))
-                         (- (pict-in:height rest) (pict-in:ascent rest)))))]
+                 (+ (max (pict-ascent first) (pict-ascent rest))
+                    (max (- (pict-height first) (pict-ascent first))
+                         (- (pict-height rest) (pict-ascent rest)))))]
         [d-max (lambda (a b c first rest)
-                 (+ (max (pict-in:descent first) (pict-in:descent rest))
-                    (max (- (pict-in:height first) (pict-in:descent first))
-                         (- (pict-in:height rest) (pict-in:descent rest)))))]
+                 (+ (max (pict-descent first) (pict-descent rest))
+                    (max (- (pict-height first) (pict-descent first))
+                         (- (pict-height rest) (pict-descent rest)))))]
         [min-ad (lambda (a b oa ob ah bh h da db)
                   (- h (max oa ob) (max (- ah oa a)
                                         (- bh ob b))))]
@@ -945,20 +948,20 @@
                      (error name "expected all picts as arguments, got ~a"
                             (apply string-append (add-between (map (λ (x) (format "~e" x)) boxes*) " ")))]))
                 boxes*))
-             (let ([max-w (apply max (map pict-in:width boxes))]
-                   [max-h (apply max (map pict-in:height boxes))]
-                   [max-a (apply max (map pict-in:ascent boxes))]
-                   [max-a-complement (apply max (map (lambda (b) (- (pict-in:height b) (pict-in:ascent b)))
+             (let ([max-w (apply max (map pict-width boxes))]
+                   [max-h (apply max (map pict-height boxes))]
+                   [max-a (apply max (map pict-ascent boxes))]
+                   [max-a-complement (apply max (map (lambda (b) (- (pict-height b) (pict-ascent b)))
                                                      boxes))]
                    [max-d (apply max (map pict-descent boxes))]
-                   [max-d-complement (apply max (map (lambda (b) (- (pict-in:height b) (pict-in:descent b)))
+                   [max-d-complement (apply max (map (lambda (b) (- (pict-height b) (pict-descent b)))
                                                      boxes))])
                (let ([p (picture max-w (get-th max-h max-a max-d max-a-complement max-d-complement)
                                  (map (lambda (box)
-                                        `(place ,(get-h max-w (pict-in:width box))
-                                                ,(get-v max-h (pict-in:height box)
-                                                        max-d (pict-in:descent box)
-                                                        max-a-complement (pict-in:ascent box))
+                                        `(place ,(get-h max-w (pict-width box))
+                                                ,(get-v max-h (pict-height box)
+                                                        max-d (pict-descent box)
+                                                        max-a-complement (pict-ascent box))
                                                 ,box))
                                       boxes))])
                  ;; Figure out top and bottom baselines by finding the picts again, etc:
@@ -967,15 +970,15 @@
                                     y))
                                 boxes)])
                    (let ([min-a (apply min (map (lambda (box y)
-                                                  (+ (- (pict-in:height p) y) (pict-in:ascent box)))
+                                                  (+ (- (pict-height p) y) (pict-ascent box)))
                                                 boxes ys))]
                          [min-d (apply min (map (lambda (box y)
-                                                  (+ (- y (pict-in:height box)) (pict-in:descent box)))
+                                                  (+ (- y (pict-height box)) (pict-descent box)))
                                                 boxes ys))])
-                     (make-pict (pict-in:draw p)
-                                (pict-in:width p) (pict-in:height p)
+                     (make-pict (pict-draw p)
+                                (pict-width p) (pict-height p)
                                 min-a min-d
-                                (pict-in:children p)
+                                (pict-children p)
                                 #f
                                 ;; Find bottomost, rightmost of old last picts to be the
                                 ;;  new last pict.
