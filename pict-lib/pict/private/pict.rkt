@@ -166,14 +166,14 @@
       (list #'struct:in:pict
             #'make-pict
             #'pict?
-            (list #'pict-draw
-                  #'pict-width
-                  #'pict-height
-                  #'pict-ascent
-                  #'pict-descent
-                  #'pict-children
-                  #'pict-panbox
-                  #'pict-last)
+            (reverse (list #'pict-draw
+                           #'pict-width
+                           #'pict-height
+                           #'pict-ascent
+                           #'pict-descent
+                           #'pict-children
+                           #'pict-panbox
+                           #'pict-last))
             (list #f
                   #f
                   #f

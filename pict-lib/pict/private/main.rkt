@@ -295,15 +295,9 @@
     (bitmap bm))
 
   (define (freeze p)
-    (define frozen (bitmap (pict->bitmap p)))
-    (make-pict (pict-draw frozen)
-               (pict-width p)
-               (pict-height p)
-               (pict-ascent p)
-               (pict-descent p)
-               (pict-children p)
-               (pict-panbox p)
-               (pict-last p)))
+    (define p* (pict-convert p))
+    (define frozen (bitmap (pict->bitmap p*)))
+    (struct-copy pict p* [draw (pict-draw frozen)]))
 
   (provide hline vline
            frame
