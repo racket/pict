@@ -1,4 +1,7 @@
 #lang racket/base
 (provide prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
-         pict-convertible-ref)
+         pict-convertible-ref
+
+         prop:pict-post-equality pict-post-equality?
+         pict-post-equality-ref post-pict=?)
 (require (submod "pict.rkt" convertible))

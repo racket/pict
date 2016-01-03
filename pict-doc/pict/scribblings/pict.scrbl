@@ -1238,7 +1238,9 @@ form sets this parameter while also scaling the resulting pict.}
 @racketmodname[pict/convert] library defines a protocol for
 values to convert themselves to @tech{picts}. The protocol
 is used by DrRacket's interactions window, for example, to render
-values that it prints.}
+values that it prints. Anything that is @racket[pict-convertible?]
+can be used wherever a @racket[pict] can be used. These values will
+be automatically converted to a pict when needed.}
 
 @defthing[prop:pict-convertible struct-type-property?]{
 
@@ -1271,6 +1273,27 @@ and @racket[#f] otherwise.
 
 @defproc[(pict-convert [v pict-convertible?]) pict?]{
   Requests a data conversion from @racket[v] to a pict.
+}
+
+@defthing[prop:pict-post-equality struct-type-property?]{
+This property allows a @racket[pict-convertible?] to determine how
+it is compared to a @racket[pict] for the purpose of functions like
+@racket[lt-find]. If this property is not provided then the original
+structure is saved and checked for @racket[eq?]ness with the
+@racket[pict-convertible?].
+
+A property whose value should be a procedure matching the contract
+@racket[(-> pict-post-equality? any/c boolean?)]. The first value
+will the value from which the property was read.
+}
+
+@defproc[(pict-post-equality? [v any/c]) boolean?]{
+Determines if @racket[v] has the @racket[prop:pict-post-equality] property.
+}
+
+@defproc[(post-pict=? [a any/c] [b any/c]) boolean?]{
+Checks if two values are @racket[eq?], or if they are equal via
+the procedure in a @racket[prop:pict-post-equality] property on either value.
 }
 
 @(close-eval ss-eval)
