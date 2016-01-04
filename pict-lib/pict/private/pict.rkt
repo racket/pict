@@ -155,9 +155,6 @@
 (define-values (prop:pict-convertible? pict-convertible?? pict-convertible?-ref)
   (make-struct-type-property 'pict-convertible?))
 
-(define-values (prop:pict-post-equality pict-post-equality? pict-post-equality-ref)
-  (make-struct-type-property 'prop:pict-post-equality))
-
 (begin-for-syntax
   (struct pict-wrapper (macro)
     #:property prop:procedure (struct-field-index macro)
@@ -265,38 +262,31 @@
          (raise-type-error 'pict-convert "pict-convertible" v)]
         [else
          (define converted ((pict-convertible-ref v) v))
-         (if (pict-post-equality? v)
-             converted
-             (converted-pict
-              (pict-draw converted)
-              (pict-width converted)
-              (pict-height converted)
-              (pict-ascent converted)
-              (pict-descent converted)
-              (pict-children converted)
-              (pict-panbox converted)
-              (pict-last converted)
-              v))]))
+         (converted-pict
+          (pict-draw converted)
+          (pict-width converted)
+          (pict-height converted)
+          (pict-ascent converted)
+          (pict-descent converted)
+          (pict-children converted)
+          (pict-panbox converted)
+          (pict-last converted)
+          v)]))
 
-(struct converted-pict pict (parent)
-  #:property prop:pict-post-equality
-  (lambda (a b) (eq? (converted-pict-parent a) b)))
+(struct converted-pict pict (parent))
 
 (define (post-pict=? a b)
   (or (eq? a b)
       (inner-post-pict=? a b)
       (inner-post-pict=? b a)))
 
-;; pict-convertible? -> (Any Any -> Boolean)
 (define (inner-post-pict=? a b)
-  (and (pict-post-equality? a)
-       ((pict-post-equality-ref a) a b)))
+  (and (converted-pict? a)
+       (eq? (converted-pict-parent a) b)))
 
 (module+ convertible
   (provide prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
-           pict-convertible-ref
-           prop:pict-post-equality pict-post-equality?
-           pict-post-equality-ref post-pict=?))
+           pict-convertible-ref))
 
 ;; ----------------------------------------
 
