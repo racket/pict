@@ -935,8 +935,9 @@
                     [(pict-convertible? p)
                      (pict-convert p)]
                     [else
-                     (error name "expected all picts as arguments, got ~a"
-                            (apply string-append (add-between (map (λ (x) (format "~e" x)) boxes*) " ")))]))
+                     (raise-argument-error
+                      name "all picts as arguments"
+                      (apply string-append (add-between (map (λ (x) (format "~e" x)) boxes*) " ")))]))
                 boxes*))
              (let ([max-w (apply max (map pict-width boxes))]
                    [max-h (apply max (map pict-height boxes))]
