@@ -160,7 +160,7 @@
     #:property prop:procedure (struct-field-index macro)
     #:property prop:struct-info
     (lambda (_)
-      (list #'struct:in:pict
+      (list #'struct:pict
             #'make-pict
             #'pict?
             (reverse (list #'pict-draw
@@ -230,6 +230,7 @@
 
 (define make-pict make-in:pict)
 (define pict? in:pict?)
+(define struct:pict struct:in:pict)
 
 (define-syntax (define-pict-setter stx)
   (syntax-case stx ()
