@@ -186,7 +186,7 @@
    (lambda (stx)
      (syntax-case stx ()
        [(id a ...) #'(pict a ...)]
-       [id #'pict]))))
+       [id #'in:pict]))))
 
 (define-syntax (define-pict-wrap stx)
   (syntax-case stx ()
@@ -215,6 +215,7 @@
                         children   ; list of child records
                         panbox     ; panorama box, computed on demand
                         last)      ; a descendent for the bottom-right
+  #:reflection-name 'pict
   #:mutable
   #:property prop:pict-convertible (λ (v) v)
   #:property file:prop:convertible (lambda (v mode default)
