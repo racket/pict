@@ -299,7 +299,7 @@
 (test-case "check pict-post"
   (local-require (submod pict/private/pict convertible))
   (let ([x (wrap (text "xx"))])
-    (check-true (post-pict=? x (pict-convert x)))))
+    (check-true (pict-path-element=? x (pict-convert x)))))
 
 (test-case "find-XX with wrapping tests"
   (check-not-exn

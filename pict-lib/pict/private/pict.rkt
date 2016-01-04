@@ -278,16 +278,19 @@
 
 (define (pict-path-element=? a b)
   (or (eq? a b)
-      (inner-pict-path-element=? a b)
-      (inner-pict-path-element=? b a)))
-
-(define (inner-pict-path-element=? a b)
-  (and (converted-pict? a)
-       (eq? (converted-pict-parent a) b)))
+      (if (converted-pict? a)
+          (if (converted-pict? b)
+              (eq? (converted-pict-parent a) (converted-pict-parent b))
+              (eq? (converted-pict-parent a) b))
+          (if (converted-pict? b)
+              (eq? (converted-pict-parent b) a)
+              #f))))
 
 (module+ convertible
   (provide prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
-           pict-convertible-ref))
+           pict-convertible-ref
+
+           pict-path-element=?))
 
 ;; ----------------------------------------
 
