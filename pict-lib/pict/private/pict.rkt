@@ -275,12 +275,12 @@
 
 (struct converted-pict pict (parent))
 
-(define (post-pict=? a b)
+(define (pict-path-element=? a b)
   (or (eq? a b)
-      (inner-post-pict=? a b)
-      (inner-post-pict=? b a)))
+      (inner-pict-path-element=? a b)
+      (inner-pict-path-element=? b a)))
 
-(define (inner-post-pict=? a b)
+(define (inner-pict-path-element=? a b)
   (and (converted-pict? a)
        (eq? (converted-pict-parent a) b)))
 
@@ -347,7 +347,7 @@
               [not-found (lambda () (error 'find-XX
                                            "sub-pict: ~a not found in: ~a" 
                                            subbox pict))])
-    (if (post-pict=? subbox box)
+    (if (pict-path-element=? subbox box)
         (found dx dy)
         (let loop ([c (pict-children box)])
           (if (null? c)
@@ -636,19 +636,19 @@
   (let ([l (pict-last sub-p)])
     (cond
      [(not l) sub-p]
-     [(pair? l) (if (post-pict=? (car l) sub-p)
+     [(pair? l) (if (pict-path-element=? (car l) sub-p)
                     l
                     (cons sub-p l))]
-     [(post-pict=? l sub-p) sub-p]
+     [(pict-path-element=? l sub-p) sub-p]
      [else (list sub-p l)])))
 
 (define (use-last p sub-p)
   (if (let floop ([p p] [sub-p sub-p])
         (or
          (if (not (pair? sub-p))
-             (post-pict=? p sub-p)
+             (pict-path-element=? p sub-p)
              (and (not (pair? (car sub-p)))
-                  (post-pict=? p (car sub-p))
+                  (pict-path-element=? p (car sub-p))
                   (or (null? (cdr sub-p))
                       (floop p (cdr sub-p)))))
             (ormap (lambda (c) (floop (child-pict c) sub-p))
