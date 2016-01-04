@@ -216,9 +216,9 @@
   ;; at the moment, so we don't randomize it
   #;
   (send dc set-transformation
-  (vector (vector (random-real) (random-real) (random-real)
-  (random-real) (random-real) (random-real))
-(random-real) (random-real) (random-real) (random-real) (random-real))))
+        (vector (vector (random-real) (random-real) (random-real)
+                        (random-real) (random-real) (random-real))
+                (random-real) (random-real) (random-real) (random-real) (random-real))))
 
 (define (random-real) (+ (random 1000) (random)))
 (define (random-color) (make-object color% (random 255) (random 255) (random 255)))
