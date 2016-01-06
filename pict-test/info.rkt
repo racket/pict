@@ -9,5 +9,6 @@
 (define pkg-authors '(mflatt robby stamourv))
 (define build-deps '("pict-lib"
                      "rackunit-lib"
+                     "htdp-lib"
                      "draw-lib"))
 (define update-implies '("pict-lib"))
