@@ -1268,7 +1268,7 @@ to picts, but others are not).
 @defproc[(pict-convertible? [v any/c]) boolean?]{
 Returns @racket[#t] if @racket[v] supports the conversion protocol
 (by being a struct with the @racket[prop:pict-convertible] property)
-and @racket[#f] otherwise. This function returns true for @racket[pict]s.
+and @racket[#f] otherwise. This function returns @racket[true] for @racket[pict?]s.
 }
 
 @defproc[(pict-convert [v pict-convertible?]) pict?]{
