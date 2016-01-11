@@ -3,6 +3,7 @@
          (for-syntax syntax/parse
                      racket/sequence)
          pict/shadow
+         racket/random
          pict/code
          pict/conditional
          pict/balloon
@@ -348,6 +349,13 @@
 
 (require (prefix-in htdp: 2htdp/image))
 (define (generate-pict/wrap)
+  (define (random-number-in [a #f])
+    (if (not a)
+        (random)
+        (case (random-ref  '(integer float exact))
+          [(integer) (random a)]
+          [(float) (+ (random (sub1 a)) (random))]
+          [(exact) (/ (random a) (random 1 a))])))
   (define-values (l p m)
     (let loop ([fuel 20])
       (define cut (make-parameter 1))
@@ -356,11 +364,11 @@
       (gen-wrapping-case gen cut count
        (if (= fuel 0) (random 6) (random count))
        (text "sefsefse")
-       (rectangle (add1 (random 10)) (add1 (random 10)))
-       (arrow (add1 (random 10)) (add1 (random 10)))
-       (jack-o-lantern (add1 (random 10)))
+       (rectangle (add1 (random-number-in 10)) (add1 (random-number-in 10)))
+       (arrow (add1 (random-number-in 10)) (add1 (random-number-in 10)))
+       (jack-o-lantern (add1 (random-number-in 10)))
        (standard-fish 100 50)
-       (htdp:triangle (add1 (random 40)) "solid" "tan")
+       (htdp:triangle (add1 (random-number-in 40)) "solid" "tan")
        (thermometer)
        (frame (gen))
        (cc-superimpose (gen) (gen))
@@ -368,34 +376,34 @@
        (hbl-append (gen) (gen))
        (rb-superimpose (gen) (gen))
        (panorama (gen))
-       (scale (gen) (add1 (random)))
-       (inset (gen) (random 10) (random 10) (random 10) (random 10))
+       (scale (gen) (add1 (random-number-in)))
+       (inset (gen) (random-number-in 10) (random-number-in 10) (random-number-in 10) (random-number-in 10))
        (baseless (gen))
-       (scale-to-fit (gen) (add1 (random 100)) (add1 (random 100)))
-       (rotate (gen) (* 1/2 pi (random 4)))
+       (scale-to-fit (gen) (add1 (random-number-in 100)) (add1 (random-number-in 100)))
+       (rotate (gen) (* 1/2 pi (random-number-in 4)))
        (ghost (gen))
-       (linewidth (random 10) (gen))
+       (linewidth (random-number-in 10) (gen))
        (linestyle (first (shuffle (list'transparent 'solid 'xor 'hilite
                                                      'dot 'long-dash 'short-dash 'dot-dash
                                                      'xor-dot 'xor-long-dash 'xor-short-dash
                                                      'xor-dot-dash)))
                    (gen))
         (colorize (gen) (list (random 254) (random 254) (random 254)))
-        (cellophane (gen) (random))
+        (cellophane (gen) (random-number-in))
         (clip (gen))
         (clip-descent (gen))
         (clip-ascent (gen))
         (freeze (gen))
-        (blur (gen) (add1 (random 10)))
+        (blur (gen) (add1 (random-number-in 10)))
         (shadow-frame (gen))
-        (pict-if (> .5 (random))
+        (pict-if (> .5 (random-number-in))
                  (gen)
                  (gen))
-        (show (gen) (> .5 (random)))
+        (show (gen) (> .5 (random-number-in)))
         (hyperlinkize (gen))
         (pin-over (gen)
-                  (random 10)
-                  (random 10)
+                  (random-number-in 10)
+                  (random-number-in 10)
                   (gen))
         (table 2
                (let-values ([(l1 r1 m1) (gen 4)]
@@ -407,8 +415,8 @@
                          `(list ,m1 ,m2 ,m3 ,m4)))
                cc-superimpose
                cc-superimpose
-               (random 5)
-               (random 5))
+               (random-number-in 5)
+               (random-number-in 5))
        [#:skip
         (let-values ([(l w m) (gen)])
           (with-handlers ([void (lambda (e)
@@ -420,9 +428,9 @@
        (code-align (gen))
        (pip-wrap-balloon (gen)
                          (first (shuffle (list 'n 's 'e 'w 'ne 'se 'sw 'nw)))
-                         (random 10)
-                         (random 10))
-       (fade-pict (random) (gen) (gen))
+                         (random-number-in 10)
+                         (random-number-in 10))
+       (fade-pict (random-number-in) (gen) (gen))
        [#:skip
         (let*-values ([(l1 r1 m1) (gen)]
                       [(l2 r2 m2) (gen)]
@@ -468,3 +476,8 @@
        (thunk
         (define-values (l r m) (generate-pict/wrap))
         (check-pict=? l r (~a m))))))))
+
+;;;; here are tests that exibit bugs found by the random testing in the past
+
+;; this originally failed due to a floating point error in dash-line
+(check-not-exn (lambda () (frame (rectangle 1519/25 48.0))))
