@@ -68,11 +68,16 @@
      [(10) (inset (gen) (random 10) (random 10) (random 10) (random 10))])))
   (values l (cc-superimpose (blank 200) p)))
 
-(test-case
- "freeze random testing"
- (for ([i 1000])
+(define (do-pict-base-random-tests [seed* #f])
+  (define seed (if seed* seed* (+ 1 (random (expt 2 30)))))
+  (printf "using random seed ~a for base random tests\n" seed)
+  (random-seed seed)
+  (for ([i 1000])
    (define-values (l p) (generate-pict))
    (check-pict=?/msg p (freeze p) (format "~a" l))))
+
+(test-case "freeze random testing"
+  (do-pict-base-random-tests))
 
 (test-case
  "scale-to-fit"
@@ -465,17 +470,22 @@
                                  ,f))))])))
   (values l p m))
 
-
-(require rackunit/text-ui)
-(run-tests
- (make-test-suite
-  "auto pict conversion"
+(define (do-auto-conversion-tests [seed* #f])
+  (define seed (if seed* seed* (+ 1 (random (expt 2 30)))))
+  (printf "using random seed ~a for auto conversion tests\n" seed)
+  (random-seed seed)
   (for/list ([i 1000])
     (test-suite ""
       (check-not-exn
        (thunk
         (define-values (l r m) (generate-pict/wrap))
-        (check-pict=? l r (~a m))))))))
+        (check-pict=? l r (~a m)))))))
+
+(require rackunit/text-ui)
+(run-tests
+ (make-test-suite
+  "auto pict conversion"
+  (do-auto-conversion-tests)))
 
 ;;;; here are tests that exibit bugs found by the random testing in the past
 
