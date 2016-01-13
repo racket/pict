@@ -9,9 +9,6 @@
          pict/balloon
          racket/draw racket/class)
 
-(begin-for-syntax
-  (displayln "starting test file/begin-for-syntax")
-  (flush-output))
 (displayln "starting test file")
 
 (define (->bitmap p)
@@ -506,8 +503,3 @@
 
 ;; this originally failed due to a floating point error in dash-line
 (check-not-exn (lambda () (frame (rectangle 1519/25 48.0))))
-
-
-(begin-for-syntax
-  (displayln "ending test file/begin-for-syntax")
-  (flush-output))
