@@ -453,7 +453,7 @@
             (values
              (use-last l3 (pict-last l3))
              (use-last r3 (pict-last r3))
-             `(use-last ,m3 (pict-last ,m3)))))]
+             `(let ([m3 ,m3]) (use-last m3 (pict-last m3))))))]
        [#:skip
         (let-values ([(l1 r1 m1) (gen 3)]
                      [(l2 r2 m2) (gen 3)]
