@@ -187,10 +187,6 @@
 
 (define (random-boolean) (> (random) 0.5))
 (define (generate-shapes depth)
-  (define seed (if seed* seed* (+ 1 (random (expt 2 30)))))
-  (printf "using random seed ~a for old shape tests\n" seed)
-  (flush-output)
-  (random-seed seed)
   (define r (random (if (= depth 0) 8 15)))
   (case r
     [(0) (let ([w (random 10)]
@@ -281,11 +277,17 @@
                     (vr-append new1 new2)
                     `(vr-append t1 t2)))]))
 
-(test-case
- "old and new shapes"
- (for ([i 1000])
-   (define-values (old new trace) (generate-shapes 4))
-   (check-pict=?/msg old new (format "~a" trace))))
+(define (old-shape-tests [seed* #f])
+  (define seed (if seed* seed* (+ 1 (random (expt 2 30)))))
+  (printf "using random seed ~a for old shape tests\n" seed)
+  (flush-output)
+  (random-seed seed)
+  (for ([i 1000])
+    (define-values (old new trace) (generate-shapes 4))
+    (check-pict=?/msg old new (format "~a" trace))))
+
+(test-case "old and new shapes"
+  (old-shape-tests))
 
 ;; a few that caused issues with previous version of the new implementation
 (check-pict=? (ellipse 7 3) (old-ellipse 7 3))
