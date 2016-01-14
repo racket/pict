@@ -9,8 +9,6 @@
          pict/balloon
          racket/draw racket/class)
 
-(displayln "starting test file")
-
 (define (->bitmap p)
   (define b (pict->bitmap p))
   (define w (send b get-width))
@@ -31,18 +29,15 @@
      (send b get-argb-pixels 0 0 w h its #t))
   its)
 
-(displayln 1)
 
 (define-check (check-pict=?/msg actual expected msg)
   (unless (equal? (->bitmap actual) (->bitmap expected))
     (fail-check msg)))
-(displayln 2)
 (define-syntax check-pict=?
   (syntax-parser
     [(_ actual expected) #'(check-pict=?/msg actual expected "")]
     [(_ actual expected msg) #'(check-pict=?/msg actual expected msg)]))
 
-(displayln 3)
 (define-syntax (gen-case stx)
   (syntax-parse stx
     [(_ e:expr [(n) (m:id b:expr ...)] ...)
@@ -55,7 +50,6 @@
              (m (if (null? (rest i)) (first i) (second i)) ...))]
            ...))]))
 
-(displayln 4)
 
 (define (generate-pict)
   (define-values (l p)
@@ -76,13 +70,10 @@
      [(10) (inset (gen) (random 10) (random 10) (random 10) (random 10))])))
   (values l (cc-superimpose (blank 200) p)))
 
-(displayln 5)
-
 (define (do-pict-base-random-tests [seed* #f])
   (define seed (if seed* seed* (+ 1 (random (expt 2 30)))))
   (printf "using random seed ~a for base random tests\n" seed)
   (flush-output)
-  (sleep 2)
   (random-seed seed)
   (for ([i 1000])
    (define-values (l p) (generate-pict))
@@ -196,6 +187,10 @@
 
 (define (random-boolean) (> (random) 0.5))
 (define (generate-shapes depth)
+  (define seed (if seed* seed* (+ 1 (random (expt 2 30)))))
+  (printf "using random seed ~a for old shape tests\n" seed)
+  (flush-output)
+  (random-seed seed)
   (define r (random (if (= depth 0) 8 15)))
   (case r
     [(0) (let ([w (random 10)]
