@@ -482,6 +482,7 @@
 (define (do-auto-conversion-tests [seed* #f])
   (define seed (if seed* seed* (+ 1 (random (expt 2 30)))))
   (printf "using random seed ~a for auto conversion tests\n" seed)
+  (flush-output)
   (random-seed seed)
   (for/list ([i 1000])
     (test-suite ""
