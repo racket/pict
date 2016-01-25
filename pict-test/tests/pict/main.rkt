@@ -501,3 +501,24 @@
 
 ;; this originally failed due to a floating point error in dash-line
 (check-not-exn (lambda () (frame (rectangle 1519/25 48.0))))
+
+;; these originally failed because clip-ascent actually loaded the descent
+(check-true
+ (zero?
+  (pict-ascent
+   (clip-ascent
+    (rotate (text "sefsefse") pi)))))
+(check-true
+ (not
+  (negative?
+   (pict-height
+    (clip-descent
+     (clip-ascent
+      (rotate (text "sefsefse") pi)))))))
+(check-not-exn
+ (lambda ()
+   (blur
+    (clip-descent
+     (clip-ascent
+      (rotate (text "sefsefse") pi)))
+    3/2)))

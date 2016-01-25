@@ -597,7 +597,7 @@
 (define (clip-ascent b)
   (let* ([w (pict-width b)]
          [h (pict-height b)]
-         [a (pict-descent b)])
+         [a (pict-ascent b)])
     (extend-pict
      b 0 a
      0 (- a) 0
