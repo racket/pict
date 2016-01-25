@@ -283,13 +283,13 @@
   (flush-output)
   (random-seed seed)
   (for ([i 1000])
-       (define-values (old new trace) (generate-shapes 4))
-       (check-not-exn
-        (lambda ()
-          (with-handlers ([exn:fail? (lambda (e) (displayln (format "~a" trace))
-                                       (raise e))])
-            (check-pict=?/msg old new (format "~a" trace))))
-        (format "~a" trace))))
+    (define-values (old new trace) (generate-shapes 4))
+    (check-not-exn
+     (lambda ()
+       (with-handlers ([exn:fail? (lambda (e) (displayln (format "~a" trace))
+                                          (raise e))])
+         (check-pict=?/msg old new (format "~a" trace))))
+     (format "~a" trace))))
 
 (test-case "old and new shapes"
   (old-shape-tests))
