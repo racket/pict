@@ -43,11 +43,14 @@
 
 (define (blur p hbr [vbr hbr]
               #:pre-inset? [pre-inset? #t])
-  (let* ([p
+  (let* ([p*
           (cond [pre-inset? (inset p hbr vbr)]
                 [else p])]
-         [blurred (*blur p hbr vbr)])
-    (cond [pre-inset? (inset blurred (- hbr) (- vbr))]
+         [blurred (*blur p* hbr vbr)])
+    (cond [pre-inset?
+           (struct-copy pict (inset blurred (- hbr) (- vbr))
+                        [ascent  (pict-ascent p)]
+                        [descent (pict-descent p)])]
           [else blurred])))
 
 (define (shadow p br [dx 0] [dy dx]
