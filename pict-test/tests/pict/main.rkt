@@ -462,26 +462,25 @@
              (use-last r3 (pict-last r3))
              `(let ([m3 ,m3]) (use-last m3 (pict-last m3))))))]
        [#:skip
-        (let-values ([(l1 r1 m1) (gen 3)]
-                     [(l2 r2 m2) (gen 3)]
-                     [(l3 r3 m3) (gen 3)]
-                     [(f) (random)])
+        (let*-values ([(l1 r1 m1) (gen 3)]
+                      [(l2 r2 m2) (gen 3)]
+                      [(l3 r3 m3) (gen 3)]
+                      [(f) (random)]
+                      [(o)
+                       `(let ([m1 ,m1] [m2 ,m2] [m3 ,m3])
+                          (slide-pict m3
+                                      (hbl-append m1 m2)
+                                      m1
+                                      m2
+                                      ,f))])
           (with-handlers ([void (lambda (e)
-                                  (displayln `(slide-pict ,m3
-                                                          (hbl-append ,m1 ,m2)
-                                                          ,m1
-                                                          ,m2
-                                                          ,f))
+                                  (displayln o)
                                   (raise e))])
             (define (mk i l r)
               (slide-pict i (hbl-append l r) l r f))
             (values (mk l3 l1 l2)
                     (mk r3 r1 r2)
-                    `(slide-pict ,m3
-                                 (hbl-append ,m1 m2)
-                                 m1
-                                 m2
-                                 ,f))))])))
+                    o)))])))
   (values l p m))
 
 (define (do-auto-conversion-tests [seed* #f])
