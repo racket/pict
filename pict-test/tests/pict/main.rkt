@@ -411,7 +411,6 @@
         (cellophane (gen) (random-number-in))
         (clip (gen))
         (clip-descent (gen))
-        (clip-ascent (gen))
         (freeze (gen))
         (blur (gen) (add1 (random-number-in 10)))
         (shadow-frame (gen))
