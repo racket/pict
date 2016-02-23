@@ -9,7 +9,8 @@
          (prefix-in file: file/convertible)
          racket/promise
          (for-syntax racket/base racket/syntax
-                     racket/struct-info))
+                     racket/struct-info
+                     syntax/transformer))
 
 (provide dc-for-text-size
          convert-bounds-padding
@@ -156,8 +157,10 @@
   (make-struct-type-property 'pict-convertible?))
 
 (begin-for-syntax
-  (struct pict-wrapper (macro)
-    #:property prop:procedure (struct-field-index macro)
+  (struct pict-wrapper ()
+    #:property prop:set!-transformer
+    (set!-transformer-procedure
+     (make-variable-like-transformer #'in:pict))
     #:property prop:struct-info
     (lambda (_)
       (list #'struct:pict
@@ -181,12 +184,7 @@
                   #f)
             #t))))
 
-(define-syntax pict
-  (pict-wrapper
-   (lambda (stx)
-     (syntax-case stx ()
-       [(id a ...) #'(pict a ...)]
-       [id #'in:pict]))))
+(define-syntax pict (pict-wrapper))
 
 (define-syntax (define-pict-wrap stx)
   (syntax-case stx ()

@@ -531,3 +531,8 @@
   (negative?
    (pict-height
     (clip-ascent (blur (text "sefsefse") 10))))))
+
+;;;; other tests
+
+;; check that pict constructor works
+(check-true (pict? (pict #f 1 2 3 4 null #f #f)))
