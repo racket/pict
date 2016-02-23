@@ -545,9 +545,12 @@
                     (apply htl-append 
                            (color-semi-p)
                            (map (lambda (s)
-                                  (if (pict-convertible? (syntax-e s))
-                                      (syntax-e s)
-                                      (maybe-colorize (tt (syntax-e s)) (current-comment-color))))
+                                  (define datum (syntax-e s))
+                                  (if (pict-convertible? datum)
+                                      datum
+                                      (if (string? datum)
+                                          (maybe-colorize (tt datum) (current-comment-color))
+                                          (raise-argument-error 'code:comment "string?" datum))))
                                 (syntax->list #'(s ...))))])
                ;; Ungraceful handling of ungraceful closes by adding a line
                ;; --- better than sticking them to the right of the comment, at least

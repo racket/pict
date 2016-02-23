@@ -70,3 +70,8 @@ END
            commands])))
 (define hash (md5 (format "~s" rounded-commands)))
 (check-equal? hash #"7ed5049a44d12762405f30a93de41910")
+
+;; Test error handling for code:comment
+(check-exn (λ (e)
+             (regexp-match? #rx"code:comment.*string\\?" (exn-message e)))
+           (λ () (code (code:comment 3))))
