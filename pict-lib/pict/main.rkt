@@ -20,6 +20,21 @@
              rectangle filled-rectangle
              rounded-rectangle filled-rounded-rectangle
              circle disk ellipse filled-ellipse
+             lt-find
+             lc-find
+             lb-find
+             ltl-find
+             lbl-find
+             ct-find
+             cc-find
+             cb-find
+             ctl-find
+             cbl-find
+             rt-find
+             rc-find
+             rb-find
+             rtl-find
+             rbl-find
              vl-append
              vc-append
              vr-append
@@ -62,6 +77,22 @@
            #:pre (draw) (does-draw-restore-the-state-after-being-called? draw)
            [p pict?])]
   [cellophane (-> pict-convertible? (real-in 0 1) pict?)]
+
+  [lt-find  *-find/c]
+  [lc-find  *-find/c]
+  [lb-find  *-find/c]
+  [ltl-find *-find/c]
+  [lbl-find *-find/c]
+  [ct-find  *-find/c]
+  [cc-find  *-find/c]
+  [cb-find  *-find/c]
+  [ctl-find *-find/c]
+  [cbl-find *-find/c]
+  [rt-find  *-find/c]
+  [rc-find  *-find/c]
+  [rb-find  *-find/c]
+  [rtl-find *-find/c]
+  [rbl-find *-find/c]
   [vl-append *-append/c]
   [vc-append *-append/c]
   [vr-append *-append/c]
@@ -253,6 +284,9 @@
 
 (define (color->vec c)
   (vector (send c red) (send c green) (send c blue)))
+
+(define *-find/c
+  (-> pict-convertible? pict-path? (values real? real?)))
 
 (define *-append/c
   (->* ()
