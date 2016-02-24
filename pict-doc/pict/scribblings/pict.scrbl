@@ -1083,6 +1083,14 @@ Truncates @racket[pict]'s @tech{bounding box} by removing the descent part.
   (frame (clip-descent (text "gjy" null 50)))
 ]}
 
+@defproc[(clip-ascent [pict pict-convertible?]) pict?]{
+
+Truncates @racket[pict]'s @tech{bounding box} by removing the ascent part.
+
+@examples[#:eval ss-eval
+  (frame (text "gjy" null 50))
+  (frame (clip-ascent (text "gjy" null 50)))
+]}
 
 @defproc[(lift-above-baseline [pict pict-convertible?] [amt real?]) pict?]{
 
