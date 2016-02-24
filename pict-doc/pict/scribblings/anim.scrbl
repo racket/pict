@@ -1,7 +1,11 @@
 #lang scribble/doc
 
 @(require (for-label pict racket)
+          scribble/example
           scribble/manual)
+
+@(define ss-eval (make-base-eval))
+@(ss-eval '(require pict pict/code racket/format))
 
 @title{Animation Helpers}
 
@@ -31,7 +35,16 @@ The @racket[combine] argument determines how @racket[p1] and
 height but different number of lines, then using
 @racket[ctl-superimpose] would keep the ascent line in a fixed
 location relative to the top of the resulting pict as the rest of the
-shape morphs around it.}
+shape morphs around it.
+
+@examples[#:eval ss-eval
+  (define (do-fade n)
+    (fade-pict n (rectangle 30 30) (disk 30)))
+  (apply ht-append 10
+         (for/list ([n (in-range 0 1.2 0.2)])
+           (vc-append (text (~r n #:precision 2))
+                      (do-fade n))))
+]}
 
 @defproc[(fade-around-pict [n (real-in 0.0 1.0)]
                            [p1 pict?] 
@@ -47,11 +60,19 @@ in the result of @racket[make-p2].
 
 For example,
 
-@RACKETBLOCK[
-(lambda (n)
-  (fade-around-pict n
-                    (code x)
-                    (lambda (g) (code (+ #,x 1)))))
+@examples[#:eval ss-eval #:label #f #:escape THERE-IS-NO-ESCAPE
+(get-current-code-font-size (λ () 20))
+
+(define do-fade
+  (lambda (n)
+    (fade-around-pict n
+                      (code x)
+                      (lambda (g) (code (+ #,g 1))))))
+
+(apply ht-append 10
+       (for/list ([n (in-range 0 1.2 0.2)])
+         (vc-append (text (~r n #:precision 2))
+                    (do-fade n))))
 ]
 
 animates the wrapping of @racket[x] with a @racket[(+ .... 1)] form.}
@@ -71,7 +92,22 @@ of the top-left of @racket[p].
 
 The @racket[p-from] and @racket[p-to] picts are typically
 @racket[launder]ed @racket[ghost]s of @racket[p] within @racket[base],
-but they can be any picts within @racket[base].}
+but they can be any picts within @racket[base].
+
+@examples[#:eval ss-eval
+(define (do-slide n)
+  (define p1 (disk 30 #:color "plum"))
+  (define p2 (disk 30 #:color "palegreen"))
+  (define p3 (frame (inset (hc-append 30 p1 p2) 10)))
+  (slide-pict p3
+              (disk 10)
+              p1 p2 n))
+
+(apply ht-append 10
+       (for/list ([n (in-range 0 1.2 0.2)])
+         (vc-append (text (~r n #:precision 2))
+                    (do-slide n))))
+]}
 
 @defproc[(slide-pict/center [base pict?]
                             [p pict?]
@@ -82,7 +118,21 @@ but they can be any picts within @racket[base].}
 
   Like @racket[slide-pict], but aligns the center of @racket[p]
   with @racket[p-from] and @racket[p-to].
-}
+
+@examples[#:eval ss-eval
+(define (do-slide n)
+  (define p1 (disk 30 #:color "plum"))
+  (define p2 (disk 30 #:color "palegreen"))
+  (define p3 (frame (inset (hc-append 30 p1 p2) 10)))
+  (slide-pict/center p3
+                     (disk 10)
+                     p1 p2 n))
+
+(apply ht-append 10
+       (for/list ([n (in-range 0 1.2 0.2)])
+         (vc-append (text (~r n #:precision 2))
+                    (do-slide n))))
+]}
 
 @; --------------------------------------------------
 
@@ -116,6 +166,33 @@ run @racket[(sequence-animations gen ...)] in reverse.}
 Monotonically but non-uniformly maps @racket[n] with fixed
 points at @racket[0.0] and @racket[1.0].
 
+Suppose that we have the following definitions for our examples:
+
+@examples[#:eval ss-eval #:label #f
+(define (do-slide n fast-proc)
+  (define p1 (filled-rectangle 20 20 #:color "yellowgreen"))
+  (define p2 (filled-rectangle 20 20 #:color "khaki"))
+  (define p3 (frame (inset (hc-append 25 p1 p2) 10)))
+  (slide-pict/center
+   p3
+   (disk 10)
+   p1 p2
+   (code:comment "note use of fast-proc")
+   (fast-proc n)))
+
+(define (run-animation fast-proc)
+  (apply ht-append 10
+         (for/list ([n (in-range 0 1.09 0.1)])
+           (vc-append (text (~r n #:precision 2))
+                      (do-slide n fast-proc)))))
+]
+
+A normal use of the animation looks like this:
+
+@examples[#:eval ss-eval #:label #f
+  (run-animation (λ (n) n))
+]
+
 The @racket[fast-start] mapping is convex, so that
 
 @racketblock[(slide-pict _base p _p1 _p2 (fast-start n))]
@@ -123,12 +200,22 @@ The @racket[fast-start] mapping is convex, so that
 appears to move quickly away from @racket[_p1] and then slowly as it
 approaches @racket[_p2], assuming that @racket[n] increases uniformly.
 
+Applying it to the animation above produces this:
+
+@examples[#:eval ss-eval #:label #f
+  (run-animation fast-start)
+]
+
 The @racket[fast-end] mapping is concave, so that
 
 @racketblock[(slide-pict _base _p _p1 _p2 (fast-end _n))]
 
 appears to move slowly away from @racket[_p1] and then quicly as it
 approaches @racket[_p2], assuming that @racket[_n] increases uniformly.
+
+@examples[#:eval ss-eval #:label #f
+  (run-animation fast-end)
+]
 
 The @racket[fast-edges] mapping is convex at first and concave at the
 end, so that
@@ -139,10 +226,18 @@ appears to move quickly away from @racket[_p1], then more slowly, and
 then quickly again near @racket[_p2], assuming that @racket[_n] increases
 uniformly.
 
+@examples[#:eval ss-eval #:label #f
+  (run-animation fast-edges)
+]
+
 The @racket[fast-middle] mapping is concave at first and convex at the
 end, so that
 
 @racketblock[(slide-pict _base _p _p1 _p2 (fast-middle _n))]
+
+@examples[#:eval ss-eval #:label #f
+  (run-animation fast-middle)
+]
 
 appears to move slowly away from @racket[_p1], then more quickly, and
 then slowly again near @racket[_p2], assuming that @racket[_n] increases
@@ -154,4 +249,18 @@ uniformly.}
 Splits the progression of @racket[n] from @racket[0.0] to @racket[1.0]
 into a progression from @racket[(values 0.0 0.0)] to @racket[(values
 1.0 0.0)] and then @racket[(values 1.0 0.0)] to @racket[(values 1.0
-1.0)].}
+1.0)].
+
+Here is an example that shows how to apply @racket[split-phase] to
+the animation from the examples for @racket[fast-start]:
+
+@examples[#:eval ss-eval #:label #f
+(apply ht-append 10
+       (for/list ([n (in-range 0 1.09 0.1)])
+         (define-values (n1 n2) (split-phase n))
+         (vc-append (text (~r n #:precision 2))
+                    (do-slide n1 (λ (n) n))
+                    (do-slide n2 (λ (n) n)))))
+]}
+
+@close-eval[ss-eval]
