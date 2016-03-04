@@ -80,7 +80,7 @@
    (check-pict=?/msg p (freeze p) (format "~a" l))))
 
 (test-case "freeze random testing"
-  (do-pict-base-random-tests))
+  (do-pict-base-random-tests 111199657))
 
 (test-case
  "scale-to-fit"
