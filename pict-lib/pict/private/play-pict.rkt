@@ -165,7 +165,9 @@
   (* n n))
 
 (define (fast-edges n)
-  (+ 0.5 (* (sin (- (* n pi) (/ pi 2))) 0.5)))
+  (if (n . < . 0.5)
+      (- 0.5 (fast-middle (- 0.5 n)))
+      (+ 0.5 (fast-middle (- n 0.5)))))
 
 (define (fast-middle n)
   (- 0.5 (/ (cos (* n pi)) 2)))
