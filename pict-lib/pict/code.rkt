@@ -226,9 +226,14 @@
       [(comment) comment-color]
       [(no-color) base-color]
       [(parenthesis) base-color] ; really? pict has no color for parens?
+      [(string) literal-color]
       [(constant) literal-color]
       [(hash-colon-keyword) keyword-color]
       [else base-color])) ; 'other, or others
+  (define (lang-token->pict t)
+    (match-define `(,token . ,color) t)
+    (hbl-append (colorize (tt "#lang") keyword-color)
+                (colorize (tt (substring token 5)) id-color)))
   (define (token->pict t)
     (match-define `(,token . ,color) t)
     (colorize (tt token) (token-class->color color)))
@@ -246,12 +251,14 @@
               (loop (if (pair? rest) ; there is a newline to skip
                         (cdr rest)
                         rest)))])))
+  (define first-line (car lines))
   (apply vl-append
-         (for/list ([line (in-list (if keep-lang-line?
-                                       lines
-                                       ;; FIXME: #lang can span lines
-                                       ;;   (codeblock has same issue)
-                                       (cdr lines)))])
+         ;; FIXME: #lang can span lines
+         ;;   (codeblock has same issue)
+         (if keep-lang-line?
+             (apply hbl-append (lang-token->pict (car first-line)) (map token->pict (cdr first-line)))
+             (blank))
+         (for/list ([line (in-list (cdr lines))])
            (apply hbl-append (map token->pict line)))))
 
 (define (codeblock-pict s #:keep-lang-line? [keep-lang-line? #t])
