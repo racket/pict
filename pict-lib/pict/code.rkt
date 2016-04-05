@@ -222,6 +222,7 @@
   (define (token-class->color c)
     (case c
       [(symbol) id-color]
+      [(keyword) id-color] ; We don't have a keyword color?
       [(white-space) "white"]
       [(comment) comment-color]
       [(no-color) base-color]
