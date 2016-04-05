@@ -397,11 +397,14 @@ Mainly for backward compatibility: returns @racket[(if bl-pict
 
 @defproc[(codeblock-pict [code string?] [#:keep-lang-line? keep? any/c #t]) pict?]{
 
-Like Scribble's @racket[codeblock] but generates picts.
+ Like Scribble's @racket[codeblock] but generates picts.
 
-Unlike @racket[code], @racket[codeblock-pict] formats and colors based on the
-code's language's lexer, which makes it suitable for use with code that doesn't
-use Racket syntax.
+ Unlike @racket[code], @racket[codeblock-pict] formats and
+ colors based on the code's language's lexer, which makes it
+ suitable for use with code that doesn't use Racket syntax.
+
+ When @racket[keep?] is @racket[#f], the first @tt{#lang}
+ line is removed from the pict.
 
 @(ss-eval '(require racket/string))
 @defexamples[#:eval ss-eval
