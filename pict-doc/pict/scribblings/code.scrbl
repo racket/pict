@@ -395,7 +395,7 @@ Mainly for backward compatibility: returns @racket[(if bl-pict
 
 @(require (for-label (only-in scribble/manual codeblock)))
 
-@defproc[(codeblock-pict [code string?]) pict?]{
+@defproc[(codeblock-pict [code string?] [#:keep-lang-line? keep? any/c #t]) pict?]{
 
 Like Scribble's @racket[codeblock] but generates picts.
 
