@@ -33,10 +33,7 @@ ignored.
 
 Beware that if you use @racket[read-syntax] on a file port, you may
 have to turn on line counting via @racket[port-count-lines!] for the
-code to typeset properly. Also beware that when a source file
-containing a @racket[syntax] or @racket[quote-syntax] form is
-compiled, source location information is omitted from the compiled
-@|stx-obj|.
+code to typeset properly.
 
 Normally, @racket[typeset-code] is used through the @racket[code]
 syntactic form, which works properly with compilation, and that
