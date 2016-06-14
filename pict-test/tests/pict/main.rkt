@@ -493,7 +493,8 @@
       (check-not-exn
        (thunk
         (define-values (l r m) (generate-pict/wrap))
-        ;(pretty-print m)
+        (pretty-print m)
+        (flush-output (current-output-port))
         (check-pict=? l r (~a m))))))))
 
 (require rackunit/text-ui)
