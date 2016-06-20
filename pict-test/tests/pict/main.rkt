@@ -489,13 +489,10 @@
   (random-seed seed)
   (for/list ([i 1000])
     (test-suite ""
-     (time
-      (check-not-exn
-       (thunk
-        (define-values (l r m) (generate-pict/wrap))
-        (pretty-print m)
-        (flush-output (current-output-port))
-        (check-pict=? l r (~a m))))))))
+     (check-not-exn
+      (thunk
+       (define-values (l r m) (generate-pict/wrap))
+       (check-pict=? l r (~a m)))))))
 
 (require rackunit/text-ui)
 (run-tests
