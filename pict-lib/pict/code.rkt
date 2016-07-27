@@ -233,8 +233,13 @@
       [else base-color])) ; 'other, or others
   (define (lang-token->pict t)
     (match-define `(,token . ,color) t)
-    (hbl-append (colorize (tt "#lang") keyword-color)
-                (colorize (tt (substring token 5)) id-color)))
+    (define maybe-hash-lang
+      (cond [(regexp-match "#lang (.*)$" token) => second]
+            [else #f]))
+    (if maybe-hash-lang
+        (hbl-append (colorize (tt "#lang")         keyword-color)
+                    (colorize (tt maybe-hash-lang) id-color))
+        (token->pict t)))
   (define (token->pict t)
     (match-define `(,token . ,color) t)
     (colorize (tt token) (token-class->color color)))
@@ -257,7 +262,7 @@
          ;; FIXME: #lang can span lines
          ;;   (codeblock has same issue)
          (if keep-lang-line?
-             (apply hbl-append (lang-token->pict (car first-line)) (map token->pict (cdr first-line)))
+             (apply hbl-append (map lang-token->pict first-line))
              (blank))
          (for/list ([line (in-list (cdr lines))])
            (apply hbl-append (map token->pict line)))))
