@@ -234,7 +234,7 @@
   (define (lang-token->pict t)
     (match-define `(,token . ,color) t)
     (define maybe-hash-lang
-      (cond [(regexp-match "#lang (.*)$" token) => second]
+      (cond [(regexp-match "#lang(.*)$" token) => second]
             [else #f]))
     (if maybe-hash-lang
         (hbl-append (colorize (tt "#lang")         keyword-color)
