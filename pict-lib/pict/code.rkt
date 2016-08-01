@@ -231,18 +231,12 @@
       [(constant) literal-color]
       [(hash-colon-keyword) keyword-color]
       [else base-color])) ; 'other, or others
-  (define (lang-token->pict t)
-    (match-define `(,token . ,color) t)
-    (define maybe-hash-lang
-      (cond [(regexp-match "#lang(.*)$" token) => second]
-            [else #f]))
-    (if maybe-hash-lang
-        (hbl-append (colorize (tt "#lang")         keyword-color)
-                    (colorize (tt maybe-hash-lang) id-color))
-        (token->pict t)))
   (define (token->pict t)
-    (match-define `(,token . ,color) t)
-    (colorize (tt token) (token-class->color color)))
+    (match-define `(,token . ,type) t)
+    (define color (if (regexp-match "#lang(.*)$" token)
+                      keyword-color
+                      (token-class->color type)))
+    (colorize (tt token) color))
   (define (not-newline? x) (not (equal? (car x) "\n")))
   (define lines
     (let loop ([ts ts])
@@ -257,15 +251,15 @@
               (loop (if (pair? rest) ; there is a newline to skip
                         (cdr rest)
                         rest)))])))
-  (define first-line (car lines))
+  (define first-line (first lines))
+  (define (format-line l) (apply hbl-append (map token->pict l)))
   (apply vl-append
          ;; FIXME: #lang can span lines
          ;;   (codeblock has same issue)
          (if keep-lang-line?
-             (apply hbl-append (map lang-token->pict first-line))
+             (format-line first-line)
              (blank))
-         (for/list ([line (in-list (cdr lines))])
-           (apply hbl-append (map token->pict line)))))
+         (map format-line (rest lines))))
 
 (define (codeblock-pict s #:keep-lang-line? [keep-lang-line? #t])
   (tokens->pict (tokenize/color s) #:keep-lang-line? keep-lang-line?))

@@ -69,7 +69,7 @@ END
           [else
            commands])))
 (define hash (md5 (format "~s" rounded-commands)))
-(check-equal? hash #"5259b851ddbfb9b7478ee78587885ca6")
+(check-equal? hash #"6e729d7453e690d40f308cc6fca8f340")
 
 ;; Test error handling for code:comment
 (check-exn (λ (e)
