@@ -212,13 +212,10 @@
       [(string) literal-color]
       [(constant) literal-color]
       [(hash-colon-keyword) keyword-color]
-      [else base-color])) ; 'other, or others
+      [else "black"])) ; 'other, or others. to align with DrRacket
   (define (token->pict t)
     (match-define `(,token . ,type) t)
-    (define color (if (regexp-match "#lang(.*)$" token)
-                      keyword-color
-                      (token-class->color type)))
-    (colorize (tt token) color))
+    (colorize (tt token) (token-class->color type)))
   (define (not-newline? x) (not (equal? (car x) "\n")))
   (define lines
     (let loop ([ts ts])
