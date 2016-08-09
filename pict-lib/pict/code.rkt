@@ -9,7 +9,7 @@
          racket/match
          racket/string
          syntax-color/lexer-contract
-         syntax-color/racket-lexer
+         syntax-color/module-lexer
          "convert.rkt"
          (for-syntax racket/base
                      syntax/to-string
@@ -171,30 +171,12 @@
 ;; codeblock-pict
 
 (define (tokenize/color s)
-  (define lang
-    (read-language (open-input-string s)
-                   (lambda () (raise-argument-error
-                               'codeblock-pict
-                               "string containing program with #lang"
-                               s))))
-  (define pre-lexer
-    (or (lang 'color-lexer #f)
-        ;; #lang racket doesn't have a color lexer, so fall back to
-        ;; the Racket lexer if we don't find one.
-        racket-lexer))
-  (define lexer ; based on framework/private/color
-    (if (procedure-arity-includes? pre-lexer 3)
-        pre-lexer ; new interface, we're good
-        (lambda (in offset mode) ; old interface, need an adapter
-          (let-values ([(lexeme type data new-token-start new-token-end)
-                        (pre-lexer in)])
-            (values lexeme type data new-token-start new-token-end 0 #f)))))
-  (define port (open-input-string s)) ; reopen, to start from the beginning
+  (define port (open-input-string s))
   (port-count-lines! port)
   (let loop ([acc            #f]
              [rev-tokens+classes '()])
     (define-values (_1 token-class _3 start end _6 next-acc)
-      (lexer port 0 acc))
+      (module-lexer port 0 acc))
     (cond
      [(equal? token-class 'eof)
       (reverse rev-tokens+classes)]
