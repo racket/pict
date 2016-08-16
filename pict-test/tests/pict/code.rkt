@@ -20,8 +20,42 @@
  (lambda () (eval #'(ccode a b c) ns)))
 
 
+;; Test error handling for code:comment
+(check-exn (λ (e)
+             (regexp-match? #rx"code:comment.*string\\?" (exn-message e)))
+           (λ () (code (code:comment 3))))
+
 
 ;; codeblock-pict
+
+;; test by rendering to a record-dc, and checking the resulting list
+;;   of commands
+;; Note: this test failing does not imply that the code is broken
+;;   changes to the record-dc format (in response to changes in dc),
+;;   for example, would break it
+;;   if the test fails, look at the picture, and if it looks fine,
+;;   then update the expected hash
+(require racket/class racket/draw file/md5 rackunit)
+(define (test-codeblock-pict-hash s h)
+  (define rdc (new record-dc%))
+  (draw-pict (codeblock-pict s) rdc 0 0)
+  (define commands (send rdc get-recorded-datum))
+  ;; commands may include literal floating-point numbers
+  ;; of course, this means that different machines, with different FPUs, may
+  ;; compute different results, which changes the hash
+  ;; KAAAAHAAAAAAAAAAAN!
+  (define rounded-commands
+    (let loop ([commands commands])
+      (cond [(list? commands)
+             (map loop commands)]
+            [(flonum? commands)
+             ;; not even rounding is enough to paper over the differences
+             ;; just give up and consider all floats equivalent
+             'float]
+            [else
+             commands])))
+  (define hash (md5 (format "~s" rounded-commands)))
+  (check-equal? hash h))
 
 (define example
   #<<END
@@ -42,39 +76,7 @@
   ╚═════════════╩═══════════════════════╩═════════════╝)
 END
 )
-
-;; test by rendering to a record-dc, and checking the resulting list
-;;   of commands
-;; Note: this test failing does not imply that the code is broken
-;;   changes to the record-dc format (in response to changes in dc),
-;;   for example, would break it
-;;   if the test fails, look at the picture, and if it looks fine,
-;;   then update the expected hash
-(require racket/class racket/draw file/md5 rackunit)
-(define rdc (new record-dc%))
-(draw-pict (codeblock-pict example) rdc 0 0)
-(define commands (send rdc get-recorded-datum))
-;; commands may include literal floating-point numbers
-;; of course, this means that different machines, with different FPUs, may
-;; compute different results, which changes the hash
-;; KAAAAHAAAAAAAAAAAN!
-(define rounded-commands
-  (let loop ([commands commands])
-    (cond [(list? commands)
-           (map loop commands)]
-          [(flonum? commands)
-           ;; not even rounding is enough to paper over the differences
-           ;; just give up and consider all floats equivalent
-           'float]
-          [else
-           commands])))
-(define hash (md5 (format "~s" rounded-commands)))
-(check-equal? hash #"dfb3f143c32f6cd5354ff8844c9d8a7b")
-
-;; Test error handling for code:comment
-(check-exn (λ (e)
-             (regexp-match? #rx"code:comment.*string\\?" (exn-message e)))
-           (λ () (code (code:comment 3))))
+(test-codeblock-pict-hash example #"dfb3f143c32f6cd5354ff8844c9d8a7b")
 
 ;; make sure that whitespace before #lang doesn't blow up
 (define example2
@@ -83,5 +85,9 @@ END
 1
 >>
 )
+(check-not-exn
+ (λ () (test-codeblock-pict-hash example2 #"48281e84c3d32bb488e323d17ed1a0fd")))
 
-(check-not-exn (λ () (codeblock-pict example2)))
+;; windows newlines should work
+(define example3 "#lang racket\r\n(define x 2)\r\nx")
+(test-codeblock-pict-hash example3 #"ed16bd8dfc4fc500cb5087de4d25e5e4")

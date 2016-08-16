@@ -170,7 +170,8 @@
 ;;------------------------------------------------
 ;; codeblock-pict
 
-(define (tokenize/color s)
+(define (tokenize/color -s)
+  (define s (string-replace -s "\r\n" "\n")) ; module-lexer does not like \r\n
   (define port (open-input-string s))
   (port-count-lines! port)
   (let loop ([acc            #f]
