@@ -364,14 +364,14 @@ when @racket[draw-border?] is @racket[#f] results in a contract violation.
 
 @defproc*[([(rectangle [w real?] [h real?]
                        [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
-                       [#:border-width border-width (or/c #f real?)])
+                       [#:border-width border-width (or/c #f real?) #f])
                        pict?]
            [(filled-rectangle [w real?]
                               [h real?]
                               [#:draw-border? draw-border? any/c #t]
                               [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
                               [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
-                              [#:border-width border-width (or/c #f real?)])
+                              [#:border-width border-width (or/c #f real?) #f])
             pict?])]{
 
 Unfilled and filled rectangles.
@@ -399,7 +399,7 @@ when @racket[draw-border?] is @racket[#f] results in a contract violation.
                                [corner-radius real? -0.25]
                                [#:angle angle real? 0]
                                [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
-                               [#:border-width border-width (or/c #f real?)])
+                               [#:border-width border-width (or/c #f real?) #f])
             pict?]
            [(filled-rounded-rectangle [w real?] [h real?]
                                       [corner-radius real? -0.25]
@@ -407,7 +407,7 @@ when @racket[draw-border?] is @racket[#f] results in a contract violation.
                                       [#:draw-border? draw-border? any/c #t]
                                       [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
                                       [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
-                                      [#:border-width border-width (or/c #f real?)])
+                                      [#:border-width border-width (or/c #f real?) #f])
             pict?])]{
 
 Unfilled and filled rectangles with rounded corners.  The
@@ -519,8 +519,8 @@ argument for consistency with the other functions.}
                       [#:style style (one-of/c 'transparent 'solid 'xor 'hilite 
                                                'dot 'long-dash 'short-dash 'dot-dash 
                                                'xor-dot 'xor-long-dash 'xor-short-dash 
-                                               'xor-dot-dash)
-                               'solid]
+                                               'xor-dot-dash #f)
+                               #f]
                       [#:under? under? any/c #f]
                       [#:label label pict? (blank)]
                       [#:x-adjust-label x-adjust-label real? 0]
@@ -543,7 +543,8 @@ argument for consistency with the other functions.}
                       [#:style style (one-of/c 'transparent 'solid 'xor 'hilite 
                                                'dot 'long-dash 'short-dash 'dot-dash 
                                                'xor-dot 'xor-long-dash 'xor-short-dash 
-                                               'xor-dot-dash)]
+                                               'xor-dot-dash #f)
+                               #f]
                       [#:under? under? any/c #f]
                       [#:label label pict-convertible? (blank)]
                       [#:x-adjust-label x-adjust-label real? 0]
