@@ -21,15 +21,30 @@
 
 @defproc[(cloud [w real?]
                 [h real?] 
-                [color (or/c string? (is-a?/c color%)) "gray"])
+                [color (or/c string? (is-a?/c color%)) "gray"]
+                [#:style style (listof (or/c 'square
+                                             'nw 'ne 'sw 'se
+                                              'wide))
+                        null])
          pict?]{
 
 Creates a fluffy cloud.
 
+Supplying @racket['nw] (northwest), @racket['ne] (northeast),
+@racket['sw] (southwest), or @racket['se] (southeast) in
+@racket[style] extends the cloud to better cover the corner within its
+bounding box in the corresponding direction. The @racket['square]
+style is a shorthand for all of those combined. The @racket['wide]
+style increases the number of bumps along the cloud's top and bottom
+edges.
+
 @examples[#:eval ss-eval
   (cloud 100 75)
   (cloud 100 75 "lavenderblush")
-]}
+  (cloud 100 75 #:style '(square wide))
+]
+
+@history[#:changed "1.6" @elem{Added @racket[style].}]}
 
 @defproc[(file-icon [w real?]
                     [h real?] 

@@ -383,40 +383,75 @@
                        color border-color border-width
                        #:draw-border? draw-border?))
 
-  (define cloud
-    (case-lambda
-     [(w h) (cloud w h "gray")]
-     [(w h color)
-      (dc
-       (lambda (dc x y)
-	 (let ([b (send dc get-brush)]
-	       [p (send dc get-pen)])
-	   (send dc set-pen (send the-pen-list
-				  find-or-create-pen
-				  "white" 0 'transparent))
-	   (send dc set-brush (send the-brush-list
-				    find-or-create-brush
-				    color
-				    'solid))
-	   (send dc draw-ellipse
-		 x (+ y (* 1/4 h))
-		 (* 1/2 w) (* 1/2 h))
-	   (send dc draw-ellipse
-		 (+ x (* 1/5 w)) y
-		 (* 3/5 w) (add1 (* 2/5 h)))
-	   (send dc draw-ellipse
-		 (+ x (* 1/5 w)) (+ y (* 1/3 h))
-		 (* 3/5 w) (* 2/3 h))
-	   (send dc draw-ellipse
-		 (+ x (* 3/5 w)) (+ y (* 1/4 h))
-		 (* 2/5 w) (* 1/3 h))
-	   (send dc draw-ellipse
-		 (+ x (* 3/5 w)) (+ y (* 1/2 h))
-		 (* 2/5 w) (* 1/3 h))
+  (define (cloud w h [color "gray"]
+                 #:style [style null])
+    (dc
+     (lambda (dc x y)
+       (let ([b (send dc get-brush)]
+             [p (send dc get-pen)])
+         (send dc set-pen (send the-pen-list
+                                find-or-create-pen
+                                "white" 0 'transparent))
+         (send dc set-brush (send the-brush-list
+                                  find-or-create-brush
+                                  color
+                                  'solid))
+         (send dc draw-ellipse
+               x (+ y (* 1/4 h))
+               (* 1/2 w) (* 1/2 h))
+         (if (memq 'wide style)
+             (begin
+               (send dc draw-ellipse
+                     (+ x (* 1/5 w)) y
+                     (* 3/10 w) (add1 (* 2/5 h)))
+               (send dc draw-ellipse
+                     (+ x (* 2/5 w)) y
+                     (* 3/10 w) (add1 (* 22/50 h)))
+               (send dc draw-ellipse
+                     (+ x (* 1/5 w)) (+ y (* 1/3 h))
+                     (* 1/3 w) (* 2/3 h))
+               (send dc draw-ellipse
+                     (+ x (* 2/5 w)) (+ y (* 1/3 h))
+                     (* 3/10 w) (* 2/3 h)))
+             (begin
+               (send dc draw-ellipse
+                     (+ x (* 1/5 w)) y
+                     (* 3/5 w) (add1 (* 2/5 h)))
+               (send dc draw-ellipse
+                     (+ x (* 1/5 w)) (+ y (* 1/3 h))
+                     (* 3/5 w) (* 2/3 h))))
+         (send dc draw-ellipse
+               (+ x (* 3/5 w)) (+ y (* 1/4 h))
+               (* 2/5 w) (* 1/3 h))
+         (send dc draw-ellipse
+               (+ x (* 3/5 w)) (+ y (* 1/2 h))
+               (* 2/5 w) (* 1/3 h))
 
-	   (send dc set-brush b)
-	   (send dc set-pen p)))
-       w h)]))
+         (when (or (memq 'square style)
+                   (memq 'nw style))
+           (send dc draw-ellipse
+               x y
+               (* 2/5 w) (* 1/2 h)))
+         (when (or (memq 'square style)
+                   (memq 'sw style))
+           (send dc draw-ellipse
+               x (+ y (* 1/2 h))
+               (* 1/3 w) (* 1/2 h)))
+         
+         (when (or (memq 'square style)
+                   (memq 'ne style))
+           (send dc draw-ellipse
+               (+ x (* 3/5 w)) y
+               (* 2/5 w) (* 2/5 h)))
+         (when (or (memq 'square style)
+                   (memq 'se style))
+           (send dc draw-ellipse
+               (+ x (* 3/5 w)) (+ y (* 2/3 h))
+               (* 2/5 w) (* 1/3 h)))
+         
+         (send dc set-brush b)
+         (send dc set-pen p)))
+     w h))
   
   (define (thermometer #:height-% [height-% 1]
                        #:color-% [color-% height-%]
