@@ -687,19 +687,19 @@
 			(send dc draw-polygon horn 70 -15))
 		      
 		      (send dc draw-polygon (list
-					     (make-object point% 0 0)
-					     (make-object point% 10 2)
-					     (make-object point% 0 6))
-			    115 32)
+					     (make-object point% 3 -2)
+					     (make-object point% -8 0)
+					     (make-object point% 1 -6))
+			    96 75)
 		      
 		      (send dc set-pen (send the-pen-list
 					     find-or-create-pen
 					     "red"
 					     2
 					     'solid))
-		      (send dc draw-line 101 55 110 55)
-		      (send dc draw-spline 110 55   130 50    110  45)
-		      (send dc draw-spline 110 45   90 40    115  35)))
+		      (send dc draw-spline 101 55   113 60    102  62)
+		      (send dc draw-spline 102 62   92 65    103  67)
+		      (send dc draw-spline 103 67   109 70   100  71)))
 		    
 		  (send dc set-origin dx dy)
 
@@ -1394,3 +1394,4 @@
        (* large-rad 2)
        0
        0)))
+
