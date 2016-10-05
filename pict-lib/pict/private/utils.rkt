@@ -71,7 +71,7 @@
    [scale (case-> (-> pict-convertible? number? number? pict?)
                   (-> pict-convertible? number? pict?))]
    [scale-to-fit (->* (pict-convertible? (or/c number? pict-convertible?))
-                      (number? #:mode (or/c 'preserve 'inset 'distort))
+                      (number? #:mode (or/c 'preserve 'inset 'preserve/max 'inset/max 'distort))
                       pict?)]
    [rotate (case-> (-> pict-convertible? number? pict?))]
    [pin-line (->* (pict-convertible?
@@ -1130,7 +1130,7 @@
   
   ;; arg spec is not great. started as a case-lambda, then grew a keyword arg
   (define (scale-to-fit main-pict w-or-size-pict [h-or-false #f]
-                        #:mode [mode 'preserve]) ; or: 'inset 'distort
+                        #:mode [mode 'preserve]) ; or: 'inset 'distort 'preserve/max 'inset/max
     (cond [(not h-or-false) ; scale to the size of another pict
            (define size-pict w-or-size-pict)
            (unless (pict-convertible? size-pict)
@@ -1151,12 +1151,16 @@
                ((preserve inset)
                 (let ([factor (min wfactor0 hfactor0)])
                   (values factor factor)))
+               [(preserve/max inset/max)
+                (define factor (max wfactor0 hfactor0))
+                (values factor factor)]
                ((distort)
                 (values wfactor0 hfactor0))))
            (define scaled-pict (scale main-pict wfactor hfactor))
            (case mode
-             ((inset)
-              (cc-superimpose (blank w h) scaled-pict))
+             [(inset inset/max)
+              (define b (blank w h))
+              (refocus (cc-superimpose b scaled-pict) b)]
              (else
               scaled-pict))]))
   

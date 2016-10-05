@@ -854,34 +854,51 @@ scale while drawing the original @racket[pict].
 }
 
 @defproc*[([(scale-to-fit [pict pict-convertible?] [size-pict pict-convertible?]
-                          [#:mode mode (or/c 'preserve 'inset 'distort) 'preserve])
+                          [#:mode mode (or/c 'preserve 'inset
+                                             'preserve/max 'inset/max
+                                             'distort)
+                           'preserve])
                           pict?]
            [(scale-to-fit [pict pict-convertible?] [width real?] [height real?]
-                          [#:mode mode (or/c 'preserve 'inset 'distort) 'preserve])
+                          [#:mode mode (or/c 'preserve 'inset
+                                             'preserve/max 'inset/max
+                                             'distort)
+                           'preserve])
                           pict?])]{
   Scales @racket[pict] so that it fits within the bounding box of
          @racket[size-pict] (if two arguments are supplied) or
          into a box of size @racket[width] by @racket[height] 
          (if three arguments are supplied).
 
-         If @racket[mode] is @racket['preserve], the width and height are
-         scaled by the same factor so @racket[pict]'s aspect ratio is
-         preserved; the result's bounding box may be smaller than
-         @racket[width] by @racket[height].
-         If @racket[mode] is @racket['inset], the aspect ratio is preserved as
-         with @racket['preserve], but the resulting pict is centered in a
-         bounding box of exactly @racket[width] by @racket[height].
-         If @racket[mode] is @racket['distort], the width and height are scaled
-         separately.
+ If @racket[mode] is @racket['preserve] or
+ @racket['preserve/max], the width and height are scaled by
+ the same factor so @racket[pict]'s aspect ratio is
+ preserved. If @racket[mode] is @racket['preserve] the
+ result's bounding box will not be larger than @racket[width]
+ by @racket[height] but it may be smaller. When @racket[mode]
+ is @racket['preserve/max], the opposite is true; the
+ bounding box will never be smaller, but might be larger.
+
+ If @racket[mode] is @racket['inset] or @racket['inset/max],
+ the aspect ratio is preserved as with @racket['preserve] and
+ @racket['preserve/max], but the resulting pict is centered
+ on a bounding box of exactly @racket[width] by
+ @racket[height].
+
+ If @racket[mode] is @racket['distort], the width and height
+ are scaled separately.
 
 @examples[#:eval
           ss-eval
           (define rect (colorize (filled-rectangle 40 40) "olive"))
           rect
           (scale-to-fit rect (disk 60))
-          (scale-to-fit rect 70 30 #:mode 'preserve)
-          (scale-to-fit rect 70 30 #:mode 'inset)
-          (scale-to-fit rect 70 30 #:mode 'distort)]
+          (scale-to-fit rect 80 30 #:mode 'preserve)
+          (frame (scale-to-fit rect 80 30 #:mode 'inset))
+          (scale-to-fit rect 80 30 #:mode 'preserve/max)
+          (cc-superimpose (blank 100 100)
+                          (frame (scale-to-fit rect 80 30 #:mode 'inset/max)))
+          (scale-to-fit rect 80 30 #:mode 'distort)]
 
 @history[#:changed "1.4" @elem{Added @racket[#:mode] argument.}]{}
 }
