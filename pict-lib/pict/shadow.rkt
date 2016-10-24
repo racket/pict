@@ -27,7 +27,7 @@
   (->* ()
        (#:background-color (or/c string? (is-a?/c color%))
         #:frame-color (or/c string? (is-a?/c color%))
-        #:frame-line-width (or/c real? #f)
+        #:frame-line-width (or/c real? #f 'no-frame)
         #:shadow-side-length real?
         #:shadow-top-y-offset real?
         #:shadow-bottom-y-offset real?
@@ -229,8 +229,12 @@
          [pict (inset pict margin-len)]
          [w (pict-width pict)]
          [h (pict-height pict)]
-         [main-box (frame (colorize (filled-rectangle w h) background-color)
-                          #:color frame-color #:line-width frame-line-width)]
+         [without-frame (colorize (filled-rectangle w h #:draw-border? #f) background-color)]
+         [main-box
+          (if (equal? frame-line-width 'no-frame)
+              without-frame
+              (frame without-frame
+                     #:color frame-color #:line-width frame-line-width))]
          [w* (+ w s-side-len s-side-len)]
          [shadow (arch w* w* (+ h (- s-bot-dy s-top-dy)) s-desc)]
          [shadow (brush/linear-gradient

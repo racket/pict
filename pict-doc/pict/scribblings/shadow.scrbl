@@ -81,7 +81,7 @@ The resulting pict has the same bounding box as @racket[p].
                        [#:margin margin real? 20]
                        [#:background-color bg-color (or/c string? (is-a?/c color%)) "white"]
                        [#:frame-color frame-color (or/c string? (is-a?/c color%)) "gray"]
-                       [#:frame-line-width frame-line-width (or/c real? #f) 0]
+                       [#:frame-line-width frame-line-width (or/c real? #f 'no-frame) 0]
                        [#:shadow-side-length shadow-side-length real? 4]
                        [#:shadow-top-y-offset shadow-top-y-offset real? 10]
                        [#:shadow-bottom-y-offset shadow-bottom-y-offset real? 4]
@@ -97,7 +97,8 @@ The @racket[pict]s are vertically appended with @racket[separation]
 space between them. They are placed on a rectangular background of
 solid @racket[bg-color] with @racket[margin] space on all sides. A
 frame of @racket[frame-color] and @racket[frame-line-width] is added
-around the rectangle. The rectangle casts a shadow that extends
+around the rectangle, unless @racket[frame-line-width] is
+@racket['no-frame]. The rectangle casts a shadow that extends
 @racket[shadow-side-length] to the left and right, starts
 @racket[shadow-top-y-offset] below the top of the rectangle and
 extends to @racket[shadow-bottom-y-offset] below the bottom of the
