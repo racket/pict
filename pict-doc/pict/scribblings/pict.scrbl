@@ -1454,7 +1454,13 @@ and @racket[frame-style] keyword arguments behave in the same manner as @racket[
 
 A parameter used to refine text measurements to better match an
 expected scaling of the image. The @racket[scale/improve-new-text]
-form sets this parameter while also scaling the resulting pict.}
+form sets this parameter while also scaling the resulting pict.
+
+For a slideshow presentation shown on-screen, the parameter's numbers
+represent the pixels per drawing unit. For example, if
+@racket[(current-expected-text-scale)] is @racket[(list 2 1.5)], then
+the pict @racket[(rectangle 100 100)] is @emph{expected} to render as
+a rectangle 200 pixels wide and 150 pixels high.}
 
 @;----------------------------------------
 
