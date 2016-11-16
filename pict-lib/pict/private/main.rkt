@@ -294,9 +294,13 @@
     (send bm set-argb-pixels 0 0 w h b)
     (bitmap bm))
 
-  (define (freeze p)
+  (define (freeze p [use-scale? #f])
     (define p* (pict-convert p))
-    (define frozen (bitmap (pict->bitmap p*)))
+    (define-values (xs ys)
+      (if use-scale?
+          (let ([s (current-expected-text-scale)]) (values (car s) (cadr s)))
+          (values 1 1)))
+    (define frozen (scale (bitmap (pict->bitmap (scale p* xs ys))) (/ xs) (/ ys)))
     (struct-copy pict p* [draw (pict-draw frozen)]))
 
   (provide hline vline

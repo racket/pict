@@ -1055,21 +1055,27 @@ black-and-white colors.
     (colorize (disk 40) "seagreen"))
 ]}
 
-@defproc[(freeze [pict pict-convertible?]) pict?]{
- Creates a bitmap with the same size as @racket[pict], draws
- @racket[pict] into the bitmap, and then returns a pict that
- draws with the bitmap.
+@defproc[(freeze [pict pict-convertible?] [use-expected-scale? any/c
+ #f]) pict?]{ Creates a bitmap, draws @racket[pict] into the bitmap,
+ and then returns a pict with the same dimensions as @racket[pict]
+ that draws with the bitmap.  This has the effect of speeding up
+ subsequent drawing of the pict and also of cropping it to its
+ bounding box. Any sub-picts of @racket[pict] remain intact within the
+ new pict.
 
- This has the effect of speeding up subsequent drawing of
- the pict and also of cropping it to its bounding box. Any
- sub-picts of @racket[pict] remain intact within the new
- pict.
+ If @racket[use-expected-scale?] is false, then the bitmap is created
+ with a fixed resolution of 1 pixel per drawing unit. If
+ @racket[use-expected-scale?] is true, then the bitmap's resolution is
+ adjusted according to @racket[(current-expected-text-scale)].
 
 @examples[#:eval ss-eval
   (define txt
     (colorize (text "Freeze!" null 25) "deepskyblue"))
   (scale txt 2.5)
   (scale (freeze txt) 2.5)
+  (scale/improve-new-text (freeze (text "frozen" null 25) #f) 2)
+  (scale/improve-new-text (freeze (text "frozen" null 25) #t) 2)
+  (scale (freeze (text "frozen" null 25) #t) 2)
 ]}
 
 
