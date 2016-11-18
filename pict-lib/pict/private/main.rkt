@@ -9,7 +9,8 @@
                       [pin-arrow-line t:pin-arrow-line]
                       [pin-arrows-line t:pin-arrows-line])
            (only-in racket/draw dc-path% make-bitmap bitmap% bitmap-dc%)
-           (only-in racket/class new send make-object is-a?/c))
+           (only-in racket/class new send make-object is-a?/c)
+           racket/contract)
 
   (define (hline w h #:segment [seg #f])
     (if seg
@@ -306,43 +307,107 @@
            freeze
 
 
-           (except-out (all-from-out "pict.rkt")
-                       
-                       dash-hline dash-vline
+           dc-for-text-size
+           convert-bounds-padding
+           show-pict
+           current-expected-text-scale
+           dc
+           linewidth
+           linestyle
 
-                       dash-frame oval oval/radius
+           draw-pict
+           make-pict-drawer
 
-                       caps-text
-                       big-circle
+           (contract-out
+            [text (->* (string?)
+                       (text-style/c 
+                        (and/c (between/c 1 1024) integer?)
+                        number?)
+                       pict?)])
 
-                       picture
-                       cons-picture
-                       cons-picture*
-                       place-over
-                       place-under
+           text-style/c
 
-                       record
-                       thick
-                       thin
+           (struct-out pict)
+           (struct-out child)
 
-                       find-lt
-                       find-lc
-                       find-lb
-                       find-ltl
-                       find-lbl
-                       find-ct
-                       find-cc
-                       find-cb
-                       find-ctl
-                       find-cbl
-                       find-rt
-                       find-rc
-                       find-rb
-                       find-rtl
-                       find-rbl
+           black-and-white
 
-                       drop
-                       lift)
+           lt-find
+           lc-find
+           lb-find
+           ltl-find
+           lbl-find
+           ct-find
+           cc-find
+           cb-find
+           ctl-find
+           cbl-find
+           rt-find
+           rc-find
+           rb-find
+           rtl-find
+           rbl-find
+
+
+           launder  ; pict -> pict
+
+           blank        ; -> pict
+           ;; w h -> pict
+           ;; w h d -> pict
+
+           clip-descent   ; pict -> pict
+           clip-ascent    ; pict -> pict
+           baseless       ; pict -> pict
+           inset          ; pict i -> pict
+           ; pict hi vi -> pict
+           ; pict l t r b -> pict
+           refocus        ; pict pict -> pict
+           panorama       ; pict -> pict
+
+           use-last       ; pict pict -> pict
+           use-last*      ; pict pict -> pict
+
+           hline        ; w h -> pict
+           vline        ; w h -> pict
+         
+           frame        ; pict -> pict
+         
+         
+         
+           ghost        ; pict -> pict
+
+         
+           vl-append    ; d pict ... -> pict ; d units between each picture
+           vc-append
+           vr-append
+           ht-append
+           hc-append
+           hb-append
+           htl-append       ; align bottoms of ascents
+           hbl-append       ; align tops of descents (normal text alignment)
+
+           lt-superimpose ; pict ... -> pict
+           lb-superimpose
+           lc-superimpose
+           ltl-superimpose
+           lbl-superimpose
+           rt-superimpose
+           rb-superimpose
+           rc-superimpose
+           rtl-superimpose
+           rbl-superimpose
+           ct-superimpose
+           cb-superimpose
+           cc-superimpose
+           ctl-superimpose
+           cbl-superimpose
+
+           table ; ncols pict-list col-aligns row-aligns col-seps row-seps -> pict
+
+           colorize ; pict color-string -> pict
+
+           pin-over
+           pin-under
            (rename-out [drop drop-below-ascent]
                        [lift lift-above-baseline])
 

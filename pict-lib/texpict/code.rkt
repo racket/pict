@@ -1,6 +1,5 @@
 (module code racket/base
   (require pict/private/pict
-           pict/convert
            (prefix-in r: racket/base)
            mzlib/class
            mzlib/list

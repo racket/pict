@@ -146,7 +146,12 @@
          place-over
          place-under
          pin-over
-         pin-under)
+         pin-under
+
+         prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
+         pict-convertible-ref
+         pict-path-element=?
+         pict-deserialize-info)
 
 ;; ; ----------------------------------------
 
@@ -284,12 +289,6 @@
           (if (converted-pict? b)
               (eq? (converted-pict-parent b) a)
               #f))))
-
-(module+ convertible
-  (provide prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
-           pict-convertible-ref
-
-           pict-path-element=?))
 
 ;; ----------------------------------------
 
@@ -2046,6 +2045,3 @@
 (define pict-deserialize-info
   (make-deserialize-info deserialize-pict
                          (lambda () (error "no cycles"))))
-
-(module+ deserialize-info
-  (provide pict-deserialize-info))

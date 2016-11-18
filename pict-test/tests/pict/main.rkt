@@ -317,7 +317,7 @@
   (lambda (x) (pict-convert (wrap-pict x))))
 
 (test-case "check pict-post"
-  (local-require (submod pict/private/pict convertible))
+  (local-require pict/private/pict)
   (let ([x (wrap (text "xx"))])
     (check-true (pict-path-element=? x (pict-convert x)))))
 
@@ -536,3 +536,13 @@
 
 ;; check that pict constructor works
 (check-true (pict? (pict #f 1 2 3 4 null #f #f)))
+
+;; make sure that we don't protect `pict-convertible?`
+(check-true
+ (let ([orig-ns (current-namespace)])
+   (parameterize ([current-code-inspector (make-inspector)])
+     (parameterize ([current-namespace (make-base-namespace)])
+       (namespace-attach-module orig-ns 'pict)
+       (namespace-require 'racket/base)
+       (eval '(require pict/convert))
+       (procedure? (eval 'pict-convertible?))))))
