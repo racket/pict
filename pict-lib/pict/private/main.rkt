@@ -8,7 +8,7 @@
                       [pin-line t:pin-line]
                       [pin-arrow-line t:pin-arrow-line]
                       [pin-arrows-line t:pin-arrows-line])
-           (only-in racket/draw dc-path% make-bitmap bitmap% bitmap-dc%)
+           (only-in racket/draw dc-path% make-bitmap bitmap% bitmap-dc% color%)
            (only-in racket/class new send make-object is-a?/c)
            racket/contract)
 
@@ -426,10 +426,45 @@
 
                        explode-star
 
+                       cloud
+                       file-icon
                        standard-fish
+                       jack-o-lantern
+                       angel-wing
+                       desktop-machine
+                       thermometer
 
                        find-pen find-brush)
-           (rename-out [fish standard-fish])
+           (contract-out
+            [cloud (->* [real? real?]
+                        [(or/c string? (is-a?/c color%))
+                         #:style (listof (or/c 'square 'nw 'ne 'sw 'se 'wide))]
+                       pict?)]
+            [file-icon (->* [real? real? any/c] [any/c] pict?)]
+            [rename fish standard-fish (->* [real? real?]
+                                            [#:direction (or/c 'left 'right)
+                                             #:color (or/c string? (is-a?/c color%))
+                                             #:eye-color (or/c string? (is-a?/c color%) #f)
+                                             #:open-mouth (or/c boolean? (between/c 0 1))]
+                                            pict?)]
+            [jack-o-lantern (->* [real?]
+                                 [(or/c string? (is-a?/c color%))
+                                  (or/c string? (is-a?/c color%))
+                                  (or/c string? (is-a?/c color%))]
+                                 pict?)]
+            [angel-wing (-> real? real? any/c pict?)]
+            [desktop-machine (->* [real?] [(listof symbol?)] pict?)]
+            [thermometer (->* []
+                              [#:height-% (between/c 0 1)
+                               #:color-% (between/c 0 1)
+                               #:ticks exact-nonnegative-integer?
+                               #:start-color (or/c string? (is-a?/c color%))
+                               #:end-color (or/c string? (is-a?/c color%))
+                               #:top-circle-diameter (>/c 0)
+                               #:bottom-circle-diameter (>/c 0)
+                               #:stem-height (>/c 0)
+                               #:mercury-inset (>/c 0)]
+                              pict?)])
            pict->bitmap
            pict->argb-pixels
            argb-pixels->pict))

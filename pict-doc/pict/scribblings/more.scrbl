@@ -87,7 +87,8 @@ partially open.
 
 @defproc[(jack-o-lantern [size real?]
                          [pumpkin-color (or/c string? (is-a?/c color%)) "orange"] 
-                         [face-color (or/c string? (is-a?/c color%)) "black"])
+                         [face-color (or/c string? (is-a?/c color%)) "black"]
+                         [stem-color (or/c string? (is-a?/c color%)) "brown"])
          pict?]{
 
 Creates a jack-o-lantern; use the same pumpkin and face color to get a
@@ -95,7 +96,7 @@ plain pumpkin. The @racket[size] determines the width.
 
 @examples[#:eval ss-eval
   (jack-o-lantern 100)
-  (jack-o-lantern 100 "cadet blue" "khaki")
+  (jack-o-lantern 100 "cadet blue" "khaki" "salmon")
 ]}
 
 @defproc[(angel-wing [w real?]
@@ -139,13 +140,13 @@ The @racket[style] can include any of the following:
                
 @defproc[(thermometer [#:height-% height-% (between/c 0 1) 1]
                       [#:color-% color-% (between/c 0 1) height-%]
-                      [#:ticks ticks non-exact-negative-integer? 4]
+                      [#:ticks ticks exact-nonnegative-integer? 4]
                       [#:start-color start-color (or/c string? (is-a?/c color%)) "lightblue"]
                       [#:end-color end-color (or/c string? (is-a?/c color%)) "lightcoral"]
-                      [#:top-circle-diameter top-circle-diameter positive-real? 40]
-                      [#:bottom-circle-diameter bottom-circle-diameter positive-real? 80]
-                      [#:stem-height stem-height positive-real? 180]
-                      [#:mercury-inset mercury-inset positive-real? 8])
+                      [#:top-circle-diameter top-circle-diameter (>/c 0) 40]
+                      [#:bottom-circle-diameter bottom-circle-diameter (>/c 0) 80]
+                      [#:stem-height stem-height (>/c 0) 180]
+                      [#:mercury-inset mercury-inset (>/c 0) 8])
          pict?]{
   Produces a thermometer that consists of a semi-circle on top of a rectangle on
   top of a circle. The sizes of the three components are controlled via the
@@ -153,14 +154,14 @@ The @racket[style] can include any of the following:
   arguments. 
   
   The mercury is drawn the same way, but by creating the three components inset from the
-  versions that draw the boundary of the thermometer. This inset is conrolled by the
+  versions that draw the boundary of the thermometer. This inset is controlled by the
   @racket[mercury-inset] argument.
   
   The height of the mercury in the thermometer is controlled by the @racket[height-%] argument.
   Its color is interpolated between the @racket[start-color] and @racket[end-color], as 
   determined by the @racket[color-%] argument. 
   
-  Finally, some number of ticks are drawn, basd on the @racket[ticks] argument.
+  Finally, some number of ticks are drawn, based on the @racket[ticks] argument.
   
 @examples[#:eval ss-eval
   (thermometer #:stem-height 90

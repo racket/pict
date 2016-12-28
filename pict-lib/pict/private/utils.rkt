@@ -469,7 +469,7 @@
           s))
     (define start-color (to-color _start-color))
     (define end-color (to-color _end-color))
-    (define (between lo hi) (round (+ lo (* (- hi lo) color-%))))
+    (define (between lo hi) (exact-round (+ lo (* (- hi lo) color-%))))
     (define fill-color (make-object color%
                          (between (send start-color red) (send end-color red))
                          (between (send start-color green) (send end-color green))

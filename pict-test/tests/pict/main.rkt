@@ -532,6 +532,119 @@
    (pict-height
     (clip-ascent (blur (text "sefsefse") 10))))))
 
+;;;; contract tests
+
+(test-case "dingbats-contracts"
+  ;; test correct calls
+  (check-not-exn (λ () (cloud 2 2 "orange" #:style '(square nw ne se sw wide))))
+  (check-not-exn (λ () (file-icon 2 2 'anything 'anything)))
+  (check-not-exn (λ () (standard-fish 2 2 #:direction 'left #:color "red" #:eye-color "blue" #:open-mouth 0.2)))
+  (check-not-exn (λ () (jack-o-lantern 2 "red" "blue" "yellow")))
+  (check-not-exn (λ () (angel-wing 2 2 '())))
+  (check-not-exn (λ () (desktop-machine 1 '(plt devil binary other))))
+  (check-not-exn (λ () (thermometer #:height-% 1
+                                    #:color-% 0.8
+                                    #:ticks 2
+                                    #:start-color "red"
+                                    #:end-color "white"
+                                    #:top-circle-diameter 8
+                                    #:bottom-circle-diameter 10
+                                    #:stem-height 5
+                                    #:mercury-inset 2)))
+
+  ;; test contract errors
+  (check-exn exn:fail:contract?
+    (λ () (cloud 'a 2 "orange" #:style '(square nw ne se sw wide))))
+  (check-exn exn:fail:contract?
+    (λ () (cloud 2 'b "orange" #:style '(square nw ne se sw wide))))
+  (check-exn exn:fail:contract?
+    (λ () (cloud 2 2 4 #:style '(square nw ne se sw wide))))
+  (check-exn exn:fail:contract?
+    (λ () (cloud 2 2 #:style '(none))))
+
+  (check-exn exn:fail:contract?
+    (λ () (file-icon 'y 2 "red" 'shaded)))
+  (check-exn exn:fail:contract?
+    (λ () (file-icon 2 'x #t)))
+
+  (check-exn exn:fail:contract?
+    (λ () (standard-fish 'nan 2 #:direction 'left #:color "red" #:eye-color "blue" #:open-mouth 0.2)))
+  (check-exn exn:fail:contract?
+    (λ () (standard-fish 2 3+1i #:direction 'left #:color "red" #:eye-color "blue" #:open-mouth 0.2)))
+  (check-exn exn:fail:contract?
+    (λ () (standard-fish 2 2 #:direction 'up #:color "red" #:eye-color "blue" #:open-mouth 0.2)))
+  (check-exn exn:fail:contract?
+    (λ () (standard-fish 2 2 #:direction 'left #:color #f #:eye-color "blue" #:open-mouth 0.2)))
+  (check-exn exn:fail:contract?
+    (λ () (standard-fish 2 2 #:direction 'left #:color "red" #:eye-color #t #:open-mouth 9)))
+
+  (check-exn exn:fail:contract?
+    (λ () (jack-o-lantern 'x "red" "blue" "yellow")))
+  (check-exn exn:fail:contract?
+    (λ () (jack-o-lantern 2 #f "blue" "yellow")))
+  (check-exn exn:fail:contract?
+    (λ () (jack-o-lantern 2 "red" #f "yellow")))
+  (check-exn exn:fail:contract?
+    (λ () (jack-o-lantern 2 "red" "blue" #f)))
+  (check-exn exn:fail:contract?
+    (λ () (jack-o-lantern 100 50))) ;; From racket/pict GitHub issue #26
+
+  (check-exn exn:fail:contract?
+    (λ () (angel-wing #f 2 '())))
+  (check-exn exn:fail:contract?
+    (λ () (angel-wing 2 #f '())))
+
+  (check-exn exn:fail:contract?
+    (λ () (desktop-machine 3+2i '(plt devil binary other))))
+  (check-exn exn:fail:contract?
+    (λ () (desktop-machine 1 '("plt"))))
+
+  (check-exn exn:fail:contract?
+    (λ () (thermometer #:height-% 2 #:color-% 0.8 #:ticks 2 #:start-color "red"
+                       #:end-color "white" #:top-circle-diameter 8
+                       #:bottom-circle-diameter 10 #:stem-height 5
+                       #:mercury-inset 2)))
+  (check-exn exn:fail:contract?
+    (λ () (thermometer #:height-% 1 #:color-% -0.8 #:ticks 2 #:start-color "red"
+                       #:end-color "white" #:top-circle-diameter 8
+                       #:bottom-circle-diameter 10 #:stem-height 5
+                       #:mercury-inset 2)))
+  (check-exn exn:fail:contract?
+    (λ () (thermometer #:height-% 1 #:color-% 0.8 #:ticks 2.2 #:start-color "red"
+                       #:end-color "white" #:top-circle-diameter 8
+                       #:bottom-circle-diameter 10 #:stem-height 5
+                       #:mercury-inset 2)))
+  (check-exn exn:fail:contract?
+    (λ () (thermometer #:height-% 1 #:color-% 0.8 #:ticks 2 #:start-color #f
+                       #:end-color "white" #:top-circle-diameter 8
+                       #:bottom-circle-diameter 10 #:stem-height 5
+                       #:mercury-inset 2)))
+  (check-exn exn:fail:contract?
+    (λ () (thermometer #:height-% 1 #:color-% 0.8 #:ticks 2 #:start-color "red"
+                       #:end-color #f #:top-circle-diameter 8
+                       #:bottom-circle-diameter 10 #:stem-height 5
+                       #:mercury-inset 2)))
+  (check-exn exn:fail:contract?
+    (λ () (thermometer #:height-% 1 #:color-% 0.8 #:ticks 2 #:start-color "red"
+                       #:end-color "white" #:top-circle-diameter -2
+                       #:bottom-circle-diameter 10 #:stem-height 5
+                       #:mercury-inset 2)))
+  (check-exn exn:fail:contract?
+    (λ () (thermometer #:height-% 1 #:color-% 0.8 #:ticks 2 #:start-color "red"
+                       #:end-color "white" #:top-circle-diameter 8
+                       #:bottom-circle-diameter -2 #:stem-height 5
+                       #:mercury-inset 2)))
+  (check-exn exn:fail:contract?
+    (λ () (thermometer #:height-% 1 #:color-% 0.8 #:ticks 2 #:start-color "red"
+                       #:end-color "white" #:top-circle-diameter 8
+                       #:bottom-circle-diameter 10 #:stem-height 0
+                       #:mercury-inset 2)))
+  (check-exn exn:fail:contract?
+    (λ () (thermometer #:height-% 1 #:color-% 0.8 #:ticks 2 #:start-color "red"
+                       #:end-color "white" #:top-circle-diameter 8
+                       #:bottom-circle-diameter 10 #:stem-height 5
+                       #:mercury-inset 0))))
+
 ;;;; other tests
 
 ;; check that pict constructor works
