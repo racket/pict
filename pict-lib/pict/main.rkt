@@ -74,7 +74,9 @@
             [h real?])
            ([d (or/c #f real?)]
             [a (or/c #f real?)])
-           #:pre (draw) (does-draw-restore-the-state-after-being-called? draw)
+           #:pre/name (draw)
+           "draw proc does not restore the dc state after being called"
+           (does-draw-restore-the-state-after-being-called? draw)
            [p pict?])]
   [cellophane (-> pict-convertible? (real-in 0 1) pict?)]
 
