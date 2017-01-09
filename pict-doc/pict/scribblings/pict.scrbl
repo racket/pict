@@ -494,11 +494,10 @@ argument for consistency with the other functions.}
                       [#:line-width line-width (or/c #f real?) #f]
                       [#:color color (or/c #f string? (is-a?/c color%)) #f]
                       [#:alpha alpha (real-in 0.0 1.0) #f]
-                      [#:style style (one-of/c 'transparent 'solid 'xor 'hilite 
-                                               'dot 'long-dash 'short-dash 'dot-dash 
-                                               'xor-dot 'xor-long-dash 'xor-short-dash 
-                                               'xor-dot-dash)
-                               'solid]
+                      [#:style style (or/c 'transparent 'solid 'xor 'hilite
+                                           'dot 'long-dash 'short-dash 'dot-dash
+                                           'xor-dot 'xor-long-dash 'xor-short-dash
+                                           'xor-dot-dash #f) #f]
                       [#:under? under? any/c #f]
                       [#:label label pict? (blank)]
                       [#:x-adjust-label x-adjust-label real? 0]
@@ -516,10 +515,10 @@ argument for consistency with the other functions.}
                       [#:line-width line-width (or/c #f real?) #f]
                       [#:color color (or/c #f string? (is-a?/c color%)) #f]
                       [#:alpha alpha (real-in 0.0 1.0) #f]
-                      [#:style style (one-of/c 'transparent 'solid 'xor 'hilite 
-                                               'dot 'long-dash 'short-dash 'dot-dash 
-                                               'xor-dot 'xor-long-dash 'xor-short-dash 
-                                               'xor-dot-dash #f)
+                      [#:style style (or/c 'transparent 'solid 'xor 'hilite
+                                           'dot 'long-dash 'short-dash 'dot-dash
+                                           'xor-dot 'xor-long-dash 'xor-short-dash
+                                           'xor-dot-dash #f)
                                #f]
                       [#:under? under? any/c #f]
                       [#:label label pict? (blank)]
@@ -540,10 +539,10 @@ argument for consistency with the other functions.}
                       [#:line-width line-width (or/c #f real?) #f]
                       [#:color color (or/c #f string? (is-a?/c color%)) #f]
                       [#:alpha alpha (real-in 0.0 1.0) #f]
-                      [#:style style (one-of/c 'transparent 'solid 'xor 'hilite 
-                                               'dot 'long-dash 'short-dash 'dot-dash 
-                                               'xor-dot 'xor-long-dash 'xor-short-dash 
-                                               'xor-dot-dash #f)
+                      [#:style style (or/c 'transparent 'solid 'xor 'hilite
+                                           'dot 'long-dash 'short-dash 'dot-dash
+                                           'xor-dot 'xor-long-dash 'xor-short-dash
+                                           'xor-dot-dash #f)
                                #f]
                       [#:under? under? any/c #f]
                       [#:label label pict-convertible? (blank)]
@@ -947,10 +946,10 @@ to a zero value, which means ``as thin as possible for the target device'').
 }
 
 
-@defproc[(linestyle [style (one-of/c 'transparent 'solid 'xor 'hilite 
-                                     'dot 'long-dash 'short-dash 'dot-dash 
-                                     'xor-dot 'xor-long-dash 'xor-short-dash 
-                                     'xor-dot-dash)]
+@defproc[(linestyle [style (or/c 'transparent 'solid 'xor 'hilite
+                                 'dot 'long-dash 'short-dash 'dot-dash
+                                 'xor-dot 'xor-long-dash 'xor-short-dash
+                                 'xor-dot-dash)]
                     [pict pict-convertible?])
          pict?]{
 
