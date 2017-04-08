@@ -10,6 +10,7 @@
 
 (provide
  (except-out (all-from-out "private/main.rkt")
+             linewidth
              use-last
              use-last*
              pict->bitmap
@@ -79,6 +80,8 @@
            (does-draw-restore-the-state-after-being-called? draw)
            [p pict?])]
   [cellophane (-> pict-convertible? (real-in 0 1) pict?)]
+
+  [linewidth (-> (or/c real? #f) pict-convertible? pict?)]
 
   [lt-find  *-find/c]
   [lc-find  *-find/c]
