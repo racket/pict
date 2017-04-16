@@ -39,7 +39,7 @@ These functions apply appropriate colors to picture @racket[p].
 @defproc[(dark [color color/c]) color/c]
 )]{
 
-These functions produce ligher or darker versions of a color.
+These functions produce lighter or darker versions of a color.
 
 @examples[#:eval the-eval
 (hc-append (colorize (disk 20) "red")

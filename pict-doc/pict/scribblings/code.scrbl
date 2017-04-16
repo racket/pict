@@ -272,7 +272,7 @@ If a @racket[_datum] contains @racket[(escape-id _expr)]---perhaps as
 the @racket[_expr] is evaluated and the result datum is spliced in
 place of the @racket[escape-id] form in @racket[_datum]. If the result
 is not a syntax object, it is given the source location of the
-@racket[escape-id] form. A pict value intected this way as a
+@racket[escape-id] form. A pict value injected this way as a
 @racket[_datum] is rendered as itself.
 
 If a @racket[_datum] contains @racket[(transform-id _datum ...)] or

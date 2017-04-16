@@ -199,8 +199,8 @@ negative, etc.
 
 The @racket[color] argument is the background color for the balloon.
 
-The @racket[corner-radius] argument determines the radius of the cicle
-used to roun the balloon's corners. As usual, if it is less than
+The @racket[corner-radius] argument determines the radius of the circle
+used to round the balloon's corners. As usual, if it is less than
 @racket[1], then it acts as a ratio of the balloon's width or height.
 
 The result is a balloon, not a pict. The @racket[balloon-pict]

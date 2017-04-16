@@ -14,7 +14,7 @@ slide constructors in @racketmodname[slideshow/play].
 
 @declare-exporting[pict slideshow/play]
 
-@section{Pict Interoplations}
+@section{Pict Interpolations}
 
 @defproc[(fade-pict [n (real-in 0.0 1.0)] [p1 pict?] [p2 pict?]
                     [#:combine combine (pict? pict? . -> . pict?) cc-superimpose])
@@ -210,7 +210,7 @@ The @racket[fast-end] mapping is concave, so that
 
 @racketblock[(slide-pict _base _p _p1 _p2 (fast-end _n))]
 
-appears to move slowly away from @racket[_p1] and then quicly as it
+appears to move slowly away from @racket[_p1] and then quickly as it
 approaches @racket[_p2], assuming that @racket[_n] increases uniformly.
 
 @examples[#:eval ss-eval #:label #f
