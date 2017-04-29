@@ -198,6 +198,16 @@ is the same as it was before @racket[draw] was called.
                                condition of @racket[dc].}]
 }
 
+@defproc[(unsafe-dc [draw (-> (is-a?/c dc<%>) real? real? any)]
+                    [w real?]
+                    [h real?]
+                    [a real? h]
+                    [d real? 0])
+         pict?]{
+ Like @racket[dc], except that the @racket[draw] procedure is
+ not called during the precondition contract checking.
+}
+
 @defproc*[([(blank [size real? 0]) pict?]
            [(blank [w real?] [h real?]) pict?]
            [(blank [w real?] [a real?] [d real?]) pict?]

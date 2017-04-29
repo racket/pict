@@ -79,6 +79,13 @@
            "draw proc does not restore the dc state after being called"
            (does-draw-restore-the-state-after-being-called? draw)
            [p pict?])]
+  [rename dc unsafe-dc
+          (->i ([draw (-> (is-a?/c dc<%>) real? real? any)]
+                [w real?]
+                [h real?])
+               ([d (or/c #f real?)]
+                [a (or/c #f real?)])
+               [p pict?])]
   [cellophane (-> pict-convertible? (real-in 0 1) pict?)]
 
   [linewidth (-> (or/c real? #f) pict-convertible? pict?)]

@@ -659,3 +659,8 @@
        (namespace-require 'racket/base)
        (eval '(require pict/convert))
        (procedure? (eval 'pict-convertible?))))))
+
+;; check that unsafe-dc doesn't call the proc
+(check-not-exn
+ (λ ()
+   (unsafe-dc (λ (dc dx dy) (error 'ack-called!)) 10 10)))
