@@ -1396,7 +1396,7 @@ Returns a @racket[bitmap%] with an alpha channel, no larger than @racket[pict],
 with @racket[pict] drawn on it in the top-left corner (@racket[0], @racket[0]).
 
 When drawing the pict into the bitmap using the smoothing mode @racket[smoothing]
-(see @method[set-smoothing dc<%>] for more information on smoothing modes).
+(see @method[dc<%> set-smoothing] for more information on smoothing modes).
 }
 
 @defproc[(pict->argb-pixels [pict pict-convertible?]
