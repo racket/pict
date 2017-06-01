@@ -231,7 +231,7 @@ A parameter to enable or disable all code coloring. The default is
 
 @defboolparam[code-colorize-quote-enabled on?]{
 
-A parameter to control whether under a @racket[quote] is colorized as
+A parameter to control whether the datum under a @racket[quote] is colorized as
 a literal (as in this documentation). The default is @racket[#t].}
 
 
