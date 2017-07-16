@@ -1389,15 +1389,25 @@ Draws @racket[pict] to @racket[dc], with its top-left corner at offset
 
 
 @defproc[(pict->bitmap [pict pict-convertible?] 
-                       [smoothing (or/c 'unsmoothed 'smoothed 'aligned) 'aligned])
+                       [smoothing (or/c 'unsmoothed 'smoothed 'aligned) 'aligned]
+                       [#:make-bitmap make-a-bitmap
+                                      (exact-positive-integer? exact-positive-integer?
+                                       . -> . (is-a?/c bitmap%))
+                                      make-bitmap])
          (is-a?/c bitmap%)]{
 
-Returns a @racket[bitmap%] with an alpha channel, no larger than @racket[pict],
-with @racket[pict] drawn on it in the top-left corner (@racket[0], @racket[0]).
+Returns a @racket[bitmap%] with @racket[pict] drawn on it in the
+top-left corner (@racket[0], @racket[0]).
+Drawing the pict into the bitmap uses the smoothing mode @racket[smoothing];
+see @method[dc<%> set-smoothing] for more information on smoothing modes.
 
-When drawing the pict into the bitmap using the smoothing mode @racket[smoothing]
-(see @method[dc<%> set-smoothing] for more information on smoothing modes).
-}
+The @racket[make-a-bitmap] function is used to create the bitmap,
+giving it the size of @racket[pict] rounded up to integer
+dimensions. The default function, @racket[make-bitmap], creates a
+bitmap with an alpha channel. Supply @racket[make-screen-bitmap], instead,
+to create a bitmap that is consistent with drawing directly to the screen.
+
+@history[#:changed "1.7" @elem{Added the @racket[#:make-bitmap] argument.}]}
 
 @defproc[(pict->argb-pixels [pict pict-convertible?]
                             [smoothing (or/c 'unsmoothed 'smoothed 'aligned) 'aligned])

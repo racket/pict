@@ -263,7 +263,8 @@
              (standard-fish w h direction color eye-color open-mouth))])
       standard-fish))
 
-  (define (pict->bitmap p [smoothing 'aligned])
+  (define (pict->bitmap p [smoothing 'aligned]
+                        #:make-bitmap [make-bitmap make-bitmap])
     (define w (pict-width p))
     (define h (pict-height p))
     (define bm (make-bitmap (max 1 (inexact->exact (ceiling w)))

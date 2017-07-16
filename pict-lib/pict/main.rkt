@@ -124,7 +124,8 @@
                 pict?)]
 
   [pict->bitmap (->* (pict-convertible?)
-                     ((or/c 'unsmoothed 'smoothed 'aligned))
+                     ((or/c 'unsmoothed 'smoothed 'aligned)
+                      #:make-bitmap (-> exact-positive-integer? exact-positive-integer? (is-a?/c bitmap%)))
                      (is-a?/c bitmap%))]
   [pict->argb-pixels (->* (pict-convertible?)
                           ((or/c 'unsmoothed 'smoothed 'aligned))
