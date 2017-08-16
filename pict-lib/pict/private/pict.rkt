@@ -199,7 +199,7 @@
        #`(define (f p)
            (a (if (pict? p)
                   p
-                  (pict-convert p)))))]))
+                  (pict-convert/who p 'f)))))]))
 
 (define-pict-wrap draw)
 (define-pict-wrap width)
@@ -261,10 +261,11 @@
                ((pict-convertible?-ref x) x)
                #t))))
 
-(define (pict-convert v)
+(define (pict-convert v) (pict-convert/who v 'pict-convert))
+(define (pict-convert/who v who)
   (cond [(pict? v) v]
         [(not (pict-convertible? v))
-         (raise-type-error 'pict-convert "pict-convertible" v)]
+         (raise-type-error who "pict-convertible" v)]
         [else
          (define converted ((pict-convertible-ref v) v))
          (converted-pict
