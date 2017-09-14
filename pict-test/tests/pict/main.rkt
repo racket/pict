@@ -80,7 +80,7 @@
    (check-pict=?/msg p (freeze p) (format "~a" l))))
 
 (test-case "freeze random testing"
-  (do-pict-base-random-tests 111199657))
+  (do-pict-base-random-tests))
 
 (test-case
  "scale-to-fit"
@@ -385,7 +385,7 @@
        (text "sefsefse")
        (rectangle (add1 (random-number-in 10)) (add1 (random-number-in 10)))
        (arrow (add1 (random-number-in 10)) (add1 (random-number-in 10)))
-       (jack-o-lantern (add1 (random-number-in 10)))
+       ;(jack-o-lantern (add1 (random-number-in 10)))
        (standard-fish 100 50)
        (htdp:triangle (add1 (random-number-in 40)) "solid" "tan")
        (thermometer)
@@ -413,7 +413,7 @@
         (clip-descent (gen))
         (freeze (gen))
         (blur (gen) (add1 (random-number-in 10)))
-        (shadow-frame (gen))
+        ;(shadow-frame (gen))
         (pict-if (> .5 (random-number-in))
                  (gen)
                  (gen))
