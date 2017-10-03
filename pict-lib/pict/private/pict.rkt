@@ -2011,7 +2011,7 @@
        (draw-pict p dc 0 0)
        (send dc end-page)
        (send dc end-doc)
-       (regexp-replace "width=\"(.*pt)\" height=\"(.*pt)\"" 
+       (regexp-replace "width=\"([0-9.]*pt)\" height=\"([0-9.]*pt)\"" 
                        (get-output-bytes s)
                        (λ (all w h) 
                          (define (rem x) (bytes->string/utf-8 (regexp-replace "pt" x "")))
