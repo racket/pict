@@ -441,6 +441,20 @@ Like @racket[filled-flash], but drawing only the outline.
   (outline-flash 100 50 8 0.25 (/ pi 2))
 ]}
 
+@section{Little Bear}
+@defmodule[pict/littlebear]{
+ Little bear is a cat
+}
+
+@defproc[(meow) pict?]{
+ Creates a little bear
+
+ @examples[#:eval (make-base-eval '(require pict pict/littlebear))
+ (meow)
+ (ht-append 4 (meow) (meow) (meow))
+ ]
+}
+
 @include-section["code.scrbl"]
                
 @(close-eval ss-eval)
