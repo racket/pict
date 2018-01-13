@@ -205,14 +205,14 @@
   (define (token-class->color c)
     (case c
       [(symbol) id-color]
-      [(keyword) id-color] ; We don't have a keyword color?
+      [(keyword) keyword-color]
       [(white-space) "white"]
       [(comment) comment-color]
       [(no-color) base-color]
       [(parenthesis) base-color] ; really? pict has no color for parens?
       [(string) literal-color]
       [(constant) literal-color]
-      [(hash-colon-keyword) keyword-color]
+      [(hash-colon-keyword) base-color]
       [else "black"])) ; 'other, or others. to align with DrRacket
   (define (token->pict t)
     (match-define `(,token . ,type) t)
