@@ -214,9 +214,14 @@
       [(constant) literal-color]
       [(hash-colon-keyword) base-color]
       [else "black"])) ; 'other, or others. to align with DrRacket
+  (define (in-keyword-list? token)
+    (member token (current-keyword-list)))
   (define (token->pict t)
     (match-define `(,token . ,type) t)
-    (colorize (tt token) (token-class->color type)))
+    (define color
+      (cond [(in-keyword-list? token) keyword-color]
+            [else (token-class->color type)]))
+    (colorize (tt token) color))
   (define (not-newline? x) (not (equal? (car x) "\n")))
   (define lines
     (let loop ([ts ts])
