@@ -76,7 +76,7 @@
   ╚═════════════╩═══════════════════════╩═════════════╝)
 END
 )
-(test-codeblock-pict-hash example #"dfb3f143c32f6cd5354ff8844c9d8a7b")
+(test-codeblock-pict-hash example #"7b91788c2f1dfdf63e7c7fa48f13bb28")
 
 ;; make sure that whitespace before #lang doesn't blow up
 (define example2
@@ -90,4 +90,4 @@ END
 
 ;; windows newlines should work
 (define example3 "#lang racket\r\n(define x 2)\r\nx")
-(test-codeblock-pict-hash example3 #"ed16bd8dfc4fc500cb5087de4d25e5e4")
+(test-codeblock-pict-hash example3 #"b32d6e6f8f33dd9a79a6846fede88246")
