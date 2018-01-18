@@ -72,8 +72,6 @@
 
 (define (do-pict-base-random-tests [seed* #f])
   (define seed (if seed* seed* (+ 1 (random (expt 2 30)))))
-  (printf "using random seed ~a for base random tests\n" seed)
-  (flush-output)
   (random-seed seed)
   (for ([i 1000])
    (define-values (l p) (generate-pict))
@@ -279,8 +277,6 @@
 
 (define (old-shape-tests [seed* #f])
   (define seed (if seed* seed* (+ 1 (random (expt 2 30)))))
-  (printf "using random seed ~a for old shape tests\n" seed)
-  (flush-output)
   (random-seed seed)
   (for ([i 1000])
     (define-values (old new trace) (generate-shapes 4))
@@ -484,8 +480,6 @@
 
 (define (do-auto-conversion-tests [seed* #f])
   (define seed (if seed* seed* (+ 1 (random (expt 2 30)))))
-  (printf "using random seed ~a for auto conversion tests\n" seed)
-  (flush-output)
   (random-seed seed)
   (for/list ([i 1000])
     (test-suite ""
@@ -495,6 +489,8 @@
        (check-pict=? l r (~a m)))))))
 
 (require rackunit/text-ui)
+;; disabled due to https://github.com/racket/pict/issues/25
+#;
 (run-tests
  (make-test-suite
   "auto pict conversion"
