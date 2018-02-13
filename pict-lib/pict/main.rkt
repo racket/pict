@@ -234,7 +234,7 @@
 
 (define (does-draw-restore-the-state-after-being-called? draw)
   (define bdc (new bitmap-dc% [bitmap (make-bitmap 1 1)]))
-  (randomize-state bdc)
+  (prandomize-state bdc)
   (define old-state (get-dc-state bdc))
   (draw bdc 0 0)
   (equal? (get-dc-state bdc) old-state))
@@ -242,16 +242,16 @@
 ;; randomizes some portions of the state of the given dc;
 ;; doesn't pick random values for things that the 'dc'
 ;; function promises not to change (e.g. the pen/brush style).
-(define (randomize-state dc)
-  (send dc set-origin (random-real) (random-real))
-  (send dc set-pen (random-color) (random 255) 'solid)
-  (send dc set-brush (random-color) 'solid)
-  (send dc set-alpha (random))
-  (send dc set-text-background (random-color))
-  (send dc set-text-foreground (random-color))
+(define (prandomize-state dc)
+  (send dc set-origin (prandom-real) (prandom-real))
+  (send dc set-pen (prandom-color) (prandom 255) 'solid)
+  (send dc set-brush (prandom-color) 'solid)
+  (send dc set-alpha (prandom))
+  (send dc set-text-background (prandom-color))
+  (send dc set-text-foreground (prandom-color))
   (send dc set-text-mode 'transparent)
   (send dc set-font (send the-font-list find-or-create-font
-                          (+ 1 (random 254))
+                          (+ 1 (prandom 254))
                           (pick-one 'default 'decorative 'roman 'script
                                     'swiss 'modern 'symbol 'system)
                           (pick-one 'normal 'italic 'slant)
@@ -260,13 +260,23 @@
   ;; at the moment, so we don't randomize it
   #;
   (send dc set-transformation
-        (vector (vector (random-real) (random-real) (random-real)
-                        (random-real) (random-real) (random-real))
-                (random-real) (random-real) (random-real) (random-real) (random-real))))
+        (vector (vector (prandom-real) (prandom-real) (prandom-real)
+                        (prandom-real) (prandom-real) (prandom-real))
+                (prandom-real) (prandom-real) (prandom-real) (prandom-real) (prandom-real))))
 
-(define (random-real) (+ (random 1000) (random)))
-(define (random-color) (make-object color% (random 255) (random 255) (random 255)))
-(define (pick-one . args) (list-ref args (random (length args))))
+(define (prandom-real) (+ (prandom 1000) (prandom)))
+(define (prandom-color) (make-object color% (prandom 255) (prandom 255) (prandom 255)))
+(define (pick-one . args) (list-ref args (prandom (length args))))
+(define pict-psrg
+  (make-pseudo-random-generator))
+(define prandom
+  (case-lambda
+    [()
+     (parameterize ([current-pseudo-random-generator pict-psrg])
+       (random))]
+    [(x)
+     (parameterize ([current-pseudo-random-generator pict-psrg])
+       (random x))]))
 
 (define (get-dc-state dc)
   (vector (pen->vec (send dc get-pen))
