@@ -943,6 +943,26 @@ line drops below the descent line, the two lines are flipped.
 }
 
 
+@defproc[(shear [pict pict-convertible?] [x-shear number?] [y-shear number?]) pict?]{
+
+ Shear's the @racket[pict] by a factor of @racket[x-shear]
+ along the x-axis and by a factor of @racket[y-shear] along
+ the y-axis. The bounding box is inflated to
+ contain the result. The result's ascent and descent
+ are the same as @racket[pict]'s.
+
+ @examples[#:eval ss-eval
+           (define sqr
+             (colorize (filled-rectangle 40 20 #:draw-border? #t #:color "purple")
+                       "black"))
+           (shear sqr 0 0.3)
+           (shear sqr -0.5 0)
+           (shear sqr -0.5 0.3)]
+
+ @history[#:added "1.8"]{}
+}
+
+
 @defproc[(ghost [pict pict-convertible?]) pict?]{
 
 Creates a container picture that doesn't draw the child picture,
