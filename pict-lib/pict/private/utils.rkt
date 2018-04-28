@@ -73,6 +73,7 @@
    [scale-to-fit (->* (pict-convertible? (or/c number? pict-convertible?))
                       (number? #:mode (or/c 'preserve 'inset 'preserve/max 'inset/max 'distort))
                       pict?)]
+   [shear (-> pict-convertible? number? number? pict?)]
    [rotate (case-> (-> pict-convertible? number? pict?))]
    [pin-line (->* (pict-convertible?
                    pict-path? (-> pict? pict-path? (values number? number?))
@@ -1200,6 +1201,30 @@
                 #f
                 (pict-last p))]
     [(p factor) (scale p factor factor)]))
+
+(define (shear p shear-x shear-y)
+  (define drawer (make-pict-drawer p))
+  (define x-shift (* shear-x (pict-height p)))
+  (define y-shift (* shear-y (pict-width p)))
+  (define new
+    (dc
+     (λ (dc dx dy)
+       (define t (send dc get-transformation))
+       (send dc transform (vector 1 shear-y shear-x 1 (- dx (min 0 x-shift)) (- dy (min 0 y-shift))))
+       (drawer dc 0 0)
+       (send dc set-transformation t))
+     (+ (pict-width p) (abs x-shift))
+     (+ (pict-height p) (abs y-shift))
+     (pict-ascent p)
+     (pict-descent p)))
+  (make-pict (pict-draw new)
+             (pict-width new)
+             (pict-height new)
+             (pict-ascent new)
+             (pict-descent new)
+             (list (make-child p 0 0 1 1 shear-y shear-x))
+             #f
+             (pict-last p)))
 
   (define (rotate p theta)
     (let ([w (pict-width p)]
