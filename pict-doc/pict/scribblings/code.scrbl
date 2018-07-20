@@ -427,6 +427,31 @@ Mainly for backward compatibility: returns @racket[(if bl-pict
 
 }
 
+@defparam[current-token-class->color to-color (-> symbol? (or/c string? (is-a?/c color%)))]{
+
+A parameter that provides additional control over the colors used by @racket[codeblock-pict]. The
+@racket[to-color] procedure is applied to each token class produced by a language’s lexer to map the
+class name to a particular color.
+
+The default value maps the standard set of token classes (as recognized by DrRacket) to the
+corresponding colors used by @racket[code]. Specifically, it maps
+
+@itemlist[
+  @item{@racket['no-color], @racket['parenthesis], and @racket['hash-colon-keyword] to
+        @racket[(current-base-color)],}
+  @item{@racket['symbol] to @racket[(current-id-color)],}
+  @item{@racket['keyword] to @racket[(current-keyword-color)],}
+  @item{@racket['string] and @racket['constant] to @racket[(current-literal-color)],}
+  @item{@racket['comment] to @racket[(current-comment-color)],}
+  @item{@racket['white-space] to @racket["white"],}
+  @item{and everything else to @racket["black"].}]
+
+It is usually sufficient to adjust the individual color parameters also used by @racket[code], but
+@racket[current-token-class->color] allows for more fine-grained control over how
+@racket[codeblock-pict] interprets token classes.
+
+@history[#:added "1.8"]}
+
 @; ----------------------------------------
 
 @(close-eval ss-eval)

@@ -63,7 +63,8 @@
   [current-keyword-list (parameter/c (listof string?))]
   [current-const-list (parameter/c (listof string?))]
   [current-literal-list (parameter/c (listof string?))]
-  [codeblock-pict (->* (string?) (#:keep-lang-line? any/c) pict?)]))
+  [codeblock-pict (->* (string?) (#:keep-lang-line? any/c) pict?)]
+  [current-token-class->color (parameter/c (-> symbol? (or/c string? (is-a?/c color%))))]))
 
 (provide define-exec-code/scale
          define-exec-code)
@@ -197,23 +198,8 @@
 (define (tokens->pict ts #:keep-lang-line? [keep-lang-line? #t])
   ;; cache parameter lookups
   (define tt (current-code-tt))
-  (define id-color (current-id-color))
-  (define comment-color (current-comment-color))
-  (define base-color (current-base-color))
-  (define literal-color (current-literal-color))
   (define keyword-color (current-keyword-color))
-  (define (token-class->color c)
-    (case c
-      [(symbol) id-color]
-      [(keyword) keyword-color]
-      [(white-space) "white"]
-      [(comment) comment-color]
-      [(no-color) base-color]
-      [(parenthesis) base-color] ; really? pict has no color for parens?
-      [(string) literal-color]
-      [(constant) literal-color]
-      [(hash-colon-keyword) base-color]
-      [else "black"])) ; 'other, or others. to align with DrRacket
+  (define token-class->color (current-token-class->color))
   (define (in-keyword-list? token)
     (member token (current-keyword-list)))
   (define (token->pict t)
@@ -245,6 +231,26 @@
              (format-line first-line)
              (blank))
          (map format-line (rest lines))))
+
+(define current-token-class->color
+  (make-parameter
+   (lambda (c)
+     (define id-color (current-id-color))
+     (define comment-color (current-comment-color))
+     (define base-color (current-base-color))
+     (define literal-color (current-literal-color))
+     (define keyword-color (current-keyword-color))
+     (case c
+       [(symbol) id-color]
+       [(keyword) keyword-color]
+       [(white-space) "white"]
+       [(comment) comment-color]
+       [(no-color) base-color]
+       [(parenthesis) base-color] ; really? pict has no color for parens?
+       [(string) literal-color]
+       [(constant) literal-color]
+       [(hash-colon-keyword) base-color]
+       [else "black"])))) ; 'other, or others. to align with DrRacket
 
 (define (codeblock-pict s #:keep-lang-line? [keep-lang-line? #t])
   (tokens->pict (tokenize/color s) #:keep-lang-line? keep-lang-line?))
