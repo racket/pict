@@ -310,6 +310,7 @@ Straight lines, centered within their @tech{bounding box}es.
 
 @examples[#:eval ss-eval
   (hline 40 5)
+  (hline 40 30)
   (vline 5 40 #:segment 5)
 ]}
 
