@@ -455,16 +455,26 @@ when @racket[draw-border?] is @racket[#f] results in a contract violation.
 
 @defproc[(bitmap [img (or/c path-string?
                             (is-a?/c bitmap%)
-                            (is-a?/c image-snip%))])
+                            pict-convertible?
+                            convertible?)])
          pict]{
 
-A pict that display a bitmap. When a path is provided, the image is
+Returns a pict that displays a bitmap. When a path is provided, the image is
 loaded with the @racket['unknown/mask] flag, which means that a mask
 bitmap is generated if the file contains a mask.
 
 If the bitmap cannot be loaded, if the given @racket[bitmap%] object
 is not valid, or if the @racket[bitmap-draft-mode] parameter is set to
-@racket[#t], the result pict draws the word ``bitmap failed''.}
+@racket[#t], the result pict draws the words ``bitmap failed''.
+
+ If @racket[img] is both @tech[#:doc '(lib "file/scribblings/file.scrbl")]{convertible}
+ and @tech{pict convertible}, then the pict conversion is used. If both
+ apply, the pict conversion is used. If pict conversion is used, the
+ pict is drawn into a bitmap and the result of @racket[bitmap] draws
+ that bitmap. If
+ @tech[#:doc '(lib "file/scribblings/file.scrbl")]{convertible} is used,
+ it is used with the @racket['png-bytes] conversion mode.
+}
 
 
 @defproc*[([(arrow [size real?] [radians real?]) pict?]
@@ -1483,8 +1493,8 @@ form sets this parameter while also scaling the resulting pict.}
 
 @defmodule[pict/convert]{The
 @racketmodname[pict/convert] library defines a protocol for
-values to convert themselves to @tech{picts}. The protocol
-is used by DrRacket's interactions window, for example, to render
+values to be @deftech{pict convertible}, meaning they can convert themselves to @tech{picts}.
+The protocol is used by DrRacket's interactions window, for example, to render
 values that it prints. Anything that is @racket[pict-convertible?]
 can be used wherever a @racket[pict] can be used. These values will
 be automatically converted to a pict when needed.}
@@ -1508,14 +1518,14 @@ the function @racket[(λ (x) #t)].
 If this property is set, then this procedure is called
 by @racket[pict-convertible?] to determine if this particular
 value is convertible (thereby supporting situations
-where some instances of a given struct are convertible
+where some instances of a given value are convertible
 to picts, but others are not).
 }
 
 @defproc[(pict-convertible? [v any/c]) boolean?]{
-Returns @racket[#t] if @racket[v] supports the conversion protocol
-(by being a struct with the @racket[prop:pict-convertible] property)
-and @racket[#f] otherwise. This function returns @racket[true] for @racket[pict?]s.
+Returns @racket[#t] if @racket[v] are @tech{pict convertible}
+(by having the @racket[prop:pict-convertible] property)
+and @racket[#f] otherwise. This function returns @racket[#t] for @racket[pict?]s.
 }
 
 @defproc[(pict-convert [v pict-convertible?]) pict?]{

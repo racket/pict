@@ -105,6 +105,7 @@
                           pict?)]
    [bitmap (-> (or/c path-string?
                      (is-a?/c bitmap%)
+                     pict-convertible?
                      convertible?)
                pict?)]
    )
@@ -1066,6 +1067,15 @@
       [(bitmap-draft-mode) #f]
       [(arg . is-a? . bitmap%) arg]
       [(path-string? arg) (make-object bitmap% arg 'unknown/alpha)]
+      [(pict-convertible? arg)
+       (define a-pict (pict-convert arg))
+       (define bmp (make-bitmap (max 1 (ceiling (inexact->exact (pict-width a-pict))))
+                                (max 1 (ceiling (inexact->exact (pict-height a-pict))))))
+       (define bdc (make-object bitmap-dc% bmp))
+       (send bdc set-smoothing 'aligned)
+       (draw-pict a-pict bdc 0 0)
+       (send bdc set-bitmap #f)
+       bmp]
       [(convertible? arg)
        (define bytes (convert arg 'png-bytes #f))
        (and bytes (read-bitmap (open-input-bytes bytes)))]))
