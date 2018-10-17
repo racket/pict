@@ -409,8 +409,8 @@
 
            pin-over
            pin-under
-           (rename-out [drop drop-below-ascent]
-                       [lift lift-above-baseline])
+           drop-below-ascent
+           lift-above-baseline
 
            (except-out (all-from-out "utils.rkt")
                    

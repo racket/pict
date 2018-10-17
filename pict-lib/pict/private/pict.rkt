@@ -77,8 +77,8 @@
 
          clip-descent   ; pict -> pict
          clip-ascent    ; pict -> pict
-         lift           ; pict -> pict
-         drop           ; pict -> pict
+         lift-above-baseline          ; pict -> pict
+         drop-below-ascent            ; pict -> pict
          baseless       ; pict -> pict
          inset          ; pict i -> pict
                                         ; pict hi vi -> pict
@@ -496,7 +496,7 @@
              (pin-over b x y b2)
              b2)))]))))
 
-(define (lift p n)
+(define (lift-above-baseline p n)
   (let* ([dh (- (max 0 (- n (pict-descent p))))]
          [do-a? (= (pict-height p)
                    (+ (pict-ascent p) (pict-descent p)))]
@@ -519,7 +519,7 @@
                #f
                (pict-last p))))
 
-(define (drop p n)
+(define (drop-below-ascent p n)
   (let* ([dh (- (max 0 (- n (pict-ascent p))))]
          [do-d? (= (pict-height p)
                    (+ (pict-ascent p) (pict-descent p)))]
@@ -536,8 +536,8 @@
                (pict-last p))))
 
 (define (baseless p)
-  (let ([p (lift p (pict-descent p))])
-    (drop p (- (pict-ascent p) (pict-height p)))))
+  (let ([p (lift-above-baseline p (pict-descent p))])
+    (drop-below-ascent p (- (pict-ascent p) (pict-height p)))))
 
 (define (refocus p c)
   (let-values ([(x y) (find-lt p c)])
