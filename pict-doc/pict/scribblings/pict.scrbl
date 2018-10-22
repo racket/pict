@@ -2,7 +2,7 @@
 @(require "pict-diagram.rkt"
           scribble/eval scribble/manual
           pict/face pict
-          (for-label racket/gui 
+          (for-label racket/gui racket/draw
                      slideshow/base slideshow/code
                      pict/flash pict/face pict/balloon
                      (except-in racket only drop)
@@ -317,7 +317,7 @@ Straight lines, centered within their @tech{bounding box}es.
 
 @defproc[(frame [pict pict-convertible?]
                 [#:segment seg-length (or/c #f real?) #f]
-                [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
+                [#:color color (or/c #f string? (is-a?/c color%)) #f]
                 [#:line-width width (or/c #f real?) #f])
           pict?]{
 
@@ -331,22 +331,22 @@ override settings supplied by the context.
 ]}
 
 @defproc*[([(ellipse [w real?] [h real?]
-                     [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                     [#:border-color border-color (or/c #f string? (is-a?/c color%)) #f]
                      [#:border-width border-width (or/c #f real?) #f])
                      pict?]
            [(circle [diameter real?]
-                    [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                    [#:border-color border-color (or/c #f string? (is-a?/c color%)) #f]
                     [#:border-width border-width (or/c #f real?) #f])
                     pict?]
            [(filled-ellipse [w real?] [h real?] [#:draw-border? draw-border? any/c #t]
-                            [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
-                            [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                            [#:color color (or/c #f string? (is-a?/c color%)) #f]
+                            [#:border-color border-color (or/c #f string? (is-a?/c color%)) #f]
                             [#:border-width border-width (or/c #f real?) #f])
                             pict?]
            [(disk [diameter (and/c rational? (not/c negative?))]
                   [#:draw-border? draw-border? any/c #t]
-                  [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
-                  [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                  [#:color color (or/c #f string? (is-a?/c color%)) #f]
+                  [#:border-color border-color (or/c #f string? (is-a?/c color%)) #f]
                   [#:border-width border-width (or/c #f real?) #f])
                   pict?])]{
 
@@ -374,14 +374,14 @@ when @racket[draw-border?] is @racket[#f] results in a contract violation.
 }
 
 @defproc*[([(rectangle [w real?] [h real?]
-                       [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                       [#:border-color border-color (or/c #f string? (is-a?/c color%)) #f]
                        [#:border-width border-width (or/c #f real?) #f])
                        pict?]
            [(filled-rectangle [w real?]
                               [h real?]
                               [#:draw-border? draw-border? any/c #t]
-                              [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
-                              [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                              [#:color color (or/c #f string? (is-a?/c color%)) #f]
+                              [#:border-color border-color (or/c #f string? (is-a?/c color%)) #f]
                               [#:border-width border-width (or/c #f real?) #f])
             pict?])]{
 
@@ -409,15 +409,15 @@ when @racket[draw-border?] is @racket[#f] results in a contract violation.
 @defproc*[([(rounded-rectangle [w real?] [h real?] 
                                [corner-radius real? -0.25]
                                [#:angle angle real? 0]
-                               [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                               [#:border-color border-color (or/c #f string? (is-a?/c color%)) #f]
                                [#:border-width border-width (or/c #f real?) #f])
             pict?]
            [(filled-rounded-rectangle [w real?] [h real?]
                                       [corner-radius real? -0.25]
                                       [#:angle angle real? 0] 
                                       [#:draw-border? draw-border? any/c #t]
-                                      [#:color color (or/c #f string? (is-a?/c color<%>)) #f]
-                                      [#:border-color border-color (or/c #f string? (is-a?/c color<%>)) #f]
+                                      [#:color color (or/c #f string? (is-a?/c color%)) #f]
+                                      [#:border-color border-color (or/c #f string? (is-a?/c color%)) #f]
                                       [#:border-width border-width (or/c #f real?) #f])
             pict?])]{
 
