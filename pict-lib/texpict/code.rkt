@@ -152,7 +152,7 @@
 	      #`(typeset-code #,(cvt
                                  ;; Avoid a syntax location for the synthesized `code:line` wrapper,
                                  ;; otherwise the `expr`s will be arranged relative to it:
-                                 (datum->syntax #f (cons 'code:line #'(expr (... ...))))))])))]
+                                 (datum->syntax #f (cons 'code:line (datum->syntax #f (syntax-e #'(expr (... ...))))))))])))]
       [(_ code typeset-code) #'(define-code code typeset-code unsyntax)]))
   
   (define-signature code^
