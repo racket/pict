@@ -25,11 +25,11 @@ that render them as @racket[pict]s.
   to @racket[tree-edge]. Children that are @racket[#f] correspond to
   leaf nodes that are not drawn.
   
-  The default @racket[node-pict] (used when it is @racket[#f]) is
-  @default-node-pict
+  The default @racket[node-pict] (used when @racket[node-pict] is @racket[#f])
+  is @|default-node-pict|.
 }
 
-@defproc[(tree-edge [node tree-layout?]
+@defproc[(tree-edge [node (and/c tree-layout? (not/c #f))]
                     [#:edge-color edge-color
                                   (or/c string? 
                                         (is-a?/c color%)
@@ -37,23 +37,34 @@ that render them as @racket[pict]s.
                                   "gray"]
                     [#:edge-width edge-width
                                   (or/c 'unspecified real? #f)
+                                  'unspecified]
+                    [#:edge-style edge-style
+                                  (or/c 'unspecified 'transparent 'solid 'xor 'hilite
+                                        'dot 'long-dash 'short-dash 'dot-dash
+                                        'xor-dot 'xor-long-dash 'xor-short-dash
+                                        'xor-dot-dash)
                                   'unspecified])
          tree-edge?]{
   This function specifies an edge from some parent to the given @racket[node].
-  It it intended to be used with @racket[tree-layout].
+  It it intended to be used with @racket[tree-layout], on a non-@racket[#f] node.
 
   When @racket[edge-width] is @racket['unspecified], the line width will not be
   set. This is intended to allow the line width to be set for the whole pict
   via @racket[linewidth]. Otherwise, @racket[edge-width] is interpreted the
   same way as the width argument for the @racket[linewidth] function.
+  @racket[edge-style] behaves similarly, its argument interpreted as the style
+  argument for the @racket[linestyle] function.
 
   @examples[#:eval
             tree-layout-eval
             (naive-layered (tree-layout
                             (tree-edge #:edge-width 3 (tree-layout))
-                            (tree-edge #:edge-color "green" (tree-layout))))]
+                            (tree-edge #:edge-color "red"
+                                       #:edge-style 'dot
+                                       (tree-layout))))]
 
-  @history[#:changed "6.1.0.5" "Added an #:edge-width option"]
+  @history[#:changed "1.3" @list{Added the @racket[#:edge-width] option.}
+           #:changed "1.9" @list{Added the @racket[#:edge-style] option.}]
 }
 
 @defproc[(tree-layout? [v any/c]) boolean?]{

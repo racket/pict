@@ -19,11 +19,16 @@
                tree-layout?)]
   [rename _tree-edge
           tree-edge
-          (->* (tree-layout?) 
+          (->* ((and/c _tree-layout? (not/c #f))) 
                (#:edge-color (or/c string? 
                                    (is-a?/c color%)
                                    (list/c byte? byte? byte?))
-                #:edge-width (or/c 'unspecified real? #f))
+                #:edge-width (or/c 'unspecified real? #f)
+                #:edge-style (or/c 'unspecified
+                                   'transparent 'solid 'xor 'hilite
+                                   'dot 'long-dash 'short-dash 'dot-dash
+                                   'xor-dot 'xor-long-dash 'xor-short-dash
+                                   'xor-dot-dash))
                tree-edge?)]
           
 
