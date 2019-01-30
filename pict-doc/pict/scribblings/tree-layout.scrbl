@@ -25,11 +25,11 @@ that render them as @racket[pict]s.
   to @racket[tree-edge]. Children that are @racket[#f] correspond to
   leaf nodes that are not drawn.
   
-  The default @racket[node-pict] (used when it is @racket[#f]) is
-  @default-node-pict
+  The default @racket[node-pict] (used when @racket[node-pict] is @racket[#f])
+  is @|default-node-pict|.
 }
 
-@defproc[(tree-edge [node tree-layout?]
+@defproc[(tree-edge [node (and/c tree-layout? (not/c #f))]
                     [#:edge-color edge-color
                                   (or/c string? 
                                         (is-a?/c color%)
@@ -46,7 +46,7 @@ that render them as @racket[pict]s.
                                   'unspecified])
          tree-edge?]{
   This function specifies an edge from some parent to the given @racket[node].
-  It it intended to be used with @racket[tree-layout].
+  It it intended to be used with @racket[tree-layout], on a non-@racket[#f] node.
 
   When @racket[edge-width] is @racket['unspecified], the line width will not be
   set. This is intended to allow the line width to be set for the whole pict
@@ -63,8 +63,8 @@ that render them as @racket[pict]s.
                                        #:edge-style 'dot
                                        (tree-layout))))]
 
-  @history[#:changed "6.1.0.5" "Added an #:edge-width option"]
-  @; TODO: Add history comment re edge-style
+  @history[#:changed "1.3" @list{Added the @racket[#:edge-width] option.}
+           #:changed "1.9" @list{Added the @racket[#:edge-style] option.}]
 }
 
 @defproc[(tree-layout? [v any/c]) boolean?]{
