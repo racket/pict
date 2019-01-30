@@ -37,6 +37,12 @@ that render them as @racket[pict]s.
                                   "gray"]
                     [#:edge-width edge-width
                                   (or/c 'unspecified real? #f)
+                                  'unspecified]
+                    [#:edge-style edge-style
+                                  (or/c 'unspecified 'transparent 'solid 'xor 'hilite
+                                        'dot 'long-dash 'short-dash 'dot-dash
+                                        'xor-dot 'xor-long-dash 'xor-short-dash
+                                        'xor-dot-dash)
                                   'unspecified])
          tree-edge?]{
   This function specifies an edge from some parent to the given @racket[node].
@@ -46,14 +52,19 @@ that render them as @racket[pict]s.
   set. This is intended to allow the line width to be set for the whole pict
   via @racket[linewidth]. Otherwise, @racket[edge-width] is interpreted the
   same way as the width argument for the @racket[linewidth] function.
+  @racket[edge-style] behaves similarly, its argument interpreted as the style
+  argument for the @racket[linestyle] function.
 
   @examples[#:eval
             tree-layout-eval
             (naive-layered (tree-layout
                             (tree-edge #:edge-width 3 (tree-layout))
-                            (tree-edge #:edge-color "green" (tree-layout))))]
+                            (tree-edge #:edge-color "red"
+                                       #:edge-style 'dot
+                                       (tree-layout))))]
 
   @history[#:changed "6.1.0.5" "Added an #:edge-width option"]
+  @; TODO: Add history comment re edge-style
 }
 
 @defproc[(tree-layout? [v any/c]) boolean?]{
