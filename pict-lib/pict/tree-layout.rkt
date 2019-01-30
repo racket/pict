@@ -19,7 +19,7 @@
                tree-layout?)]
   [rename _tree-edge
           tree-edge
-          (->* ((and/c tree-layout? (not/c #f))) 
+          (->* ((and/c _tree-layout? (not/c #f))) 
                (#:edge-color (or/c string? 
                                    (is-a?/c color%)
                                    (list/c byte? byte? byte?))
