@@ -527,6 +527,9 @@
   (negative?
    (pict-height
     (clip-ascent (blur (text "sefsefse") 10))))))
+;; check panorama with rotated child picts
+(check-equal? (pict-width (rotate (rectangle 10 10) pi))
+              (pict-width (panorama (rotate (rectangle 10 10) pi))))
 
 ;;;; contract tests
 
