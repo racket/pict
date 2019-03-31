@@ -1096,21 +1096,27 @@ black-and-white colors.
     (colorize (disk 40) "seagreen"))
 ]}
 
-@defproc[(freeze [pict pict-convertible?]) pict?]{
- Creates a bitmap with the same size as @racket[pict], draws
- @racket[pict] into the bitmap, and then returns a pict that
- draws with the bitmap.
+@defproc[(freeze [pict pict-convertible?] [use-expected-scale? any/c
+ #f]) pict?]{ Creates a bitmap, draws @racket[pict] into the bitmap,
+ and then returns a pict with the same dimensions as @racket[pict]
+ that draws with the bitmap.  This has the effect of speeding up
+ subsequent drawing of the pict and also of cropping it to its
+ bounding box. Any sub-picts of @racket[pict] remain intact within the
+ new pict.
 
- This has the effect of speeding up subsequent drawing of
- the pict and also of cropping it to its bounding box. Any
- sub-picts of @racket[pict] remain intact within the new
- pict.
+ If @racket[use-expected-scale?] is false, then the bitmap is created
+ with a fixed resolution of 1 pixel per drawing unit. If
+ @racket[use-expected-scale?] is true, then the bitmap's resolution is
+ adjusted according to @racket[(current-expected-text-scale)].
 
 @examples[#:eval ss-eval
   (define txt
     (colorize (text "Freeze!" null 25) "deepskyblue"))
   (scale txt 2.5)
   (scale (freeze txt) 2.5)
+  (scale/improve-new-text (freeze (text "frozen" null 25) #f) 2)
+  (scale/improve-new-text (freeze (text "frozen" null 25) #t) 2)
+  (scale (freeze (text "frozen" null 25) #t) 2)
 ]}
 
 
@@ -1505,7 +1511,13 @@ and @racket[frame-style] keyword arguments behave in the same manner as @racket[
 
 A parameter used to refine text measurements to better match an
 expected scaling of the image. The @racket[scale/improve-new-text]
-form sets this parameter while also scaling the resulting pict.}
+form sets this parameter while also scaling the resulting pict.
+
+For a slideshow presentation shown on-screen, the parameter's numbers
+represent the pixels per drawing unit. For example, if
+@racket[(current-expected-text-scale)] is @racket[(list 2 1.5)], then
+the pict @racket[(rectangle 100 100)] is @emph{expected} to render as
+a rectangle 200 pixels wide and 150 pixels high.}
 
 @;----------------------------------------
 
