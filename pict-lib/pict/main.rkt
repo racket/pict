@@ -10,6 +10,8 @@
 
 (provide
  (except-out (all-from-out "private/main.rkt")
+             blank
+             launder
              linewidth
              use-last
              use-last*
@@ -54,6 +56,14 @@
  pin-arrows-line
  pin-line
  (contract-out
+  [launder (-> pict-convertible? pict-convertible?)]
+  [blank
+   (case->
+    (-> pict?)
+    (-> real? pict?)
+    (-> real? real? pict?)
+    (-> real? real? real? pict?)
+    (-> real? real? real? real? pict?))]
   [frame (->* (pict-convertible?)
               (#:segment (or/c #f real?)
                #:color (or/c #f string? (is-a?/c color%))
