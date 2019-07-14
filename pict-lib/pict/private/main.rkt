@@ -435,6 +435,9 @@
                      angel-wing
                      desktop-machine
                      thermometer
+                     cat-silhouette
+                     standard-cat/transform
+                     happy-eyes
 
                      find-pen find-brush)
          (contract-out
