@@ -170,6 +170,47 @@ The @racket[style] can include any of the following:
                #:mercury-inset 4)
 ]}
 
+@defproc[(standard-cat
+           [width positive?]
+           [height positive?]
+           [#:left-ear-extent left-ear-extent (>=/c 0)]
+           [#:left-ear-arc left-ear-arc (real-in 0 (* 2 pi))]
+           [#:left-ear-angle left-ear-angle (real-in 0 (* 2 pi))]
+           [#:right-ear-extent right-ear-extent (>=/c 0)]
+           [#:right-ear-arc right-ear-arc (real-in 0 (* 2 pi))]
+           [#:right-ear-angle right-ear-angle (real-in 0 (* 2 pi))]
+           [#:fur-color fur-color (or/c #f string? (is-a?/c color%))]
+           [#:fur-border-color fur-border-color (or/c #f string? (is-a?/c color%))]
+           [#:lip-color lip-color (or/c #f string? (is-a?/c color%))]
+           [#:lip-border-color lip-border-color (or/c string? (is-a?/c color%))]
+           [#:lip-border-width lip-border-width (or/c #f (real-in 0 255))]
+           [#:eye-color eye-color (or/c #f string? (is-a?/c color%))]
+           [#:nose-color nose-color (or/c #f string? (is-a?/c color%))]
+           [#:nose nose pict?]
+           [#:happy? happy? any/c]
+           [#:eyes eyes (or/c #f pict?)]
+           [#:left-eye left-eye (if eyes (or/c #f pict?) pict?)]
+           [#:right-eye right-eye (if eyes (or/c #f pict?) pict?)]
+           [#:whisker-length whisker-length positive?]
+           [#:whisker-droop whisker-droop real?]
+           [#:whisker-width whisker-width (or/c #f (real-in 0 255))]
+           [#:whisker-color whisker-color (or/c string? (is-a?/c color%))]
+           [#:whisker-inset? whisker-inset? any/c]
+           [#:border-width border-width (or/c #f (real-in 0 255))])
+          pict?]{
+
+Creates a cat face with customizable whiskers, eyes, ears, and mouth.
+
+The @racket[whisker-width] argument can be either @racket[#f] (no whiskers) or a real between 0 and 255 to specify pen width. Similarly for @racket[border-width], there can be no border around the cat face or a custom-width border.
+
+Each cat ear can have a custom extent (length), an arc length (width), and angle (position on head). There are constraints on the ear arc lengths and angles to prevent overlap. The default ear angle is dependent on the ear arc length to make the default positioning sensible. The default ear extent is 1/4 the height of the cat face.
+
+@examples[#:eval ss-eval
+  (standard-cat 60 90)
+  (standard-cat 60 90 #:happy? #t)
+  (standard-cat 60 90 #:left-ear-arc (* pi 1/8) #:right-ear-extent 30)
+]}
+
 @; ----------------------------------------
 
 @section{Balloon Annotations}
