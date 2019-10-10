@@ -182,7 +182,7 @@ balloons.}
                        [spike (or/c 'n 's 'e 'w 'ne 'se 'sw 'nw)]
                        [dx real?]
                        [dy real?]
-                       [color (or/c string? (is-a?/c color%)) balloon-color]
+                       [color (or/c string? (is-a?/c color%)) (current-balloon-color)]
                        [corner-radius (and/c real? (not/c negative?)) 32])
          balloon?]{
 
@@ -214,7 +214,7 @@ extract the location of the spike point. More typically, the
                            [spike (or/c 'n 's 'e 'w 'ne 'se 'sw 'nw)]
                            [dx real?]
                            [dy real?]
-                           [color (or/c string? (is-a?/c color%)) balloon-color]
+                           [color (or/c string? (is-a?/c color%)) (current-balloon-color)]
                            [corner-radius (and/c real? (not/c negative?)) 32])
          pict?]{
 
@@ -262,7 +262,7 @@ The resulting pict has the same @tech{bounding box}, descent, and ascent as
                   [spike (or/c 'n 's 'e 'w 'ne 'se 'sw 'nw)]
                   [dx real?]
                   [dy real?]
-                  [color (or/c string? (is-a?/c color%)) balloon-color])
+                  [color (or/c string? (is-a?/c color%)) (current-balloon-color)])
          balloon?]{
 
 Creates a balloon, much like @racket[wrap-balloon] except that the balloon's
@@ -277,13 +277,22 @@ width is @racket[w] and its height is @racket[h].}
 A balloon encapsulates a pict and the position of the balloon's spike
 relative to the balloon's top-left corner.}
 
-@defthing[balloon-color (or/c string? (is-a?/c color%))]
+@defthing[balloon-color (or/c string? (is-a?/c color%))]{
 
-The default background color for a balloon.
+The default background color for a balloon.}
+
+@defparam[current-balloon-color color (or/c string? (is-a?/c color%))]{
+
+Determines the background color for a balloon as created by functions
+like @racket[wrap-balloon].
+
+@history[#:added "1.9"]}
 
 @defboolparam[balloon-enable-3d on?]{
 
-A parameter that determines whether balloons are drawn with 3-D shading.}
+A parameter that determines whether balloons are drawn with 3-D
+shading. This parameter affects balloons at drawing time, not at
+construction time.}
 
 @; ----------------------------------------
 

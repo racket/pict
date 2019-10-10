@@ -16,7 +16,8 @@
          balloon-point-x
          balloon-point-y
          balloon-color
-         balloon-enable-3d)
+         balloon-enable-3d
+         current-balloon-color)
 
 (define-struct balloon (pict point-x point-y))
     
@@ -32,7 +33,7 @@
       (color-series dc 0 0 start-c end-c f pen? brush?)))
     
 (define (mk-balloon w h corner-radius spike-pos dx dy
-                    [color balloon-color])
+                    [color (current-balloon-color)])
   (let ([dw (if (< corner-radius 1)
                 (* corner-radius w)
                 corner-radius)]
@@ -139,11 +140,12 @@
          xf yf)))))
 
 (define balloon-color (make-object color% 255 255 170))
+(define current-balloon-color (make-parameter balloon-color))
   
 (define corner-size 32)
 
 (define wrap-balloon
-  (lambda (p corner dx dy [color balloon-color] [c-rad corner-size] 
+  (lambda (p corner dx dy [color (current-balloon-color)] [c-rad corner-size] 
              #:factor [factor 1])
     (let ([b (mk-balloon (+ (pict-width p) (* 2 c-rad))
                          (+ (pict-height p) c-rad)
@@ -159,7 +161,7 @@
        (* factor (balloon-point-y b))))))
 
 (define pip-wrap-balloon
-  (lambda (p corner dx dy [color balloon-color] [c-rad corner-size]
+  (lambda (p corner dx dy [color (current-balloon-color)] [c-rad corner-size]
              #:factor [factor 1])
     (pin-balloon (wrap-balloon p corner dx dy color c-rad #:factor factor) (blank 0) 0 0)))
   
