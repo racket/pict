@@ -3,10 +3,7 @@
          "convert.rkt"
          racket/contract
          racket/class
-         racket/draw
-         racket/bool)
-
-(define a-number 0)
+         racket/draw)
 
 (provide
  (except-out (all-from-out "private/main.rkt")
@@ -46,7 +43,7 @@
              hb-append
              htl-append
              hbl-append
-           pin-line pin-arrow-line pin-arrows-line
+             pin-line pin-arrow-line pin-arrows-line
              cellophane
              frame
              dc
@@ -239,8 +236,6 @@
                                     (not border-width)))
                            #t)
                        [_ pict?])]))
-
-(define find/c (pict? pict-path? . -> . (values real? real?)))
 
 (define (does-draw-restore-the-state-after-being-called? draw)
   (define bdc (new bitmap-dc% [bitmap (make-bitmap 1 1)]))
