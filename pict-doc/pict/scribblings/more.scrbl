@@ -206,10 +206,12 @@ The @racket[whisker-width] argument can be either @racket[#f] (no whiskers) or a
 Each cat ear can have a custom extent (length), an arc length (width), and angle (position on head). There are constraints on the ear arc lengths and angles to prevent overlap. The default ear angle is dependent on the ear arc length to make the default positioning sensible. The default ear extent is 1/4 the height of the cat face.
 
 @examples[#:eval ss-eval
-  (standard-cat 60 90)
-  (standard-cat 60 90 #:happy? #t)
-  (standard-cat 60 90 #:left-ear-arc (* pi 1/8) #:right-ear-extent 30)
-]}
+  (standard-cat 100 90)
+  (standard-cat 100 90 #:happy? #t)
+  (standard-cat 100 90 #:left-ear-arc (* pi 1/8) #:right-ear-extent 30)
+]
+
+@history[#:added "1.10"]}
 
 @; ----------------------------------------
 

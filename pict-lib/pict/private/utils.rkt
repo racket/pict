@@ -1667,13 +1667,13 @@
   (define messages
     (list
      (and (< left-ear-angle right-ear-angle)
-          (list "Left ear is to the right of the right ear"))
+          "Left ear is to the right of the right ear")
      (and (> (+ left-ear-arc right-ear-arc) (* 2 pi))
-          (list "Ear arcs cannot exceed 2pi"))
+          "Ear arcs cannot exceed 2pi")
      (and (> (+ right-ear-angle right-ear-arc) left-ear-angle)
-          (list "Right ear cannot overlap with left ear"))
+          "Right ear cannot overlap with left ear")
      (and (> (+ left-ear-angle left-ear-arc) (+ (* 2 pi) right-ear-angle))
-          (list "Left ear cannot overlap with right ear"))))
+          "Left ear cannot overlap with right ear")))
   (define errors (filter values messages))
   (or (null? errors) errors))
 
