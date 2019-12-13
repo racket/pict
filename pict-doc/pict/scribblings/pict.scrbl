@@ -131,6 +131,33 @@ A @racket[child] structure is normally not created directly with
 @racket[make-child]. Instead, functions like @racket[hc-append] create
 @racket[child] structures when combining picts to create a new one.}
 
+
+@defproc[(explain [p pict-convertible?]
+                  [#:border bord (or/c #f string? (is-a?/c color%)) "firered"]
+                  [#:ascent asc (or/c #f string? (is-a?/c color%)) "seagreen"]
+                  [#:baseline base (or/c #f string? (is-a?/c color%)) "royalblue"]
+                  [#:scale s real? 5])
+         pict?]{
+
+ Draw a @racket[pict] like @racket[p], but the pict's bounding box
+ is framed in the color @racket[bord], the baseline
+ is draw in @racket[base], and the line defined by the ascent
+ is drawn in @racket[asc]. If any are @racket[#f] then that part is not
+ drawn. The pict is scaled up by @racket[s]. 
+
+ Note that for single lines of text the baseline and ascent
+ are the same, so only one line will be visible.
+ @(examples
+   #:eval ss-eval
+   (define t (text "ij"))
+   (define tt (vl-append t t))
+   (explain t)
+   (explain tt))
+
+ @history[#:added "1.10"]{}
+                                                
+}
+
 @; ------------------------------------------------------------------------
 
 @section{Basic Pict Constructors}
@@ -939,7 +966,10 @@ line drops below the descent line, the two lines are flipped.
 @examples[#:eval ss-eval
           (rotate (colorize (filled-rectangle 30 30)
                             "chartreuse")
-                  (/ pi 3))]
+                  (/ pi 3))
+          (explain (rotate tt 0))
+          (explain (rotate tt (/ pi 2)))
+          (explain (rotate tt pi))]
 }
 
 
@@ -960,6 +990,24 @@ line drops below the descent line, the two lines are flipped.
            (shear sqr -0.5 0.3)]
 
  @history[#:added "1.8"]{}
+}
+
+
+@defproc[(translate [pict pict-convertible?] [dx real?] [dy real?]
+                    [#:extend-bb? bb? any/c #f])
+         pict?]{
+
+ Translate the @racket[pict] by @racket[dx] and @racket[dy].
+ If @racket[bb?] is not @racket[#f] then the bounding box is extended
+ to ensure the image fits.
+
+ @examples[#:eval ss-eval
+           (explain (translate tt -3 -3))
+           (explain (translate tt -3 -3 #:extend-bb? #t))
+           (explain (translate tt 3 3))
+           (explain (translate tt 3 3 #:extend-bb? #t))]
+
+ @history[#:added "1.10"]{}
 }
 
 
@@ -1137,8 +1185,8 @@ to the corresponding sides; ascent and descent are extended, too.
 Truncates @racket[pict]'s @tech{bounding box} by removing the descent part.
 
 @examples[#:eval ss-eval
-  (frame (text "gjy" null 50))
-  (frame (clip-descent (text "gjy" null 50)))
+  (explain (text "gjy" null 12))
+  (explain (clip-descent (text "gjy" null 12)))
 ]}
 
 @defproc[(clip-ascent [pict pict-convertible?]) pict?]{
@@ -1146,32 +1194,94 @@ Truncates @racket[pict]'s @tech{bounding box} by removing the descent part.
 Truncates @racket[pict]'s @tech{bounding box} by removing the ascent part.
 
 @examples[#:eval ss-eval
-  (frame (text "gjy" null 50))
-  (frame (clip-ascent (text "gjy" null 50)))
+  (explain (text "gjy" null 12))
+  (explain (clip-ascent (text "gjy" null 12)))
 ]}
+
+@defproc[(lift-bottom-relative-to-baseline
+          [p pict-convertible?]
+          [baseline real?]
+          [#:extend-bb? bb? any/c #f])
+         pict?]{
+
+ Lift the image in @racket[p] such that the
+ bottom of the picture is @racket[baseline] above its
+ baseline.
+ If @racket[bb?] is @racket[#f] then the bounding box
+ is unchanged, otherwise it is adjusted to fit the resulting pict.
+
+ @(examples
+   #:eval ss-eval
+   (define shift 10)
+   (explain (lift-bottom-relative-to-baseline t shift))
+   (explain (lift-bottom-relative-to-baseline t shift #:extend-bb? #t))
+   (explain (lift-bottom-relative-to-baseline tt shift))
+   (explain (lift-bottom-relative-to-baseline tt shift #:extend-bb? #t))
+   (explain (lift-bottom-relative-to-baseline t (- shift)))
+   (explain (lift-bottom-relative-to-baseline t (- shift) #:extend-bb? #t))
+   (explain (lift-bottom-relative-to-baseline tt (- shift)))
+   (explain (lift-bottom-relative-to-baseline tt (- shift) #:extend-bb? #t)))
+
+ @history[#:added "1.10"]{}
+}
+
+
+@defproc[(drop-top-relative-to-ascent
+          [p pict-convertible?]
+          [ascent real?]
+          [#:extend-bb? bb? any/c #f])
+         pict?]{
+
+ Lift the image in @racket[p] such that the
+ top of the picture is @racket[ascent] below its
+ ascent.
+ If @racket[bb?] is @racket[#f] then the bounding box
+ is unchanged, otherwise it is adjusted to fit the resulting pict.
+
+ @(examples
+   #:eval ss-eval
+   (define shift 10)
+   (explain (drop-top-relative-to-ascent t shift))
+   (explain (drop-top-relative-to-ascent t shift #:extend-bb? #t))
+   (explain (drop-top-relative-to-ascent tt shift))
+   (explain (drop-top-relative-to-ascent tt shift #:extend-bb? #t))
+   (explain (drop-top-relative-to-ascent t (- shift)))
+   (explain (drop-top-relative-to-ascent t (- shift) #:extend-bb? #t))
+   (explain (drop-top-relative-to-ascent tt (- shift)))
+   (explain (drop-top-relative-to-ascent tt (- shift) #:extend-bb? #t)))
+
+ @history[#:added "1.10"]{}
+}
 
 @defproc[(lift-above-baseline [pict pict-convertible?] [amt real?]) pict?]{
 
+For backwards compatibility. Use @racket[lift-bottom-relative-to-baseline] instead. 
+
+ 
 Lifts @racket[pict] relative to its baseline, extending the
 @tech{bounding box} height if necessary.
 
 @examples[#:eval ss-eval
-  (frame (hbl-append (text "ijijij" null 50)
-                     (text "abc" null 50)))
-  (frame (hbl-append (lift-above-baseline (text "ijijij" null 50) 20)
-                     (text "abc" null 50)))
+  (explain (hbl-append (text "ijijij" null 12)
+                       (text "abc" null 12)))
+  (inset (explain (lift-above-baseline (text "ijijij" null 12) 20)) 0 100 0 50)
+  (explain (hbl-append (lift-above-baseline (text "ijijij" null 12) 20)
+                       (text "abc" null 12)))
 ]}
 
 @defproc[(drop-below-ascent [pict pict-convertible?] [amt real?]) pict?]{
 
+For backwards compatibility. Use @racket[drop-top-relative-to-ascent] instead.
+                                                                         
 Drops @racket[pict] relative to its ascent line, extending the
 @tech{bounding box} height if necessary.
 
 @examples[#:eval ss-eval
-  (define txt (text "ijgy" null 50))
-  (frame (hbl-append txt (text "abc" null 50)))
-  (frame (hbl-append (drop-below-ascent txt 20)
-                     (text "abc" null 50)))
+  (define txt (text "ijgy" null 12))
+  (explain (hbl-append txt (text "abc" null 12)))
+  (explain (drop-below-ascent txt 12))
+  (explain (hbl-append (drop-below-ascent txt 12)
+                       (text "abc" null 12)))
 ]}
 
 @defproc[(baseless [pict pict-convertible?]) pict?]{
@@ -1179,10 +1289,10 @@ Drops @racket[pict] relative to its ascent line, extending the
 Makes the descent @racket[0] and the ascent the same as the height.
 
 @examples[#:eval ss-eval
-  (frame (hbl-append (text "gjy" null 50)
-                     (text "abc" null 50)))
-  (frame (hbl-append (baseless (text "gjy" null 50))
-                     (text "abc" null 50)))
+  (explain (hbl-append (text "gjy" null 12)
+                       (text "abc" null 12)))
+  (explain (hbl-append (baseless (text "gjy" null 12))
+                       (text "abc" null 12)))
 ]}
 
 @defproc[(refocus [pict pict-convertible?] [sub-pict pict-convertible?]) pict?]{

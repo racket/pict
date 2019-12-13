@@ -53,6 +53,12 @@
  pin-arrows-line
  pin-line
  (contract-out
+  [explain (->* (pict-convertible?)
+                (#:border (or/c #f string? (is-a?/c color%))
+                 #:ascent (or/c #f string? (is-a?/c color%))
+                 #:baseline (or/c #f string? (is-a?/c color%))
+                 #:scale real?)
+                pict?)]
   [launder (-> pict-convertible? pict-convertible?)]
   [blank
    (case->
@@ -325,6 +331,36 @@
 
 (define (multiple-of-four-bytes? b)
   (zero? (modulo (bytes-length b) 4)))
+
+(define (explain x
+                 #:border [b "Firebrick"]
+                 #:ascent [a "MediumSeaGreen"]
+                 #:baseline [d "DodgerBlue"]
+                 #:scale [s 5])
+  (define f
+    (if (not b)
+        (ghost x)
+        (colorize (frame (ghost x)) b)))
+  (define f+d
+    (if (not d)
+        f
+        (pin-line
+         #:color d
+         f f
+         (lambda _ (values 0 (- (pict-height x) (pict-descent x))))
+         f
+         (lambda _ (values (pict-width x) (- (pict-height x) (pict-descent x)))))))
+  (define f+d+a
+    (if (not a)
+        f+d
+        (pin-line
+         #:color a
+         f+d f+d
+         (lambda _ (values (pict-width x) (pict-ascent x)))
+         f+d
+         (lambda _ (values 0 (pict-ascent x))))))
+  (scale (refocus (cc-superimpose x f+d+a) x) s))
+
 
 (require "private/play-pict.rkt")
 (provide
