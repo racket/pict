@@ -155,7 +155,7 @@ A @racket[child] structure is normally not created directly with
    (define tt (vl-append t t))
    (explain t)
    (explain tt))
- 2             
+
  @history[#:added "1.10"]{}
                                                 
 }
