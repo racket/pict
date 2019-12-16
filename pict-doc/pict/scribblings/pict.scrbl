@@ -118,8 +118,8 @@ own last sub-pict.}
                   [dy real?]
                   [sx real?]
                   [sy real?]
-                  [sxy real?]
-                  [syx real?])]{
+                  [syx real?]
+                  [sxy real?])]{
 
 Records, for a pict constructed of other picts, the transformation to
 arrive at a @tech{inverted point} in the composed pict from an
@@ -136,14 +136,16 @@ A @racket[child] structure is normally not created directly with
                   [#:border bord (or/c #f string? (is-a?/c color%)) "firered"]
                   [#:ascent asc (or/c #f string? (is-a?/c color%)) "seagreen"]
                   [#:baseline base (or/c #f string? (is-a?/c color%)) "royalblue"]
-                  [#:scale s real? 5])
+                  [#:scale s real? 5]
+                  [#:line-width lw real? 1])
          pict?]{
 
  Draw a @racket[pict] like @racket[p], but the pict's bounding box
  is framed in the color @racket[bord], the baseline
  is draw in @racket[base], and the line defined by the ascent
  is drawn in @racket[asc]. If any are @racket[#f] then that part is not
- drawn. The pict is scaled up by @racket[s]. 
+ drawn. The pict is scaled up by @racket[s]. The lines drawn
+ are of width @racket[lw] before scaling is applied.
 
  Note that for single lines of text the baseline and ascent
  are the same, so only one line will be visible.
@@ -153,7 +155,33 @@ A @racket[child] structure is normally not created directly with
    (define tt (vl-append t t))
    (explain t)
    (explain tt))
+ 2             
+ @history[#:added "1.10"]{}
+                                                
+}
 
+@defproc[(explain-child
+          [p pict-convertible?]
+          [path pict-path?]
+          [#:border bord (or/c #f string? (is-a?/c color%)) "firered"]
+          [#:ascent asc (or/c #f string? (is-a?/c color%)) "seagreen"]
+          [#:baseline base (or/c #f string? (is-a?/c color%)) "royalblue"]
+          [#:scale s real? 5]
+          [#:line-width lw real? 1])
+         pict?]{
+
+ Like @racket[explain], except the the explanation is drawn for
+ some inner @racket[pict] of @racket[p], pointed to by @racket[path].
+      
+ @(examples
+   #:eval ss-eval
+   (define t1 (text "ij"))
+   (define t2 (text "ij"))
+   (define t3 (vl-append t1 t2))
+   (explain-child t3 t3)
+   (explain-child t3 t1)
+   (explain-child t3 t2))
+ 
  @history[#:added "1.10"]{}
                                                 
 }

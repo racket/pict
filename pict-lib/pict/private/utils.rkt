@@ -1238,14 +1238,11 @@
              (if (and bb? (dy . > . 0))
                  (+ (pict-descent p) dy)
                  (pict-descent p))
-             (map (lambda (c)
-                    (make-child
-                     (child-pict c)
-                     (child-dx c)
-                     (+ dx (child-dy c))
-                     1 1
-                     0 0))
-                  (pict-children p))
+             (list
+              (make-child p
+                          dx (- dy) 
+                          1 1
+                          0 0))
              #f
              (pict-last p)))
 
