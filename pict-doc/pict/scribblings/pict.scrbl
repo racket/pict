@@ -162,7 +162,7 @@ A @racket[child] structure is normally not created directly with
 
 @defproc[(explain-child
           [p pict-convertible?]
-          [path pict-path?]
+          [path pict-path?] ...
           [#:border bord (or/c #f string? (is-a?/c color%)) "firered"]
           [#:ascent asc (or/c #f string? (is-a?/c color%)) "seagreen"]
           [#:baseline base (or/c #f string? (is-a?/c color%)) "royalblue"]
@@ -171,7 +171,7 @@ A @racket[child] structure is normally not created directly with
          pict?]{
 
  Like @racket[explain], except the the explanation is drawn for
- some inner @racket[pict] of @racket[p], pointed to by @racket[path].
+ some each inner @racket[pict] of @racket[p], pointed to by @racket[path].
       
  @(examples
    #:eval ss-eval
@@ -180,7 +180,8 @@ A @racket[child] structure is normally not created directly with
    (define t3 (vl-append t1 t2))
    (explain-child t3 t3)
    (explain-child t3 t1)
-   (explain-child t3 t2))
+   (explain-child t3 t2)
+   (explain-child t3 t1 t2))
  
  @history[#:added "1.10"]{}
                                                 

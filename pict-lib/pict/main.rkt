@@ -64,12 +64,13 @@
          #:line-width real?)
         pict?)]
   [explain-child
-   (->* (pict-convertible? pict-path?)
+   (->* (pict-convertible?)
         (#:border (or/c #f string? (is-a?/c color%))
          #:ascent (or/c #f string? (is-a?/c color%))
          #:baseline (or/c #f string? (is-a?/c color%))
          #:scale real?
          #:line-width real?)
+        #:rest (listof pict-path?)
         pict?)]
   [launder (-> pict-convertible? pict-convertible?)]
   [blank
@@ -350,15 +351,24 @@
                  #:baseline [d "DodgerBlue"]
                  #:scale [s 5]
                  #:line-width [lw 1])
-  (explain-child p p #:border b #:ascent a #:baseline d #:scale s #:line-width lw))
+  (explain-child* p p b a d s lw))
 (define (explain-child
          p
-         child-path
          #:border [b "Firebrick"]
          #:ascent [a "MediumSeaGreen"]
          #:baseline [d "DodgerBlue"]
          #:scale [s 5]
-         #:line-width [lw 1])
+         #:line-width [lw 1]
+         . child-path)
+  (scale
+   (for/fold ([p p])
+             ([c (in-list child-path)])
+     (explain-child* p c b a d 1 lw))
+   s))
+(define (explain-child*
+         p
+         child-path
+         b a d s lw)
   (define t (get-child-transformation p child-path))
   (define child (last (flatten child-path)))
   (define cw (pict-width child))
