@@ -428,8 +428,8 @@ then it determines the radius of a circle touching the edges
 in each corner, and the rounding of the rectangle follow the
 edge of those circles. If it is a negative number, then the
 radius of the circles in the corners is the absolute value of the
-@racket[corner-radius] times the smaller of @racket[width]
-and @racket[height].
+@racket[corner-radius] times the smaller of @racket[w]
+and @racket[h].
 
 The @racket[angle] determines how much the rectangle is
 rotated, in radians.
