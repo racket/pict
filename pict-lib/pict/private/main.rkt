@@ -200,7 +200,8 @@
                     #:color col
                     #:under? under?
                     #:solid? solid?
-                    #:style style)
+                    #:style style
+                    #:alpha alpha)
                    p))])
         (send path move-to sx sy)
         (send path curve-to
