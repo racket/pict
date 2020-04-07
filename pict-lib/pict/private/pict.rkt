@@ -251,7 +251,7 @@
 (define-pict-setter panbox)
 (define-pict-setter last)
 
-(define-struct child (pict dx dy sx sy syx sxy))
+(define-struct child (pict dx dy sx sy sxy syx))
 (define-struct bbox (x1 y1 x2 y2 ay dy))
 
 (define (pict-convertible? x)
