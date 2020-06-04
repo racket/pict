@@ -315,11 +315,6 @@
 (define default-seg 5)
 (define recordseplinespace 4)
 
-(define (quotient* a b)
-  (if (integer? a)
-      (quotient a b)
-      (/ a b)))
-
 (define blank 
   (case-lambda
    [() (blank 0 0 0)]
@@ -393,7 +388,7 @@
                 find-rtl
                 find-rbl)
   (let ([lb (lambda (x sx w d a) x)]
-        [c (lambda (x sx w d a) (+ x (* sx (quotient* w 2))))]
+        [c (lambda (x sx w d a) (+ x (* sx (/ w 2))))]
         [rt (lambda (x sx w d a) (+ x (* sx w)))]
         [tline (lambda (x sx w d a) (+ x (* sx (- w a))))]
         [bline (lambda (x sx w d a) (+ x (* sx d)))]
@@ -691,27 +686,25 @@
     (dash-frame box (max (pict-width box) (pict-height box)))))
 
 (define (dash-line width height rotate seg)
-  (let ([vpos (quotient* height 2)])
+  (let ([vpos (/ height 2)])
     (make-pict
      `(picture
        ,@(rotate width height)
        ,@(if (>= seg width)
              `((put ,@(rotate 0 vpos) (line ,@(rotate 1 0) ,width)))
-             (let* ([seg*2 (inexact->exact (floor (* seg 2)))]
-                    [remain (+ (- width (floor width))
-                                  (remainder (floor width) seg*2))]
-                    [count (inexact->exact (floor (quotient* width seg*2)))]
-                    [lremain (quotient* remain 2)]
-                    [rremain (- remain lremain)])
-               `((put ,@(rotate 0 vpos) (line ,@(rotate 1 0) ,lremain))
-                 ,@(let loop ([count count][pos lremain])
+             (let ()
+               (define seg*2 (* seg 2))
+               (define count (inexact->exact (truncate (/ width seg*2))))
+               (define remain/2 (/ (- width (* seg*2 count)) 2))
+               `((put ,@(rotate 0 vpos) (line ,@(rotate 1 0) ,remain/2))
+                 ,@(let loop ([count count] [pos remain/2])
                      (if (zero? count)
                          null
                          (cons `(put ,@(rotate (+ pos seg) vpos) 
                                      (line ,@(rotate 1 0) ,seg))
-                               (loop (sub1 count) (+ pos seg seg)))))
-                 (put ,@(rotate (- width rremain) vpos) 
-                      (line ,@(rotate 1 0) ,rremain))))))
+                               (loop (sub1 count) (+ pos seg*2)))))
+                 (put ,@(rotate (- width remain/2) vpos)
+                      (line ,@(rotate 1 0) ,remain/2))))))
      (car (rotate width height))
      (cadr (rotate width height))
      (cadr (rotate 0 height)) 0
@@ -745,7 +738,7 @@
      `(picture
        ,w ,h
        (put 0 0 ,(pict-draw box))
-       (put ,(quotient* w 2) ,(quotient* h 2) (oval "" ,w ,h))))))
+       (put ,(/ w 2) ,(/ h 2) (oval "" ,w ,h))))))
 
 (define (oval/radius box r)
   (let* ([w (pict-width box)]
@@ -768,7 +761,7 @@
        (put ,0 ,r (line 0 1 ,lh))))))
 
 (define (big-circle d)
-  (let ([r (quotient* d 2)])
+  (let ([r (/ d 2)])
     (picture
      d d
      `((curve 0 ,r ,r 0 0 0)
@@ -867,9 +860,9 @@
                         zero zero 
                         fv sv)
      (make-append-boxes 2max 3+ 
-                        (lambda (fw fh rw rh sep . a) (quotient* (- (max fw rw) fw) 2))
+                        (lambda (fw fh rw rh sep . a) (/ (- (max fw rw) fw) 2))
                         (lambda (fw fh rw rh sep . a) (+ sep rh))
-                        (lambda (fw fh rw rh sep . a) (quotient* (- (max fw rw) rw) 2))
+                        (lambda (fw fh rw rh sep . a) (/ (- (max fw rw) rw) 2))
                         zero 
                         fv sv)
      (make-append-boxes 2max 3+ 
@@ -886,9 +879,9 @@
                         xmin-ad xmin-ad)
      (make-append-boxes 3+ 2max
                         zero
-                        (lambda (fw fh rw rh sep . a) (quotient* (- (max fh rh) fh) 2))
+                        (lambda (fw fh rw rh sep . a) (/ (- (max fh rh) fh) 2))
                         (lambda (fw fh rw rh sep . a) (+ sep fw))
-                        (lambda (fw fh rw rh sep . a) (quotient* (- (max fh rh) rh) 2))
+                        (lambda (fw fh rw rh sep . a) (/ (- (max fh rh) rh) 2))
                         xmin-ad xmin-ad)
      (make-append-boxes 3+ 2max 
                         zero zero
@@ -999,7 +992,7 @@
         [rt (lambda (m v . rest) (- m v))]
         [tline (lambda (m v md d mac a) (- mac (- v a)))]
         [bline (lambda (m v md d mac a) (- md d))]
-        [c (lambda (m v . rest) (quotient* (- m v) 2))])
+        [c (lambda (m v . rest) (/ (- m v) 2))])
     (values
      (make-superimpose lb rt norm 'lt-superimpose)
      (make-superimpose lb lb norm 'lb-superimpose)
@@ -1118,7 +1111,7 @@
        (put 0 ,title-y ,(pict-draw title))
        ,@(if (null? fields)
              '()
-             `((put 0 ,(- totalheight (pict-height title) (quotient* linespace 2))
+             `((put 0 ,(- totalheight (pict-height title) (/ linespace 2))
                     (line 1 0 ,totalwidth))))
        ,@(map (lambda (f p) `(put 0 ,p ,(pict-draw f)))
               fields field-ys))
