@@ -91,3 +91,7 @@ END
 ;; windows newlines should work
 (define example3 "#lang racket\r\n(define x 2)\r\nx")
 (test-codeblock-pict-hash example3 #"b32d6e6f8f33dd9a79a6846fede88246")
+
+;; ascent should not be zero for a single line
+(define example4 (codeblock-pict #:keep-lang-line? #f "#lang racket\n(define foo 42)"))
+(check-pred (λ (v) (> v 0)) (pict-ascent example4))
