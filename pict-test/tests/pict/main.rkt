@@ -531,6 +531,11 @@
 (check-equal? (pict-width (rotate (rectangle 10 10) pi))
               (pict-width (panorama (rotate (rectangle 10 10) pi))))
 
+;; check panorama descent calculation (racket/pict#63)
+(let ()
+  (define p (panorama (pin-over (hline 40 2) 36 -4 (arrowhead 10 0))))
+  (check-equal? (pict-descent p) 0))
+
 ;;;; contract tests
 
 (test-case "dingbats-contracts"
