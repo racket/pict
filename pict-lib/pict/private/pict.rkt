@@ -572,9 +572,13 @@
 
 (define (panorama p)
   (let-values ([(x1 y1 x2 y2 ay dy) (panorama-box! p)])
-    (let ([h (- y2 y1)])
-      (place-over (blank (- x2 x1) h (- h ay) (- dy y1))
-                  (- x1) (- y1) p))))
+    (place-over (blank (- x2 x1)
+                       (- y2 y1)
+                       (- y2 ay)
+                       (- dy y1))
+                (- x1)
+                (- y2 (pict-height p))
+                p)))
 
 (define (clip-descent b)
   (let* ([w (pict-width b)]
