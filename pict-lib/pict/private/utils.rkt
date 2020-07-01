@@ -76,6 +76,18 @@
                       pict?)]
    [shear (-> pict-convertible? number? number? pict?)]
    [rotate (case-> (-> pict-convertible? number? pict?))]
+   [translate
+    (->* (pict-convertible? number? number?)
+         (#:extend-bb? any/c)
+         pict?)]
+   [lift-bottom-relative-to-baseline
+    (->* (pict-convertible? number?)
+         (#:extend-bb? any/c)
+         pict?)]
+   [drop-top-relative-to-ascent
+    (->* (pict-convertible? number?)
+         (#:extend-bb? any/c)
+         pict?)]
    [pin-line (->* (pict-convertible?
                    pict-path? (-> pict? pict-path? (values number? number?))
                    pict-path? (-> pict? pict-path? (values number? number?)))
@@ -1292,6 +1304,38 @@
                 (pict-last p))]
     [(p factor) (scale p factor factor)]))
 
+(define (translate p dx dy #:extend-bb? [bb? #f])
+  (define nw (if (not bb?) (pict-width p) (+ (pict-width p) (abs dx))))
+  (define nh (if (not bb?) (pict-height p) (+ (pict-height p) (abs dy))))
+  (define drawer
+    (dc
+     (lambda (dc dx1 dy1)
+       (draw-pict p dc
+                  (+ dx1
+                     (if bb?
+                         (max 0 dx)
+                         dx))
+                  (+ dy1
+                     (if bb?
+                         (max 0 dy)
+                         dy))))
+     nw nh))
+  (make-pict (pict-draw drawer)
+             nw nh
+             (if (and bb? (dy . < . 0))
+                 (- (pict-ascent p) dy)
+                 (pict-ascent p))
+             (if (and bb? (dy . > . 0))
+                 (+ (pict-descent p) dy)
+                 (pict-descent p))
+             (list
+              (make-child p
+                          dx (- dy) 
+                          1 1
+                          0 0))
+             #f
+             (pict-last p)))
+
 (define (shear p shear-x shear-y)
   (define drawer (make-pict-drawer p))
   (define x-shift (* shear-x (pict-height p)))
@@ -1348,6 +1392,18 @@
                                        (sin theta) (- (sin theta))))
 		     #f
                      (pict-last p))))))
+
+(define (lift-bottom-relative-to-baseline p dy #:extend-bb? [bb? #f])
+  (translate
+   #:extend-bb? bb?
+   p 0
+   (+ (- dy) (- (pict-descent p)))))
+
+(define (drop-top-relative-to-ascent p dy #:extend-bb? [bb? #f])
+  (translate
+   #:extend-bb? bb?
+   p 0
+   (+ dy (- (pict-ascent p)))))
 
   (define cellophane
     (case-lambda

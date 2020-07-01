@@ -1,9 +1,11 @@
 #lang racket/base
 (require "private/main.rkt"
          "convert.rkt"
+         "private/transform.rkt"
          racket/contract
          racket/class
-         racket/draw)
+         racket/draw
+         racket/list)
 
 (provide
  (except-out (all-from-out "private/main.rkt")
@@ -53,6 +55,23 @@
  pin-arrows-line
  pin-line
  (contract-out
+  [explain
+   (->* (pict-convertible?)
+        (#:border (or/c #f string? (is-a?/c color%))
+         #:ascent (or/c #f string? (is-a?/c color%))
+         #:baseline (or/c #f string? (is-a?/c color%))
+         #:scale real?
+         #:line-width real?)
+        pict?)]
+  [explain-child
+   (->* (pict-convertible?)
+        (#:border (or/c #f string? (is-a?/c color%))
+         #:ascent (or/c #f string? (is-a?/c color%))
+         #:baseline (or/c #f string? (is-a?/c color%))
+         #:scale real?
+         #:line-width real?)
+        #:rest (listof pict-path?)
+        pict?)]
   [launder (-> pict-convertible? pict-convertible?)]
   [blank
    (case->
@@ -325,6 +344,81 @@
 
 (define (multiple-of-four-bytes? b)
   (zero? (modulo (bytes-length b) 4)))
+
+(define (explain p         
+                 #:border [b "Firebrick"]
+                 #:ascent [a "MediumSeaGreen"]
+                 #:baseline [d "DodgerBlue"]
+                 #:scale [s 5]
+                 #:line-width [lw 1])
+  (explain-child* p p b a d s lw))
+(define (explain-child
+         p
+         #:border [b "Firebrick"]
+         #:ascent [a "MediumSeaGreen"]
+         #:baseline [d "DodgerBlue"]
+         #:scale [s 5]
+         #:line-width [lw 1]
+         . child-path)
+  (scale
+   (for/fold ([p p])
+             ([c (in-list child-path)])
+     (explain-child* p c b a d 1 lw))
+   s))
+(define (explain-child*
+         p
+         child-path
+         b a d s lw)
+  (define t (get-child-transformation p child-path))
+  (define child (last (flatten child-path)))
+  (define cw (pict-width child))
+  (define ch (pict-height child))
+  (define nw (+ (* 2 lw) (pict-width p)))
+  (define nh (+ (* 2 lw) (pict-height p)))
+  (define ncw (+ (* 2 lw) cw))
+  (define nch (+ (* 2 lw) ch))
+  (define lw/2 (/ lw 2))
+  (define annotations
+    (dc
+     (lambda (dc dx dy)
+       (define oldt (send dc get-transformation))
+       (define p (send dc get-pen))
+       (define br (send dc get-brush))
+       (send dc set-brush "white" 'transparent)
+       (send dc translate dx dy)
+       (send dc transform t)
+       (when b
+         (define t2 (send dc get-transformation))
+         (send dc scale (/ ncw cw) (/ nch ch))
+         (define path (new dc-path%))
+         (send dc set-pen b lw 'solid)
+         (send path move-to lw/2 lw/2)
+         (send path line-to lw/2 (- ch lw/2))
+         (send path line-to (- cw lw/2) (- ch lw/2))
+         (send path line-to (- cw lw/2) lw/2)
+         (send path close)
+         (send dc draw-path path 0 0)
+         (send dc set-transformation t2))
+       (when a
+         (define line (pict-ascent child))
+         (send dc set-pen a lw 'solid)
+         (send dc draw-line lw/2 line
+               (+ lw lw/2 cw) line))
+       (when d
+         (define line (- (pict-height child) (pict-descent child)))
+         (send dc set-pen d lw 'solid)
+         (send dc draw-line lw/2 line
+               (+ lw lw/2 cw) line))
+       (send dc set-transformation oldt)
+       (send dc set-pen p)
+       (send dc set-brush br))
+     nw nh))
+  (scale
+   (cc-superimpose
+    p
+    annotations)
+   s))
+
 
 (require "private/play-pict.rkt")
 (provide
