@@ -200,7 +200,8 @@
                     #:color col
                     #:under? under?
                     #:solid? solid?
-                    #:style style)
+                    #:style style
+                    #:alpha alpha)
                    p))])
         (send path move-to sx sy)
         (send path curve-to
@@ -435,6 +436,9 @@
                      angel-wing
                      desktop-machine
                      thermometer
+                     cat-silhouette
+                     standard-cat/transform
+                     happy-eyes
 
                      find-pen find-brush)
          (contract-out

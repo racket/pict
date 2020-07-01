@@ -225,12 +225,10 @@
   (define first-line (first lines))
   (define (format-line l) (apply hbl-append (map token->pict l)))
   (apply vl-append
-         ;; FIXME: #lang can span lines
-         ;;   (codeblock has same issue)
-         (if keep-lang-line?
-             (format-line first-line)
-             (blank))
-         (map format-line (rest lines))))
+         (map format-line
+              ;; FIXME: #lang can span lines
+              ;;   (codeblock has same issue)
+              (if keep-lang-line? lines (rest lines)))))
 
 (define current-token-class->color
   (make-parameter

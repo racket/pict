@@ -368,7 +368,9 @@ Straight lines, centered within their @tech{bounding box}es.
   (hline 40 5)
   (hline 40 30)
   (vline 5 40 #:segment 5)
-]}
+]
+
+@history[#:changed "1.11" @elem{Removed implicit truncation of some coordinates to integers.}]}
 
 
 @defproc[(frame [pict pict-convertible?]
@@ -484,8 +486,8 @@ then it determines the radius of a circle touching the edges
 in each corner, and the rounding of the rectangle follow the
 edge of those circles. If it is a negative number, then the
 radius of the circles in the corners is the absolute value of the
-@racket[corner-radius] times the smaller of @racket[width]
-and @racket[height].
+@racket[corner-radius] times the smaller of @racket[w]
+and @racket[h].
 
 The @racket[angle] determines how much the rectangle is
 rotated, in radians.
@@ -746,7 +748,10 @@ supplied @racket[pict].
             (combiner pict-a pict-b))))
   (take picts 4)
   (drop picts 4)
-]}
+]
+
+@history[#:changed "1.11" @elem{Removed implicit truncation of some centered coordinates
+           to integers.}]}
 
 @defproc*[([(lt-superimpose [pict pict-convertible?] ...) pict?]
            [(ltl-superimpose [pict pict-convertible?] ...) pict?]
@@ -798,7 +803,10 @@ comparing the last-element bottom-right corners.
   (take (drop picts 6) 3)
   (take (drop picts 9) 3)
   (take (drop picts 12) 3)
-]}
+]
+
+@history[#:changed "1.11" @elem{Removed implicit truncation of some centered coordinates
+           to integers.}]}
 
 
 @defproc*[([(pin-over [base pict-convertible?] [dx real?] [dy real?] [pict pict-convertible?])
@@ -1417,7 +1425,10 @@ be within the second element, and so on.
   (panorama
    (pin-over p4 p2 rb-find
              (colorize (text "rb-find") "darkgreen")))
-]}
+]
+
+@history[#:changed "1.11" @elem{Removed implicit truncation of some centered coordinates
+           to integers.}]}
 
 @defproc[(pict-path? [v any/c]) boolean?]{
 

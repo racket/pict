@@ -6,6 +6,7 @@
            racket/math
            file/convertible
            racket/gui/dynamic
+           racket/match
            "convertible.rkt"
            "pict.rkt")
 
@@ -121,6 +122,95 @@
                      pict-convertible?
                      convertible?)
                pict?)]
+
+   [cat-silhouette
+    (->i ([width positive?] [height positive?])
+         (#:left-ear-extent [left-ear-extent (>=/c 0)]
+          #:left-ear-arc [left-ear-arc (real-in 0 (* 2 pi))]
+          #:left-ear-angle [left-ear-angle (real-in 0 (* 2 pi))]
+          #:right-ear-extent [right-ear-extent (>=/c 0)]
+          #:right-ear-arc [right-ear-arc (real-in 0 (* 2 pi))]
+          #:right-ear-angle [right-ear-angle (real-in 0 (* 2 pi))]
+          #:color [color (or/c #f string? (is-a?/c color%))]
+          #:border-color [border-color (or/c #f string? (is-a?/c color%))]
+          #:border-width [border-width (or/c #f (real-in 0 255))])
+         #:pre/desc (left-ear-arc left-ear-angle right-ear-arc right-ear-angle)
+         (ear-positioning-errors left-ear-arc left-ear-angle right-ear-arc right-ear-angle)
+         (values [_ pict?]
+                 [_ (-> (or/c (cons/c real? real?) (is-a?/c point%))
+                        (cons/c real? real?))]))]
+
+   [standard-cat/transform
+    (->i ([width positive?] [height positive?])
+         (#:left-ear-extent [left-ear-extent (>=/c 0)]
+          #:left-ear-arc [left-ear-arc (real-in 0 (* 2 pi))]
+          #:left-ear-angle [left-ear-angle (real-in 0 (* 2 pi))]
+          #:right-ear-extent [right-ear-extent (>=/c 0)]
+          #:right-ear-arc [right-ear-arc (real-in 0 (* 2 pi))]
+          #:right-ear-angle [right-ear-angle (real-in 0 (* 2 pi))]
+          #:fur-color [fur-color (or/c #f string? (is-a?/c color%))]
+          #:fur-border-color [fur-border-color (or/c #f string? (is-a?/c color%))]
+          #:lip-color [lip-color (or/c #f string? (is-a?/c color%))]
+          #:lip-border-color [lip-border-color (or/c string? (is-a?/c color%))]
+          #:lip-border-width [lip-border-width (or/c #f (real-in 0 255))]
+          #:eye-color [eye-color (or/c #f string? (is-a?/c color%))]
+          #:nose-color [nose-color (or/c #f string? (is-a?/c color%))]
+          #:nose [nose pict?]
+          #:happy? [happy? any/c]
+          #:eyes [eyes (or/c #f pict?)]
+          #:left-eye [left-eye (eyes) (if eyes (or/c #f pict?) pict?)]
+          #:right-eye [right-eye (eyes) (if eyes (or/c #f pict?) pict?)]
+          #:whisker-length [whisker-length positive?]
+          #:whisker-droop [whisker-droop real?]
+          ;; #f to hide whiskers
+          #:whisker-width [whisker-width (or/c #f (real-in 0 255))]
+          #:whisker-color [whisker-color (or/c string? (is-a?/c color%))]
+          #:whisker-inset? [whisker-inset? any/c]
+          ;; #f for no border
+          #:border-width [border-width (or/c #f (real-in 0 255))])
+         #:pre/desc (left-ear-arc left-ear-angle right-ear-arc right-ear-angle)
+         (ear-positioning-errors left-ear-arc left-ear-angle right-ear-arc right-ear-angle)
+         (values [_ pict?]
+                 [_ (-> (or/c (cons/c real? real?) (is-a?/c point%))
+                        (cons/c real? real?))]))]
+
+   [standard-cat
+    (->i ([width positive?] [height positive?])
+         (#:left-ear-extent [left-ear-extent (>=/c 0)]
+          #:left-ear-arc [left-ear-arc (real-in 0 (* 2 pi))]
+          #:left-ear-angle [left-ear-angle (real-in 0 (* 2 pi))]
+          #:right-ear-extent [right-ear-extent (>=/c 0)]
+          #:right-ear-arc [right-ear-arc (real-in 0 (* 2 pi))]
+          #:right-ear-angle [right-ear-angle (real-in 0 (* 2 pi))]
+          #:fur-color [fur-color (or/c #f string? (is-a?/c color%))]
+          #:fur-border-color [fur-border-color (or/c #f string? (is-a?/c color%))]
+          #:lip-color [lip-color (or/c #f string? (is-a?/c color%))]
+          #:lip-border-color [lip-border-color (or/c string? (is-a?/c color%))]
+          #:lip-border-width [lip-border-width (or/c #f (real-in 0 255))]
+          #:eye-color [eye-color (or/c #f string? (is-a?/c color%))]
+          #:nose-color [nose-color (or/c #f string? (is-a?/c color%))]
+          #:nose [nose pict?]
+          #:happy? [happy? any/c]
+          #:eyes [eyes (or/c #f pict?)]
+          #:left-eye [left-eye (eyes) (if eyes (or/c #f pict?) pict?)]
+          #:right-eye [right-eye (eyes) (if eyes (or/c #f pict?) pict?)]
+          #:whisker-length [whisker-length positive?]
+          #:whisker-droop [whisker-droop real?]
+          ;; #f to hide whiskers
+          #:whisker-width [whisker-width (or/c #f (real-in 0 255))]
+          #:whisker-color [whisker-color (or/c string? (is-a?/c color%))]
+          #:whisker-inset? [whisker-inset? any/c]
+          ;; #f for no border
+          #:border-width [border-width (or/c #f (real-in 0 255))])
+         #:pre/desc (left-ear-arc left-ear-angle right-ear-arc right-ear-angle)
+         (ear-positioning-errors left-ear-arc left-ear-angle right-ear-arc right-ear-angle)
+         [_ pict?])]
+
+   [happy-eyes (->* (positive? positive?)
+                    (#:boldness (real-in 0 1) #:color (or/c #f string? (is-a?/c color%))
+                    #:border-color (or/c string? (is-a?/c color%))
+		    #:border-width (or/c #f (real-in 0 255)))
+                    pict?)]
    )
 
 
@@ -699,19 +789,19 @@
 			(send dc draw-polygon horn 70 -15))
 		      
 		      (send dc draw-polygon (list
-					     (make-object point% 0 0)
-					     (make-object point% 10 2)
-					     (make-object point% 0 6))
-			    115 32)
+					     (make-object point% 3 -2)
+					     (make-object point% -8 0)
+					     (make-object point% 1 -6))
+			    96 75)
 		      
 		      (send dc set-pen (send the-pen-list
 					     find-or-create-pen
 					     "red"
 					     2
 					     'solid))
-		      (send dc draw-line 101 55 110 55)
-		      (send dc draw-spline 110 55   130 50    110  45)
-		      (send dc draw-spline 110 45   90 40    115  35)))
+		      (send dc draw-spline 101 55   113 60    102  62)
+		      (send dc draw-spline 102 62   92 65    103  67)
+		      (send dc draw-spline 103 67   109 70   100  71)))
 		    
 		  (send dc set-origin dx dy)
 
@@ -1450,3 +1540,435 @@
        (* large-rad 2)
        0
        0)))
+
+;; ellipse-point: positive? positive? real? [real? real?] -> (is-a?/c point%)
+;; Creates a point% representing the x,y coordinates on an ellipse that
+;; fills the rectangle (-1/2*width,-1/2*height)-(1/2*width,1/2*height), then offsets the result by
+;; (offset-x, offset-y).
+(define (ellipse-point width height θ [offset-x 0] [offset-y 0])
+  (make-object point% (+ offset-x (* (/ width 2) (cos θ)))
+    (+ offset-y (* (/ height 2) (sin θ)))))
+
+;; circumscribed-triangle: real? real? -> pict?
+;; Draws a triangle whose points lie on an ellipse filling the rectangle
+;; (0,0)-(width,height). Each point is positioned by its angular position.
+;; The triangle may be optionally filled with a #:color argument. If given
+;; a positive #:border-width argument, the triangle will have a border of
+;; color #:border-color.
+(define (circumscribed-triangle width height
+                                #:angle0 [angle0 (/ pi 2)]
+                                #:angle1 [angle1 (+ angle0 (* 2/3 pi))]
+                                #:angle2 [angle2 (+ angle1 (* 2/3 pi))]
+                                #:color [color #f]
+                                #:border-color [border-color "black"]
+                                #:border-width [border-width #f])
+  (draw-shape/border width height
+                     (λ (dc dx dy)
+                       (define radius (/ (min width height) 2))
+                       (send dc draw-polygon
+                             (list (ellipse-point width height angle0 dx dy)
+                                   (ellipse-point width height angle1 dx dy)
+                                   (ellipse-point width height angle2 dx dy))
+                             (/ width 2) (/ height 2)))
+                     color border-color border-width
+                     #:draw-border? (or border-color border-width)
+                     #:transparent? (not color)))
+
+;; equilateral-triangle: draws a circumscribed triangle with all points
+;; equidistant from each other on the circle. The triangle can be optionally
+;; rotated.
+(define (equilateral-triangle width height
+                              #:angle [angle 0]
+                              #:color [color #f]
+                              #:border-color [border-color #f])
+  (circumscribed-triangle width height
+                          #:angle0 (+ (/ pi 2) angle)
+                          #:angle1 (+ (/ pi 2) angle (* 2/3 pi))
+                          #:angle2 (+ (/ pi 2) angle (* 4/3 pi))
+                          #:color color #:border-color border-color
+                          #:border-width (and border-color 1)))
+
+;; Returns a cartesian coordinate of a point along the ray from the
+;; origin through e^{i*angle}. The point has a Euclidean distance of extent from
+;; the ray's intersection with the ellipse border, where the ellipse is centered
+;; at the origin and inscribes the rectangle width x height.
+(define (ear-tip-coords width height extent θ)
+  ;; Step 1: Find point p on ellipse as centered arount the origin.
+  ;; Step 2: Use that point as a vector to extend along extent more units.
+  ;;         a. p^ = p/||p||    (unit vectors are usually written with hat notation)
+  ;;         b. tip = extent*p^ + p
+  ;;                = (extent + ||p||)*p^
+  ;;                = (extent/||p|| + 1)*p
+  (define p (ellipse-point width height θ))
+  (define distance-to-ellipse
+    (sqrt (+ (sqr (send p get-x)) (sqr (send p get-y)))))
+  (define scalar (+ 1 (/ extent distance-to-ellipse)))
+  (cons (* scalar (send p get-x)) (* scalar (send p get-y))))
+
+(define (default-ear-extent height) (/ height 4))
+(define default-ear-arc (* pi 1/4))
+(define (default-left-ear-angle left-ear-arc)
+  (- (* 2/3 pi) (/ left-ear-arc 2)))
+(define (default-right-ear-angle right-ear-arc)
+  (- (* 1/3 pi) (/ right-ear-arc 2)))
+
+(define (cat-silhouette width height
+                        ;; How much farther than the circle does the ear extend?
+                        #:left-ear-extent [left-ear-extent (default-ear-extent height)]
+                        ;; How much of an arc does the ear sweep out?
+                        #:left-ear-arc [left-ear-arc default-ear-arc]
+                        ;; At what angle do we start drawing the ear?
+                        #:left-ear-angle [left-ear-angle (default-left-ear-angle left-ear-arc)]
+                        #:right-ear-extent [right-ear-extent (default-ear-extent height)]
+                        #:right-ear-arc [right-ear-arc default-ear-arc]
+                        #:right-ear-angle [right-ear-angle (default-right-ear-angle right-ear-arc)]
+                        #:color [color "orange"]
+                        #:border-color [border-color (make-object color% 200 80 100)]
+                        #:border-width [border-width 1])
+  (define x-radius (/ width 2))
+  (define y-radius (/ height 2))
+
+  (define left-ear-tip
+    (ear-tip-coords width height left-ear-extent (+ left-ear-angle (/ left-ear-arc 2))))
+  (define right-ear-tip
+    (ear-tip-coords width height right-ear-extent (+ right-ear-angle (/ right-ear-arc 2))))
+
+  ;; All calculations done in cat-face-center-is-(0,0) coordinates.
+  (define left-protrusion
+    (min (- x-radius) (car left-ear-tip) (car right-ear-tip)))
+  (define right-protrusion
+    (max x-radius (car right-ear-tip) (car left-ear-tip)))
+  (define top-protrusion
+    (max y-radius (cdr left-ear-tip) (cdr right-ear-tip)))
+  (define bottom-protrusion
+    (min (- y-radius) (cdr left-ear-tip) (cdr right-ear-tip)))
+
+  ;; All protrusions affect what the overall coordinate space is.
+  ;; If an ear extends past the leftmost or topmost extent of the base circle,
+  ;; then all coordinates must be adjusted by the difference from the circle.
+  ;; If an ear extends past the rightmost or bottommost extent of the circle,
+  ;; that difference (plus the left/top difference) add to the width and
+  ;; height of the image.
+  ;; The left and top protrusions are what shift our coordinate space.
+  ;; The right and bottom protrusions possibly add to the overall width
+  ;; and height.
+  (define adjust-left (+ (- (min 0 (+ left-protrusion x-radius)))
+                         (or border-width 0)))
+  (define adjust-top (max 0 (- (+ (or border-width 0) top-protrusion)
+                               y-radius)))
+
+  (define (from-cat-coords point)
+    (match-define (cons x y)
+      (cond [(pair? point) point]
+            [else (cons (send point get-x) (send point get-y))]))
+    (cons (+ x adjust-left x-radius) (- (+ y-radius adjust-top) y)))
+
+  (define left-ear-end
+    (from-cat-coords
+     (ellipse-point width height (+ left-ear-angle left-ear-arc))))
+  (define right-ear-end
+    (from-cat-coords
+     (ellipse-point width height (+ right-ear-angle right-ear-arc))))
+
+  (define width*
+    (+ adjust-left x-radius right-protrusion (or border-width 0)))
+  (define height*
+    (+ adjust-top y-radius (- bottom-protrusion) (or border-width 0)))
+  (values
+   (draw-shape/border width*
+                      height*
+                      (λ (dc dx dy)
+                        (define cat-path (new dc-path%))
+                        (send cat-path arc
+                              adjust-left adjust-top
+                              width height
+                              (+ left-ear-angle left-ear-arc)
+                              right-ear-angle)
+                        (send cat-path lines
+                              (list (from-cat-coords right-ear-tip)
+                                    right-ear-end))
+                        (send cat-path arc
+                              adjust-left adjust-top
+                              width height
+                              (+ right-ear-angle right-ear-arc)
+                              left-ear-angle)
+                        (send cat-path lines
+                              (list (from-cat-coords left-ear-tip)
+                                    left-ear-end))
+                        (send cat-path close)
+                        (send dc draw-path cat-path dx dy))
+                      color border-color border-width
+                      #:draw-border? border-width
+                      #:transparent? (not color))
+   from-cat-coords))
+
+;; ear-positioning-errors: 4 reals -> #f or Listof[String]
+;; Checks for errors in a cat's ear positioning. Error messages are
+;; returned as a list of strings (descriptions of the errors).
+(define (ear-positioning-errors in-left-ear-arc in-left-ear-angle
+                                in-right-ear-arc in-right-ear-angle)
+  (define left-ear-arc (if (unsupplied-arg? in-left-ear-arc)
+                           default-ear-arc
+                           in-left-ear-arc))
+  (define left-ear-angle (if (unsupplied-arg? in-left-ear-angle)
+                             (default-left-ear-angle left-ear-arc)
+                             in-left-ear-angle))
+  (define right-ear-arc (if (unsupplied-arg? in-right-ear-arc)
+                            default-ear-arc
+                            in-right-ear-arc))
+  (define right-ear-angle (if (unsupplied-arg? in-right-ear-angle)
+                              (default-right-ear-angle right-ear-arc)
+                              in-right-ear-angle))
+
+  (define messages
+    (list
+     (and (< left-ear-angle right-ear-angle)
+          "Left ear is to the right of the right ear")
+     (and (> (+ left-ear-arc right-ear-arc) (* 2 pi))
+          "Ear arcs cannot exceed 2pi")
+     (and (> (+ right-ear-angle right-ear-arc) left-ear-angle)
+          "Right ear cannot overlap with left ear")
+     (and (> (+ left-ear-angle left-ear-arc) (+ (* 2 pi) right-ear-angle))
+          "Left ear cannot overlap with right ear")))
+  (define errors (filter values messages))
+  (or (null? errors) errors))
+
+(define (happy-eyes width height
+                    #:boldness [boldness 0.2]
+                    #:color [color "black"]
+                    #:border-color [border-color "black"]
+                    #:border-width [border-width #f])
+  ;; More boldness = less height for the smaller ellipse.
+  (define height-percent (- 1 boldness))
+  (unless (< 0 boldness 1)
+    (error 'happy-eyes "Boldness must be between 0 and 1 exclusive"))
+  (draw-shape/border width height
+                     (lambda (dc dx dy)
+                       (define eye-path (new dc-path%))
+                       (send eye-path arc 0 0 width height 0 pi)
+                       (send eye-path arc 0 (* height boldness)
+                             width (* height height-percent) pi 0 #f)
+                       (send eye-path close)
+                       (send dc draw-path eye-path dx dy))
+                     color border-color border-width
+                     #:draw-border? border-width
+                     #:transparent? (not color)))
+
+(define (standard-cat/transform width height
+                      #:left-ear-extent [left-ear-extent (default-ear-extent height)]
+                      #:left-ear-arc [left-ear-arc default-ear-arc]
+                      #:left-ear-angle [left-ear-angle (default-left-ear-angle left-ear-arc)]
+                      #:right-ear-extent [right-ear-extent (default-ear-extent height)]
+                      #:right-ear-arc [right-ear-arc default-ear-arc]
+                      #:right-ear-angle [right-ear-angle (default-right-ear-angle right-ear-arc)]
+                      #:fur-color [fur-color "orange"]
+                      #:fur-border-color [fur-border-color (make-object color% 200 80 100)]
+                      #:eye-color [eye-color "black"]
+                      #:nose-color [nose-color "pink"]
+                      #:nose [nose (equilateral-triangle (/ width 4) (/ height 4) #:angle pi #:color nose-color)]
+                      #:lip-color [lip-color (make-object color% 240 140 0)]
+                      #:lip-border-color [lip-border-color fur-border-color]
+                      #:lip-border-width [lip-border-width 1]
+                      #:happy? [happy? #f]
+                      #:eyes [eyes
+                              (if happy?
+                                  (happy-eyes (/ width 6) (/ height 6) #:color eye-color)
+                                  (filled-ellipse (/ width 6) (/ height 6) #:color eye-color))]
+                      #:left-eye [left-eye #f]
+                      #:right-eye [right-eye #f]
+                      #:whisker-length [whisker-length (* 3/8 width)]
+                      #:whisker-droop [whisker-droop (* 1/6 height)]
+                      #:whisker-color [whisker-color (make-object color% 100 40 50)]
+                      #:whisker-width [whisker-width 1]
+                      #:whisker-inset? [whisker-inset? #t]
+                      #:border-width [border-width 1])
+  (define-values (face coord-fn)
+    (cat-silhouette width height
+                    #:left-ear-extent left-ear-extent
+                    #:left-ear-arc left-ear-arc
+                    #:left-ear-angle left-ear-angle
+                    #:right-ear-extent right-ear-extent
+                    #:right-ear-arc right-ear-arc
+                    #:right-ear-angle right-ear-angle
+                    #:color fur-color
+                    #:border-color fur-border-color
+                    #:border-width border-width))
+
+  (match-define (cons pre-center-x center-y) (coord-fn (cons 0 0)))
+
+  (define left-whisker-center-offset
+    (* -3/4 (pict-width nose)))
+  (define left-whisker-extent-from-center
+    (+ (- whisker-length) left-whisker-center-offset))
+  (define left-whisker-inset-amount
+    (if whisker-inset?
+        (max 0 (- (car (coord-fn (cons left-whisker-extent-from-center 0)))))
+        0))
+
+  (define right-whisker-center-offset
+    (* 3/4 (pict-width nose)))
+  (define right-whisker-extent-from-center
+    (+ whisker-length right-whisker-center-offset))
+  (define right-whisker-inset-amount
+    (if whisker-inset?
+        (max 0 (- (car (coord-fn (cons right-whisker-extent-from-center 0)))
+                  (pict-width face)))
+        0))
+
+  ;; If we don't show the whiskers, we don't need to inset the face
+  ;; in order to draw them past the extent of the cat silhouette.
+  (define-values (center-x face*)
+    (cond [(not whisker-width) (values pre-center-x face)]
+          [else
+           (define inset-face
+             (inset face left-whisker-inset-amount 0
+                    right-whisker-inset-amount 0))
+           (values (+ pre-center-x left-whisker-inset-amount)
+                   inset-face)]))
+
+  (define face-and-nose
+    (pin-over face*
+              (- center-x (/ (pict-width nose) 2))
+              (- center-y (/ (pict-height nose) 2))
+              nose))
+
+  (define lip
+    (draw-shape/border (/ width 4) (/ height 4)
+                       (λ (dc dx dy)
+                         (send dc draw-arc dx dy (/ width 4) (/ height 4) pi 0))
+                       lip-color lip-border-color lip-border-width
+                       #:draw-border? lip-border-width
+                       #:transparent? (not lip-color)))
+
+  (define left-lip
+    (pin-over face-and-nose
+              (- center-x (pict-width lip))
+              center-y
+              lip))
+
+  (define lips
+    (pin-over left-lip center-x center-y lip))
+
+  (define select-left-eye (or left-eye eyes))
+  (define with-left-eye
+    (pin-over lips
+              (- center-x (pict-width select-left-eye) (/ (pict-width nose) 2))
+              (- center-y (pict-height nose))
+              select-left-eye))
+
+  (define with-eyes
+    (pin-over with-left-eye
+              (+ center-x (/ (pict-width nose) 2))
+              (- center-y (pict-height nose))
+              (or right-eye eyes)))
+
+  (cond
+    [(not whisker-width) (values with-eyes coord-fn)]
+    [else
+     (define left-whisker
+       (draw-shape/border
+        (/ width 2) (/ height 16)
+        (λ (dc dx dy)
+          (send dc draw-spline dx dy
+                (- dx (* 5/8 whisker-length))
+                (+ dy (* 1/16 height))
+                (- dx whisker-length)
+                (+ dy whisker-droop)))
+        #f whisker-color whisker-width
+        #:draw-border? whisker-width
+        #:transparent? #f))
+
+     (define right-whisker
+       (draw-shape/border
+        (/ width 2) (/ height 16)
+        (λ (dc dx dy)
+          (send dc draw-spline dx dy
+                (+ dx (* 5/8 whisker-length))
+                (+ dy (* 1/16 height))
+                (+ dx whisker-length)
+                (+ dy whisker-droop)))
+        #f whisker-color whisker-width
+        #:draw-border? whisker-width
+        #:transparent? #f))
+
+     (define with-whisker0
+       (pin-over with-eyes
+                 (- center-x (/ (pict-width nose) 2))
+                 (+ center-y (/ (pict-height nose) 2))
+                 left-whisker))
+
+     (define with-whisker1
+       (pin-over with-whisker0
+                 (+ center-x left-whisker-center-offset)
+                 (+ center-y (* 1/4 (pict-height nose)))
+                 left-whisker))
+
+     (define with-whisker2
+       (pin-over with-whisker1
+                 (+ center-x (/ (pict-width nose) 2))
+                 (+ center-y (/ (pict-height nose) 2))
+                 right-whisker))
+
+     (values
+      (pin-over with-whisker2
+                (+ center-x right-whisker-center-offset)
+                (+ center-y (* 1/4 (pict-height nose)))
+                right-whisker)
+      (λ (pair)
+        (match-define (cons dx dy) (coord-fn pair))
+        (cons (+ left-whisker-inset-amount dx) dy)))]))
+
+(define (standard-cat width height
+                      #:left-ear-extent [left-ear-extent (default-ear-extent height)]
+                      #:left-ear-arc [left-ear-arc default-ear-arc]
+                      #:left-ear-angle [left-ear-angle (default-left-ear-angle left-ear-arc)]
+                      #:right-ear-extent [right-ear-extent (default-ear-extent height)]
+                      #:right-ear-arc [right-ear-arc default-ear-arc]
+                      #:right-ear-angle [right-ear-angle (default-right-ear-angle right-ear-arc)]
+                      #:fur-color [fur-color "orange"]
+                      #:fur-border-color [fur-border-color (make-object color% 200 80 100)]
+                      #:eye-color [eye-color "black"]
+                      #:nose-color [nose-color "pink"]
+                      #:nose [nose (equilateral-triangle (/ width 4) (/ height 4) #:angle pi #:color nose-color)]
+                      #:lip-color [lip-color (make-object color% 240 140 0)]
+                      #:lip-border-color [lip-border-color fur-border-color]
+                      #:lip-border-width [lip-border-width 1]
+                      #:happy? [happy? #f]
+                      #:eyes [eyes
+                              (if happy?
+                                  (happy-eyes (/ width 6) (/ height 6) #:color eye-color)
+                                  (filled-ellipse (/ width 6) (/ height 6) #:color eye-color))]
+                      #:left-eye [left-eye #f]
+                      #:right-eye [right-eye #f]
+                      #:whisker-length [whisker-length (* 3/8 width)]
+                      #:whisker-droop [whisker-droop (* 1/6 height)]
+                      #:whisker-color [whisker-color (make-object color% 100 40 50)]
+                      #:whisker-width [whisker-width 1]
+                      #:whisker-inset? [whisker-inset? #t]
+                      #:border-width [border-width 1])
+  (define-values (cat _) (standard-cat/transform
+                          width height
+                          #:left-ear-extent left-ear-extent
+                          #:left-ear-arc left-ear-arc
+                          #:left-ear-angle left-ear-angle
+                          #:right-ear-extent right-ear-extent
+                          #:right-ear-arc right-ear-arc
+                          #:right-ear-angle right-ear-angle
+                          #:fur-color fur-color
+                          #:fur-border-color fur-border-color
+                          #:eye-color eye-color
+                          #:nose-color nose-color
+                          #:nose nose
+                          #:lip-color lip-color
+                          #:lip-border-color lip-border-color
+                          #:happy? happy?
+                          #:eyes eyes
+                          #:left-eye left-eye
+                          #:right-eye right-eye
+                          #:whisker-length whisker-length
+                          #:whisker-droop whisker-droop
+                          #:whisker-color whisker-color
+                          #:whisker-width whisker-width
+                          #:whisker-inset? whisker-inset?
+                          #:border-width border-width))
+  cat)
