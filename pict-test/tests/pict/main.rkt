@@ -81,6 +81,15 @@
   (do-pict-base-random-tests))
 
 (test-case
+ "freeze arguments"
+ (check-= (pict-width (freeze (blank 11 13) #:scale 2)) 11 0)
+ (check-= (pict-height (freeze (blank 11 13) #:scale 2)) 13 0)
+ (check-= (pict-width (freeze (blank 11 13) #:inset '(10 20 30 40))) 11 0)
+ (check-= (pict-height (freeze (blank 11 13) #:inset '(10 20 30 40))) 13 0)
+ (check-= (pict-width (freeze (blank 11 13) #:scale 2 #:inset '(10 20 30 40))) 11 0)
+ (check-= (pict-height (freeze (blank 11 13) #:scale 2 #:inset '(10 20 30 40))) 13 0))
+
+(test-case
  "scale-to-fit"
  (define p (rectangle 10 20))
  (check-pict=? (scale-to-fit p p) p)

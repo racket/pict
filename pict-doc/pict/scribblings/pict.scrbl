@@ -1181,7 +1181,14 @@ black-and-white colors.
     (colorize (disk 40) "seagreen"))
 ]}
 
-@defproc[(freeze [pict pict-convertible?]) pict?]{
+@defproc[(freeze [pict pict-convertible?]
+                 [#:scale scale-amount real? 1]
+                 [#:inset inset-amount
+                  (or/c real?
+                        (list/c real?)
+                        (list/c real? real?)
+                        (list/c real? real? real? real?))
+                  0]) pict?]{
  Creates a bitmap with the same size as @racket[pict], draws
  @racket[pict] into the bitmap, and then returns a pict that
  draws with the bitmap.
@@ -1191,13 +1198,31 @@ black-and-white colors.
  sub-picts of @racket[pict] remain intact within the new
  pict.
 
+  The @racket[scale-amount] argument controls the size of the bitmap
+  used to render the pict. For example, if @racket[scale-amount]
+  is @racket[2], then a bitmap that's twice as wide and
+  twice as tall as the pict is used to draw into. Regardless
+  of the value of @racket[scale-amount], the result pict's size
+  is that same as @racket[pict]'s size.
+
+  The @racket[inset-amount] argument allows @racket[freeze] to save
+  more of the area that the pict draws in, which is useful
+  when a pict draws outside of its bounding box. The
+  values are used as the arguments to @racket[inset].
+  As with the @racket[scale-amount] argument, the size of
+  the resulting pict is the same as the size of the input pict;
+  this argument controls the size of the bitmap.
+
 @examples[#:eval ss-eval
   (define txt
     (colorize (text "Freeze!" null 25) "deepskyblue"))
   (scale txt 2.5)
   (scale (freeze txt) 2.5)
-]}
+]
 
+@history[#:changed "1.13" @list{Added the
+           @racket[scale] and @racket[inset] arguments.}]
+}
 
 @; ------------------------------------------------------------------------
 

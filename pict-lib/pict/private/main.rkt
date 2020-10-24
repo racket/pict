@@ -298,16 +298,31 @@
   (send bm set-argb-pixels 0 0 w h b)
   (bitmap bm))
 
-(define (freeze p)
+(define (freeze p
+                #:inset [_inset 0]
+                #:scale [extra-scale 1])
+  (define inset-list
+    (cond
+      [(real? _inset) (list _inset)]
+      [else _inset]))
   (define p* (pict-convert p))
-  (define frozen (bitmap (pict->bitmap p*)))
-  (struct-copy pict p* [draw (pict-draw frozen)]))
+  (define sized (scale (apply inset p* inset-list) extra-scale))
+  (define frozen (bitmap (pict->bitmap sized)))
+  (define unsized (apply inset (scale frozen (/ extra-scale)) (map - inset-list)))
+  (struct-copy pict p* [draw (pict-draw unsized)]))
 
 (provide hline vline
          frame
          pict-path?
          pin-line pin-arrow-line pin-arrows-line
-         freeze
+         (contract-out
+          [freeze (->* (pict-convertible?)
+                       (#:inset (or/c real?
+                                      (list/c real?)
+                                      (list/c real? real?)
+                                      (list/c real? real? real? real?))
+                        #:scale real?)
+                       pict?)])
 
 
          dc-for-text-size
