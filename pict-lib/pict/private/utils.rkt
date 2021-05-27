@@ -1351,12 +1351,16 @@
      (+ (pict-height p) (abs y-shift))
      (pict-ascent p)
      (pict-descent p)))
+  (define rx-shift
+    (if (shear-x . < . 0)
+        (* -3/2 x-shift)
+        (* -1/2 x-shift)))
   (make-pict (pict-draw new)
              (pict-width new)
              (pict-height new)
              (pict-ascent new)
              (pict-descent new)
-             (list (make-child p 0 0 1 1 shear-y shear-x))
+             (list (make-child p rx-shift 0 1 1 shear-x shear-y))
              #f
              (pict-last p)))
 
@@ -1389,7 +1393,7 @@
                                        (- (* h (sin theta)) dl) 
                                        (max 0 (- db (* h (cos theta))))
                                        (cos theta) (cos theta) 
-                                       (sin theta) (- (sin theta))))
+                                       (- (sin theta)) (sin theta)))
 		     #f
                      (pict-last p))))))
 
