@@ -379,7 +379,7 @@ Straight lines, centered within their @tech{bounding box}es.
                 [#:line-width width (or/c #f real?) #f])
           pict?]{
 
-Frames a given pict. If the color or line width are provided, the
+Frames a given pict. If the color or line width are provided, they
 override settings supplied by the context.
 
 @examples[#:eval ss-eval
