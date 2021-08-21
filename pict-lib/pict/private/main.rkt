@@ -40,12 +40,6 @@
     (refocus (cc-superimpose p f)
              p)))
 
-(define (pict-path? p)
-  (or (pict-convertible? p)
-      (and (pair? p)
-           (list? p)
-           (andmap pict-convertible? p))))
-
 (define (label-line label pict src-pict src-coord-fn dest-pict dest-coord-fn
                     #:x-adjust [x-adjust 0] #:y-adjust [y-adjust 0])
   (let-values ([(src-x src-y) (src-coord-fn pict src-pict)]
