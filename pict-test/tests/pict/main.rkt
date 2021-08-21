@@ -672,3 +672,15 @@
 (check-not-exn
  (λ ()
    (unsafe-dc (λ (dc dx dy) (error 'ack-called!)) 10 10)))
+
+(let ()
+  (define p1-p (ellipse 100 100))
+  (define p1 (wrap p1-p))
+  (define p2-p (rectangle 200 50))
+  (define p2 (wrap p2-p))
+  (check-pict=? (pin-line (hc-append 5 p1 p2) p1 lt-find p2 rb-find)
+                (pin-line (hc-append 5 p1-p p2-p) p1-p lt-find p2-p rb-find))
+  (check-pict=? (pin-arrow-line 10 (hc-append 5 p1 p2) p1 lt-find p2 rb-find)
+                (pin-arrow-line 10 (hc-append 5 p1-p p2-p) p1-p lt-find p2-p rb-find))
+  (check-pict=? (pin-arrows-line 10 (hc-append 5 p1 p2) p1 lt-find p2 rb-find)
+                (pin-arrows-line 10 (hc-append 5 p1-p p2-p) p1-p lt-find p2-p rb-find)))

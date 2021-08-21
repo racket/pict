@@ -10,7 +10,8 @@
            "convertible.rkt"
            "pict.rkt")
 
-  (provide cons-colorized-picture
+  (provide pict-path?
+     cons-colorized-picture
 	   color-frame
 	   round-frame
 	   color-round-frame
@@ -63,10 +64,10 @@
 	   hyperlinkize)
   
   (define (pict-path? p)
-    (or (pict? p) 
+    (or (pict-convertible? p)
         (and (pair? p)
              (list? p)
-             (andmap pict? p))))
+             (andmap pict-convertible? p))))
   
   (provide/contract 
    [scale (case-> (-> pict-convertible? number? number? pict?)
