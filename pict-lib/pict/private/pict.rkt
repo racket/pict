@@ -151,6 +151,7 @@
          prop:pict-convertible prop:pict-convertible? pict-convertible? pict-convert
          pict-convertible-ref
          pict-path-element=?
+         pict-path?
          pict-deserialize-info)
 
 ;; ; ----------------------------------------
@@ -290,6 +291,12 @@
           (if (converted-pict? b)
               (eq? (converted-pict-parent b) a)
               #f))))
+
+(define (pict-path? p)
+  (or (pict-convertible? p)
+      (and (pair? p)
+           (list? p)
+           (andmap pict-convertible? p))))
 
 ;; ----------------------------------------
 
@@ -1218,8 +1225,7 @@
                 (cond
                  [(and (number? dx) (number? dy))
                   (values dx (- (pict-height base) dy))]
-                 [(and (or (pict? dx) 
-                           (and (list? dx) (andmap pict? dx)))
+                 [(and (pict-path? dx)
                        (procedure? dy)
                        (procedure-arity-includes? dy 2))
                   (if flip?
