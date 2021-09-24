@@ -171,9 +171,9 @@
   (let-values ([(sx0 sy0) (src-find p src)]
                [(dx0 dy0) (dest-find p dest)])
     (let* ([sa (or sa
-                   (atan (- sy0 dy0) (- dx0 sx0)))]
+                   (get-angle (- sy0 dy0) (- dx0 sx0)))]
            [ea (or ea
-                   (atan (- sy0 dy0) (- dx0 sx0)))]
+                   (get-angle (- sy0 dy0) (- dx0 sx0)))]
            [d (sqrt (+ (* (- dy0 sy0) (- dy0 sy0)) (* (- dx0 sx0) (- dx0 sx0))))]
            [sp (* (or sp 1/4) d)]
            [ep (* (or ep 1/4) d)])

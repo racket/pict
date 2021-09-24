@@ -689,3 +689,17 @@
                 (pin-over (hc-append 5 p1-p p2-p) p1-p lt-find p3-p))
   (check-pict=? (pin-under (hc-append 5 p1 p2) p1 lt-find p3-p)
                 (pin-under (hc-append 5 p1-p p2-p) p1-p lt-find p3-p)))
+
+;; ensure that lines where the to and from are the same don't error
+(let ()
+  (define stage (frame (blank 100)))
+  (define big (colorize (disk 50) "red"))
+  (define small (colorize (disk 20) "blue"))
+  (define stage* (cc-superimpose stage big))
+  (define stage** (cc-superimpose stage* small))
+
+  (check-not-exn (λ () (pin-line stage** big cc-find small cc-find)))
+  (check-not-exn (λ () (pin-arrow-line 5 stage** big cc-find small cc-find #:start-angle 0.5)))
+  (check-not-exn (λ () (pin-arrow-line 5 stage** big cc-find small cc-find)))
+  (check-not-exn (λ () (pin-arrows-line 5 stage** big cc-find small cc-find)))
+  (check-not-exn (λ () (pip-arrow-line 0 0 10))))
