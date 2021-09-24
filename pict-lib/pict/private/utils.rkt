@@ -46,6 +46,7 @@
 	   add-line
 	   add-arrow-line
 	   add-arrows-line
+	   get-angle
 
 	   bitmap-draft-mode
 
@@ -356,7 +357,7 @@
      `((connect 0 0 ,dx ,(- dy)))))
 
   (define (arrow-line dx dy size)
-    (let-values ([(a adx ady) (arrowhead/delta 0 size (atan dy dx) #t)])
+    (let-values ([(a adx ady) (arrowhead/delta 0 size (get-angle dy dx) #t)])
       (picture
        0 0
        `((connect 0 0 ,dx ,dy)
@@ -1063,8 +1064,8 @@
       (let ([arrows
              (let ([p (cons-picture
                        (ghost (launder base))
-                       `(,(let* ([angle (atan (- sy dy) 
-                                              (- sx dx))]
+                       `(,(let* ([angle (get-angle (- sy dy)
+                                                   (- sx dx))]
                                  [cosa (cos angle)]
                                  [sina (sin angle)]
                                  ;; If there's an arrow, line goes only half-way in
@@ -1079,8 +1080,8 @@
                                              (arrowhead/delta
                                               (or thickness 0)
                                               arrow-size 
-                                              (atan (- dy sy) 
-                                                    (- dx sx))
+                                              (get-angle (- dy sy)
+                                                         (- dx sx))
                                               solid-head?)])
                                  `((place ,(+ dx xo) ,(+ dy yo) ,arrow)))
                                null)
@@ -1090,8 +1091,8 @@
                                              (arrowhead/delta
                                               (or thickness 0)
                                               arrow-size 
-                                              (atan (- sy dy) 
-                                                    (- sx dx))
+                                              (get-angle (- sy dy)
+                                                         (- sx dx))
                                               solid-head?)])
                                  `((place ,(+ sx xo) ,(+ sy yo) ,arrow)))
                                null)))])
@@ -1109,6 +1110,11 @@
              (cc-superimpose arrows base)
              (cc-superimpose base arrows))
          base))))
+
+  (define (get-angle x y)
+    (if (and (zero? x) (zero? y))
+        0
+        (atan x y)))
 
   (define add-line
     (lambda (base src find-src dest find-dest [thickness #f] [color #f] [under? #f])
