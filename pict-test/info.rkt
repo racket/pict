@@ -12,3 +12,6 @@
                      "htdp-lib"
                      "draw-lib"))
 (define update-implies '("pict-lib"))
+
+(define license
+  '(Apache-2.0 OR MIT))
