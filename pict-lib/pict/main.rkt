@@ -93,8 +93,10 @@
                                  (listof (->* () #:rest (listof pict-convertible?) pict-convertible?)))]
                [col-seps (or/c (listof real?) (list*of real?))]
                [row-seps (or/c (listof real?) (list*of real?))])
-              #:pre (ncols picts)
-              (zero? (remainder (length picts) ncols))
+              #:pre/desc (ncols picts)
+              (let ((rem (remainder (length picts) ncols)))
+                (or (zero? rem)
+                    (format "ncols does not divide number of picts (~a % ~a = ~a)" (length picts) ncols rem)))
               [result pict?])]
   [dc (->i ([draw (-> (is-a?/c dc<%>) real? real? any)]
             [w real?]
