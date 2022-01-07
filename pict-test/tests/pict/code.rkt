@@ -76,7 +76,7 @@
   ╚═════════════╩═══════════════════════╩═════════════╝)
 END
 )
-(test-codeblock-pict-hash example #"7b91788c2f1dfdf63e7c7fa48f13bb28")
+(test-codeblock-pict-hash example #"0799f59e11c86bea943f9ba7cb914978")
 
 ;; make sure that whitespace before #lang doesn't blow up
 (define example2
@@ -86,11 +86,11 @@ END
 >>
 )
 (check-not-exn
- (λ () (test-codeblock-pict-hash example2 #"48281e84c3d32bb488e323d17ed1a0fd")))
+ (λ () (test-codeblock-pict-hash example2 #"62ec308dd6bed21018107ea44aae18dc")))
 
 ;; windows newlines should work
 (define example3 "#lang racket\r\n(define x 2)\r\nx")
-(test-codeblock-pict-hash example3 #"b32d6e6f8f33dd9a79a6846fede88246")
+(test-codeblock-pict-hash example3 #"928d024d7811fb97952f1bad0ab97371")
 
 ;; ascent should not be zero for a single line
 (define example4 (codeblock-pict #:keep-lang-line? #f "#lang racket\n(define foo 42)"))

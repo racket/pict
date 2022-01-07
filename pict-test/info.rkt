@@ -10,7 +10,7 @@
 (define build-deps '("pict-lib"
                      "rackunit-lib"
                      "htdp-lib"
-                     "draw-lib"))
+                     ["draw-lib" #:version "1.19"]))
 (define update-implies '("pict-lib"))
 
 (define license
