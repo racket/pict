@@ -48,6 +48,7 @@
   [naive-layered (->* (tree-layout?)
                       (#:x-spacing 
                        (or/c (and/c real? positive?) #f)
-                       #:y-spacing (or/c (and/c real? positive?) #f))
+                       #:y-spacing (or/c (and/c real? positive?) #f)
+                       #:invert? boolean?)
                       pict?)]))
 

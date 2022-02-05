@@ -7,6 +7,7 @@
          pict/code
          pict/conditional
          pict/balloon
+         pict/tree-layout
          racket/draw racket/class)
 
 (define (->bitmap p)
@@ -703,3 +704,14 @@
   (check-not-exn (λ () (pin-arrow-line 5 stage** big cc-find small cc-find)))
   (check-not-exn (λ () (pin-arrows-line 5 stage** big cc-find small cc-find)))
   (check-not-exn (λ () (pip-arrow-line 0 0 10))))
+
+;; for a symmetric tree, invert? is a pi/2 rad. rotation
+(let ()
+  (define t
+    (tree-layout
+     (tree-edge #:edge-style 'transparent (tree-layout))
+     (tree-edge #:edge-style 'transparent (tree-layout))))
+
+  (check-pict=?
+    (rotate (naive-layered t) (/ pi 2))
+    (naive-layered t #:invert? #t)))

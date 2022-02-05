@@ -3,8 +3,14 @@
          "../main.rkt"
          "layout.rkt")
 (provide naive-layered)
-(define (naive-layered t #:x-spacing [given-x-spacing #f] #:y-spacing [given-y-spacing #f])
+(define (naive-layered t #:x-spacing [given-x-spacing #f]
+                         #:y-spacing [given-y-spacing #f]
+                         #:invert? [invert? #f])
   (define-values (x-space y-space) (compute-spacing t given-x-spacing given-y-spacing))
+  (define-values (level-space child-space level-append child-append)
+    (if invert?
+        (values x-space y-space hc-append vl-append)
+        (values y-space x-space vc-append ht-append)))
 
   (define root+tree-pair
     (let loop ([t t])
@@ -30,10 +36,11 @@
             (let loop ([main (place-parent-over-children
                               (cc-superimpose this-root pict)
                               children-roots
-                              (vc-append
-                               y-space
+                              (level-append
+                               level-space
                                (ghost (launder pict))
-                               (apply ht-append x-space children-trees)))]
+                               (apply child-append child-space children-trees))
+                              invert?)]
                        [children-roots children-roots]
                        [tree-edges children])
               (cond
@@ -65,18 +72,26 @@
   
   (cdr root+tree-pair))
 
-(define (place-parent-over-children parent-root children-roots main)
-  (define x-min (pict-width main))
-  (define x-max 0)
+(define (place-parent-over-children parent-root children-roots main invert?)
+  (define-values (size from-find to-find)
+    (if invert?
+        (values pict-height ct-find cb-find)
+        (values pict-width lc-find rc-find)))
+
+  (define coord-min (size main))
+  (define coord-max 0)
   (for ([child-root (in-list children-roots)])
     (when child-root
-      (define-values (c-min _1) (lc-find main child-root))
-      (define-values (c-max _2) (rc-find main child-root))
-      (set! x-min (min c-min x-min))
-      (set! x-max (max c-max x-max))))
+      (define-values (x-min y-min) (from-find main child-root))
+      (define-values (x-max y-max) (to-find main child-root))
+
+      (set! coord-min (min (if invert? y-min x-min) coord-min))
+      (set! coord-max (max (if invert? y-max x-max) coord-max))))
+
+  (define adjustment (- (/ (+ coord-min coord-max) 2) (/ (size parent-root) 2)))
   (pin-over main
-            (- (/ (+ x-min x-max) 2) (/ (pict-width parent-root) 2))
-            0
+            (if invert? 0 adjustment)
+            (if invert? adjustment 0)
             parent-root))
                              
 

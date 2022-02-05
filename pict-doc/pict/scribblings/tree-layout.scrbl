@@ -93,13 +93,16 @@ that render them as @racket[pict]s.
 
 @defproc[(naive-layered [tree-layout tree-layout?]
                         [#:x-spacing x-spacing (or/c (and/c real? positive?) #f) #f]
-                        [#:y-spacing y-spacing (or/c (and/c real? positive?) #f) #f])
+                        [#:y-spacing y-spacing (or/c (and/c real? positive?) #f) #f]
+                        [#:invert? invert? boolean? #f])
          pict?]{
   Uses a naive algorithm that ensures that all nodes at a fixed
   depth are the same vertical distance from the root (dubbed ``layered'').
   It recursively lays out subtrees and then horizontally
   combines them, aligning them at their tops. Then it places
-  the root node centered over the children nodes.
+  the root node centered over the children nodes. If
+  @racket[#:invert?] is @racket[#t], then the axes are flipped
+  and subtrees are combined vertically instead of horizontally.
   
   @examples[#:eval 
             tree-layout-eval
@@ -136,7 +139,10 @@ that render them as @racket[pict]s.
                   #f)
                  #f)
                 #f)))
-            (naive-layered right-subtree-with-left-chain)]
+            (naive-layered right-subtree-with-left-chain)
+            (naive-layered right-subtree-with-left-chain #:invert? #t)]
+
+  @history[#:changed "1.13" @list{Added the @racket[#:invert?] option.}]
 }
                 
 @defproc[(binary-tidier [tree-layout binary-tree-layout?]
