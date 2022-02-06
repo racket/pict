@@ -8,7 +8,9 @@
          _tree-layout
          _tree-edge
          default-node-pict
-         compute-spacing)
+         compute-spacing
+         uniquify-picts
+         transform-tree-pict)
 
 ;; values of this struct leak outside, so it cannot be transparent
 (struct tree-layout (pict children))
@@ -81,3 +83,61 @@
      
      (values (or given-x-spacing x-spacing)
              (or given-y-spacing y-spacing))]))
+
+;; If `transform` is `#f`, then we'll reuse the layout pict and just place
+;; edges on top of it.
+(define (transform-tree-pict t layout-pict transform)
+  (define-values (l-amt t-amt r-amt b-amt) (values #f #f #f #f))
+  (define (update-bb! x y)
+    (set! l-amt (if l-amt (min l-amt x) x))
+    (set! r-amt (if r-amt (max r-amt x) x))
+    (set! t-amt (if t-amt (min t-amt y) y))
+    (set! b-amt (if b-amt (max b-amt y) y)))
+  (define w (pict-width layout-pict))
+  (define h (pict-height layout-pict))
+  (when transform
+    (for ([x `(0 ,w ,w 0)]
+          [y `(0 0 ,h ,h)])
+      (define-values (tx ty) (transform x y))
+      (update-bb! tx ty)))
+  (define (place-node main pict)
+    (define-values (x y) (lt-find layout-pict pict))
+    (define-values (tx ty) (transform x y))
+    (pin-over main tx ty pict))
+  (define final-pict
+   (let loop ([t t]
+              [main (if transform (blank) layout-pict)]
+              [parent-pict #f])
+     (match t
+       [#f main]
+       [(tree-edge child edge-color edge-width edge-style)
+        (define child-pict (tree-layout-pict child))
+        (let* ([main (loop child main #f)]
+               [main (pin-line main
+                               parent-pict cc-find
+                               child-pict cc-find
+                               #:color edge-color
+                               #:under? #t)]
+               [main (if (unspecified? edge-width) main (linewidth edge-width main))]
+               [main (if (unspecified? edge-style) main (linestyle edge-style main))])
+          main)]
+       [(tree-layout pict children)
+        (for/fold ([main (if transform (place-node main pict) main)])
+                  ([child (in-list children)])
+          (loop child main pict))])))
+   (if transform (inset final-pict l-amt t-amt r-amt b-amt) final-pict))
+
+(define (uniquify-picts t)
+  (let loop ([t t])
+    (match t
+      [#f #f]
+      [(tree-layout pict children)
+       (tree-layout (unique-pict pict) (map loop children))]
+      [(tree-edge child c w s)
+       (tree-edge (loop child) c w s)])))
+
+(define (unique-pict pict)
+  (cc-superimpose pict))
+
+(define (unspecified? x)
+  (eq? x 'unspecified))
