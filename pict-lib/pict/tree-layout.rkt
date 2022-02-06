@@ -36,18 +36,17 @@
   [rename _tree-layout? tree-layout? (-> any/c boolean?)]
   [binary-tree-layout? (-> any/c boolean?)]
   [binary-tidier (->* (binary-tree-layout?)
-                      (#:x-spacing 
-                       (or/c (and/c real? positive?) #f)
-                       #:y-spacing (or/c (and/c real? positive?) #f))
+                      (#:x-spacing (or/c (and/c real? positive?) #f)
+                       #:y-spacing (or/c (and/c real? positive?) #f)
+                       #:transform (-> real? real? (values real? real?)))
                       pict?)]
   [hv-alternating (->* (binary-tree-layout?)
-                       (#:x-spacing 
-                        (or/c (and/c real? positive?) #f)
-                        #:y-spacing (or/c (and/c real? positive?) #f))
+                       (#:x-spacing (or/c (and/c real? positive?) #f)
+                        #:y-spacing (or/c (and/c real? positive?) #f)
+                        #:transform (-> real? real? (values real? real?)))
                        pict?)]
   [naive-layered (->* (tree-layout?)
-                      (#:x-spacing 
-                       (or/c (and/c real? positive?) #f)
-                       #:y-spacing (or/c (and/c real? positive?) #f))
+                      (#:x-spacing (or/c (and/c real? positive?) #f)
+                       #:y-spacing (or/c (and/c real? positive?) #f)
+                       #:transform (-> real? real? (values real? real?)))
                       pict?)]))
-

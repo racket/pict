@@ -14,13 +14,17 @@ Vol 7, #2, March 1981
 
 |#
 
-(define (binary-tidier t #:x-spacing [given-x-spacing #f] #:y-spacing [given-y-spacing #f])
+(define (binary-tidier t
+                       #:x-spacing [given-x-spacing #f]
+                       #:y-spacing [given-y-spacing #f]
+                       #:transform [transform #f])
   (cond
     [t
      (define-values (x-spacing y-spacing) (compute-spacing t given-x-spacing given-y-spacing))
+     (define t-unique (uniquify-picts t))
      (unless given-y-spacing (set! y-spacing (* y-spacing 1.5)))
      (define minsep 2)
-     (define xc (tidier-x-coordinates t minsep))
+     (define xc (tidier-x-coordinates t-unique minsep))
      (define x-max (let loop ([xc xc])
                      (match xc
                        [#f 0]
@@ -34,46 +38,29 @@ Vol 7, #2, March 1981
      
      (define main (blank (* x-spacing (+ x-max 1))
                          (* y-spacing y-max)))
-     (let loop ([t t]
+     (let loop ([t t-unique]
                 [xc xc]
                 [y 0])
        (match* (t xc)
          [(#f #f) (void)]
          [((tree-layout pict (list left-t right-t))
            (x-node x left-xc right-xc))
-          (define node-pict (launder pict))
+          (define node-pict pict)
           (set! main (pin-over main 
                                (* x x-spacing)
                                (* y y-spacing)
                                node-pict))
-          (define (add-edge to color width style)
-            (define colored
-              (colorize (launder (pin-line (ghost main)
-                                           node-pict cc-find
-                                           to cc-find))
-                        color))
-            (define with-linewidth
-              (if (eq? width 'unspecified)
-                  colored
-                  (linewidth width colored)))
-            (define with-linestyle
-              (if (eq? style 'unspecified)
-                  with-linewidth
-                  (linestyle style with-linewidth)))
-            (set! main (cc-superimpose with-linestyle main)))
           (match left-t
             [#f (void)]
             [(tree-edge left-t left-color left-width left-style)
-             (define left-pict (loop left-t left-xc (+ y 1)))
-             (add-edge left-pict left-color left-width left-style)])
+             (loop left-t left-xc (+ y 1))])
           (match right-t
             [#f (void)]
             [(tree-edge right-t right-color right-width right-style)
-             (define right-pict (loop right-t right-xc (+ y 1)))
-             (add-edge right-pict right-color right-width right-style)])
+             (loop right-t right-xc (+ y 1))])
           node-pict]))
      
-     main]
+     (transform-tree-pict t-unique main transform)]
     [else (blank)]))
 
 ;; x-coordinate-tree : (or/c #f x-node?)

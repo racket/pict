@@ -93,7 +93,8 @@ that render them as @racket[pict]s.
 
 @defproc[(naive-layered [tree-layout tree-layout?]
                         [#:x-spacing x-spacing (or/c (and/c real? positive?) #f) #f]
-                        [#:y-spacing y-spacing (or/c (and/c real? positive?) #f) #f])
+                        [#:y-spacing y-spacing (or/c (and/c real? positive?) #f) #f]
+                        [#:transform transform (-> real? real? (values real? real?)) values])
          pict?]{
   Uses a naive algorithm that ensures that all nodes at a fixed
   depth are the same vertical distance from the root (dubbed ``layered'').
@@ -101,6 +102,12 @@ that render them as @racket[pict]s.
   combines them, aligning them at their tops. Then it places
   the root node centered over the children nodes.
   
+  The @racket[transform] argument applies a coordinate
+  transformation to each of the nodes after it has been layed out.
+  The bounding box of the resulting pict encompasses the corners
+  of the original bounding box after the transformation has been
+  applied to them.
+
   @examples[#:eval 
             tree-layout-eval
             (define (complete d)
@@ -110,7 +117,7 @@ that render them as @racket[pict]s.
                       (tree-layout s s)]))
             
             (naive-layered (complete 4))
-            
+            (naive-layered (complete 4) #:transform (lambda (x y) (values y x)))
             (naive-layered (tree-layout
                             (tree-layout)
                             (tree-layout)
@@ -137,11 +144,14 @@ that render them as @racket[pict]s.
                  #f)
                 #f)))
             (naive-layered right-subtree-with-left-chain)]
+
+  @history[#:changed "1.13" @list{Added the @racket[#:transform] option.}]
 }
                 
 @defproc[(binary-tidier [tree-layout binary-tree-layout?]
                         [#:x-spacing x-spacing (or/c (and/c real? positive?) #f) #f]
-                        [#:y-spacing y-spacing (or/c (and/c real? positive?) #f) #f])
+                        [#:y-spacing y-spacing (or/c (and/c real? positive?) #f) #f]
+                        [#:transform transform (-> real? real? (values real? real?)) values])
          pict?]{
   Uses the layout algorithm from
   @italic{Tidier Drawing of Trees} by Edward M. Reingold and John S. Tilford
@@ -173,6 +183,7 @@ that render them as @racket[pict]s.
   it is the width of the widest node @racket[pict?] in the tree. 
   If @racket[y-spacing] is @racket[#f],
   it is @racket[1.5] times the width of the widest node @racket[pict?] in the tree. 
+  The @racket[transform] is the same as in @racket[naive-layered].
   
   @examples[#:eval 
             tree-layout-eval
@@ -190,12 +201,13 @@ that render them as @racket[pict]s.
             
             (binary-tidier right-subtree-with-left-chain)]
 
-
+  @history[#:changed "1.13" @list{Added the @racket[#:transform] option.}]
 }
 
 @defproc[(hv-alternating [tree-layout binary-tree-layout?]
                          [#:x-spacing x-spacing (or/c (and/c real? positive?) #f) #f]
-                         [#:y-spacing y-spacing (or/c (and/c real? positive?) #f) #f])
+                         [#:y-spacing y-spacing (or/c (and/c real? positive?) #f) #f]
+                         [#:transform transform (-> real? real? (values real? real?)) values])
          pict?]{
                 
   Uses the ``CT'' binary tree layout algorithm from 
@@ -205,11 +217,13 @@ that render them as @racket[pict]s.
   
   It adds horizontal and vertical space between layers based on @racket[x-spacing] and
   @racket[y-spacing]. If either is @racket[#f], @racket[1.5] times the size of the biggest
-  node is used.
+  node is used.  The @racket[transform] is the same as in @racket[naive-layered].
                 
   @examples[#:eval 
             tree-layout-eval
             (hv-alternating (complete 8))]
+
+  @history[#:changed "1.13" @list{Added the @racket[#:transform] option.}]
 }
 
 @history[#:added "6.0.1.4"]

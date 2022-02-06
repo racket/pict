@@ -7,7 +7,9 @@
          pict/code
          pict/conditional
          pict/balloon
-         racket/draw racket/class)
+         pict/tree-layout
+         racket/draw
+         racket/class)
 
 (define (->bitmap p)
   (define b (pict->bitmap p))
@@ -703,3 +705,42 @@
   (check-not-exn (λ () (pin-arrow-line 5 stage** big cc-find small cc-find)))
   (check-not-exn (λ () (pin-arrows-line 5 stage** big cc-find small cc-find)))
   (check-not-exn (λ () (pip-arrow-line 0 0 10))))
+
+(define layout-algs
+  (list naive-layered
+        binary-tidier
+        hv-alternating))
+
+;; check that transform gives the correct rotation/reflection
+(let ()
+  (define (reflect p)
+    (inset (scale p 1 -1) 0 (pict-height p)))
+  (define t
+    (tree-layout
+     (tree-edge #:edge-color "red" (tree-layout #f #f))
+     (tree-edge (tree-layout #f #f))))
+
+  (for ([alg (in-list layout-algs)])
+    (check-pict=?
+     (reflect (rotate (alg t) (/ pi 2)))
+     (alg t #:transform (λ (x y) (values y x))))))
+
+;; check that identity transform doesn't have any effect
+(let ()
+  (define NUM-TESTS 12)
+  (define (rand-node-pict)
+    (disk (random 10 30)))
+  (define (rand-bin-tree [gas 4])
+    (cond
+      [(< gas 0) #f]
+      [(< (random) 0.25) (tree-layout #f #f)]
+      [else
+       (tree-layout
+        #:pict (rand-node-pict)
+        (rand-bin-tree (sub1 gas))
+        (rand-bin-tree (sub1 gas)))]))
+
+  (for* ([_ (in-range NUM-TESTS)]
+         [alg (in-list layout-algs)])
+    (define t (rand-bin-tree))
+    (check-pict=? (alg t) (alg t #:transform values))))

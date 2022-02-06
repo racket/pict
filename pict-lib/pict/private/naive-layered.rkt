@@ -3,11 +3,14 @@
          "../main.rkt"
          "layout.rkt")
 (provide naive-layered)
-(define (naive-layered t #:x-spacing [given-x-spacing #f] #:y-spacing [given-y-spacing #f])
+(define (naive-layered t
+                       #:x-spacing [given-x-spacing #f]
+                       #:y-spacing [given-y-spacing #f]
+                       #:transform [transform #f])
   (define-values (x-space y-space) (compute-spacing t given-x-spacing given-y-spacing))
-
+  (define t-unique (uniquify-picts t))
   (define root+tree-pair
-    (let loop ([t t])
+    (let loop ([t t-unique])
       (match t
         [#f (cons #f (blank))]
         [(tree-layout pict children)
@@ -27,43 +30,17 @@
             (define this-root (launder (ghost pict)))
             (define children-roots (map car children-pairs))
             (define children-trees (map cdr children-pairs))
-            (let loop ([main (place-parent-over-children
+            (define main
+              (place-parent-over-children
                               (cc-superimpose this-root pict)
                               children-roots
                               (vc-append
                                y-space
                                (ghost (launder pict))
-                               (apply ht-append x-space children-trees)))]
-                       [children-roots children-roots]
-                       [tree-edges children])
-              (cond
-                [(null? children-roots) (cons this-root main)]
-                [else 
-                 (define child-root (car children-roots))
-                 (define this-tree-edge (car tree-edges))
-                 (match this-tree-edge
-                   [#f (loop main (cdr children-roots) (cdr tree-edges))]
-                   [(tree-edge child edge-color edge-width edge-style)
-                    (define *w/line
-                      (colorize
-                       (launder
-                        (pin-line (ghost main)
-                                  this-root cc-find
-                                  child-root cc-find))
-                       edge-color))
-                    (define w/line
-                      (let ([w/width
-                             (if (eq? edge-width 'unspecified)
-                                 *w/line
-                                 (linewidth edge-width *w/line))])
-                        (if (eq? edge-style 'unspecified)
-                            w/width
-                            (linestyle edge-style w/width))))
-                    (loop (cc-superimpose w/line main)
-                          (cdr children-roots)
-                          (cdr tree-edges))])]))])])))
+                (apply ht-append x-space children-trees))))
+            (cons this-root main)])])))
   
-  (cdr root+tree-pair))
+  (transform-tree-pict t-unique (cdr root+tree-pair) transform))
 
 (define (place-parent-over-children parent-root children-roots main)
   (define x-min (pict-width main))
