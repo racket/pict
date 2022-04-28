@@ -1425,13 +1425,16 @@ element of @racket[sub-pict] is used as the new last element for
            [(rbl-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
            [(rb-find [pict pict-convertible?] [find pict-path?]) (values real? real?)])]{
 
-Locates a pict designated by @racket[find] is within @racket[pict]. If
+Locates a pict designated by @racket[find] within @racket[pict]. If
 @racket[find] is a pict, then the @racket[pict] must have been created
 as some combination involving @racket[find].
 
 If @racket[find] is a list, then the first element of @racket[find]
 must be within @racket[pict], the second element of @racket[find] must
-be within the second element, and so on.
+be within the first element, and so on. In general, the n+1-st element
+must be within the n-th element, so the list can provide a path to
+some specific pict, in case there is more than one occurrence of the pict
+that's being searched for within @racket[pict].
 
 @examples[#:eval ss-eval
   (define p1 (disk 60))
