@@ -572,7 +572,7 @@ argument for consistency with the other functions.}
                       [#:end-pull end-pull real? 1/4]
                       [#:line-width line-width (or/c #f real?) #f]
                       [#:color color (or/c #f string? (is-a?/c color%)) #f]
-                      [#:alpha alpha (real-in 0.0 1.0) #f]
+                      [#:alpha alpha (real-in 0.0 1.0) 1.0]
                       [#:style style (or/c 'transparent 'solid 'xor 'hilite
                                            'dot 'long-dash 'short-dash 'dot-dash
                                            'xor-dot 'xor-long-dash 'xor-short-dash
@@ -593,7 +593,7 @@ argument for consistency with the other functions.}
                       [#:end-pull end-pull real? 1/4]
                       [#:line-width line-width (or/c #f real?) #f]
                       [#:color color (or/c #f string? (is-a?/c color%)) #f]
-                      [#:alpha alpha (real-in 0.0 1.0) #f]
+                      [#:alpha alpha (real-in 0.0 1.0) 1.0]
                       [#:style style (or/c 'transparent 'solid 'xor 'hilite
                                            'dot 'long-dash 'short-dash 'dot-dash
                                            'xor-dot 'xor-long-dash 'xor-short-dash
@@ -617,7 +617,7 @@ argument for consistency with the other functions.}
                       [#:end-pull end-pull real? 1/4]
                       [#:line-width line-width (or/c #f real?) #f]
                       [#:color color (or/c #f string? (is-a?/c color%)) #f]
-                      [#:alpha alpha (real-in 0.0 1.0) #f]
+                      [#:alpha alpha (real-in 0.0 1.0) 1.0]
                       [#:style style (or/c 'transparent 'solid 'xor 'hilite
                                            'dot 'long-dash 'short-dash 'dot-dash
                                            'xor-dot 'xor-long-dash 'xor-short-dash
