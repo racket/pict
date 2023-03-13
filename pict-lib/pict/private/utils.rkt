@@ -67,6 +67,8 @@
   (provide/contract 
    [scale (case-> (-> pict-convertible? number? number? pict?)
                   (-> pict-convertible? number? pict?))]
+   [flip-x (-> pict-convertible? pict?)]
+   [flip-y (-> pict-convertible? pict?)]
    [scale-to-fit (->* (pict-convertible? (or/c number? pict-convertible?))
                       (number? #:mode (or/c 'preserve 'inset 'preserve/max 'inset/max 'distort))
                       pict?)]
@@ -1304,6 +1306,62 @@
                 #f
                 (pict-last p))]
     [(p factor) (scale p factor factor)]))
+
+(define/match (compose-trans _t1 _t2)
+  [{(vector a d b e c f) (vector g j h k i l)}
+   (vector (+ (* a g) (* b j))   (+ (* d g) (* e j))
+           (+ (* a h) (* b k))   (+ (* d h) (* e k))
+           (+ (* a i) (* b l) c) (+ (* d i) (* e l) f))])
+
+(define (compose-trans* t0 . ts)
+  (foldl (λ (t acc) (compose-trans acc t)) t0 ts))
+
+(define (make-translate h k)
+  (vector 1 0 0 1 h k))
+
+(define (make-flip-x) ; around y-axis
+  (vector -1 0 0 1 0 0))
+
+(define (flip-x p)
+  (define w (pict-width p))
+  (define h (pict-height p))
+  (dc (λ (dc x y)
+        ;; ( x, y) is the top-left corner
+        ;; (cx,cy) is the center of the pict
+        (define cx (+ x (/ w 2)))
+        (define cy (+ y (/ h 2)))
+        (define old-t (send dc get-initial-matrix))
+        (define new-t (compose-trans*
+                        (make-translate cx cy)
+                        (make-flip-x)
+                        (make-translate (- cx) (- cy))
+                        old-t))
+        (send dc set-initial-matrix new-t)
+        (draw-pict p dc x y)
+        (send dc set-initial-matrix old-t))
+      w h))
+
+(define (make-flip-y)
+  (vector 1 0 0 -1 0 0))
+
+(define (flip-y p)
+  (define w (pict-width p))
+  (define h (pict-height p))
+  (dc (λ (dc x y)
+        ;; ( x, y) is the top-left corner
+        ;; (cx,cy) is the center of the pict
+        (define cx (+ x (/ w 2)))
+        (define cy (+ y (/ h 2)))
+        (define old-t (send dc get-initial-matrix))
+        (define new-t (compose-trans*
+                        (make-translate cx cy)
+                        (make-flip-y)
+                        (make-translate (- cx) (- cy))
+                        old-t))
+        (send dc set-initial-matrix new-t)
+        (draw-pict p dc x y)
+        (send dc set-initial-matrix old-t))
+      w h))
 
 (define (translate p dx dy #:extend-bb? [bb? #f])
   (define nw (if (not bb?) (pict-width p) (+ (pict-width p) (abs dx))))

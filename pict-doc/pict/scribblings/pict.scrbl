@@ -938,6 +938,20 @@ scale while drawing the original @racket[pict].
 
 }
 
+@defproc*[([(flip-x [pict pict-convertible?]) pict?]
+           [(flip-y [pict pict-convertible?]) pict?])]{
+Flips a pict drawing horizontally or vertically.
+
+@examples[#:eval ss-eval
+          (standard-fish 100 50)
+          (flip-x (standard-fish 100 50))
+          (flip-x (flip-x (standard-fish 100 50)))
+          (flip-y (standard-fish 100 50))
+          (flip-y (flip-y (standard-fish 100 50)))
+          (flip-y (flip-x (standard-fish 100 50)))
+          (flip-x (flip-y (standard-fish 100 50)))]
+}
+
 @defproc*[([(scale-to-fit [pict pict-convertible?] [size-pict pict-convertible?]
                           [#:mode mode (or/c 'preserve 'inset
                                              'preserve/max 'inset/max

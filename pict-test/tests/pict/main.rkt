@@ -740,3 +740,25 @@
          [alg (in-list layout-algs)])
     (define t (rand-bin-tree))
     (check-pict=? (alg t) (alg t #:transform values))))
+
+(test-case "Flips"
+  (define fish (standard-fish 100 50))
+  (check-pict=? (flip-x (flip-x fish)) fish)
+  (check-pict=? (flip-y (flip-y fish)) fish)
+  (check-pict=? (flip-x (flip-y fish))
+                (flip-y (flip-x fish)))
+  ;; borders cause problems:
+  ;; https://github.com/racket/pict/pull/78#issuecomment-1479939570
+  ;; https://github.com/racket/draw/pull/26
+  (define oval (filled-ellipse 20 30 #:draw-border? #f))
+  (check-pict=? (flip-x oval) oval)
+  (check-pict=? (flip-y oval) oval)
+  (define (get-bounding-box p)
+    (map (λ (f) (f p)) (list pict-width pict-height pict-descent pict-ascent)))
+  ;; proof that "scale" with -1 factors is "wrong"
+  (check-not-equal? (get-bounding-box (flip-x fish))
+                    (get-bounding-box (scale fish -1 1)))
+  (check-not-equal? (get-bounding-box (flip-y fish))
+                    (get-bounding-box (scale fish 1 -1)))
+  (check-not-equal? (get-bounding-box (flip-x oval)) (get-bounding-box (scale oval -1 1)))
+  (check-not-equal? (get-bounding-box (flip-y oval)) (get-bounding-box (scale oval 1 -1))))
