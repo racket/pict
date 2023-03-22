@@ -21,11 +21,7 @@
                  w h
                  4)
                 255))
-   (send b get-argb-pixels
-         0 0
-         (send b get-width)
-         (send b get-height)
-         its)
+   (send b get-argb-pixels 0 0 w h its)
    (define mask (send b get-loaded-mask))
    (when mask
      (send b get-argb-pixels 0 0 w h its #t))
