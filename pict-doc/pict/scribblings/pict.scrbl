@@ -307,6 +307,10 @@ The @racket[style] argument must be one of the following:
        family (in case the face is unavailable; see @racket[font%])}
 
  @item{@racket[(cons 'bold style)] for a valid @racket[style]}
+ @item{@racket[(cons (cons 'weight _weight) style)] where @racket[_weight] is
+       a @tech[#:doc '(lib "scribblings/draw/draw.scrbl")]{font weight}
+
+       @history[#:added "1.14"]}
 
  @item{@racket[(cons 'italic style)]}
  @item{@racket[(cons 'subscript style)]}

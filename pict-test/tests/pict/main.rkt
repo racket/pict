@@ -762,3 +762,10 @@
                     (get-bounding-box (scale fish 1 -1)))
   (check-not-equal? (get-bounding-box (flip-x oval)) (get-bounding-box (scale oval -1 1)))
   (check-not-equal? (get-bounding-box (flip-y oval)) (get-bounding-box (scale oval 1 -1))))
+
+(test-case
+ "text 'weight style"
+ (check-pict=? (text "hello" '()) (text "hello" '((weight . 400))))
+ (check-pict=? (text "hello" '()) (text "hello" '((weight . normal))))
+ (check-pict=? (text "hello" '(bold)) (text "hello" '((weight . 700))))
+ (check-pict=? (text "hello" '(bold)) (text "hello" '((weight . bold)))))
