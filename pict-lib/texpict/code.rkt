@@ -722,7 +722,14 @@
          (add-close (if (pict-convertible? (syntax-e stx))
                         (syntax-e stx)
                         (mode-colorize mode 'literal
-                                       (tt (format "~s" (syntax-e stx)))))
+                                       (tt (literal->string stx))))
                     closes)])))
       
   )
+
+(define (literal->string stx)
+  (define lit (syntax-e stx))
+  (cond
+    [(and (equal? lit #t) (equal? (syntax-span stx) 5)) "#true"]
+    [(and (equal? lit #f) (equal? (syntax-span stx) 6)) "#false"]
+    [else (format "~s" lit)]))
