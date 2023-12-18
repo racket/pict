@@ -74,6 +74,10 @@ A pict is serializable via @racketmodname[racket/serialize], but
 serialization loses sub-pict information (preserving only the pict's
 drawing and bounding box).
 
+All of the pict functions that accept picts also values that
+are @tech{pict convertible}, meaning that picts can be mixed
+and matched with values from various other libraries.
+
 @history[#:changed "1.2" @elem{Added support for
                                @racket['png-bytes+bounds],
                                @racket['png-bytes+bounds8] and similar
@@ -1713,7 +1717,11 @@ values to be @deftech{pict convertible}, meaning they can convert themselves to 
 The protocol is used by DrRacket's interactions window, for example, to render
 values that it prints. Anything that is @racket[pict-convertible?]
 can be used wherever a @racket[pict] can be used. These values will
-be automatically converted to a pict when needed.}
+be automatically converted to a pict when needed.
+
+This set includes at least images from
+@racketmodname[2htdp/image #:indirect], but is extensible so may
+include other values as well. }
 
 @defthing[prop:pict-convertible struct-type-property?]{
 
