@@ -1917,9 +1917,10 @@
           (loop dx dy (cdr l))))))
 
 (define (make-pict-drawer p)
-  (let ([cmds (pict->command-list p)])
+  (let ([cmds (pict->command-list p)]
+        [h (pict-height p)])
     (lambda (dc dx dy)
-      (render dc (+ (pict-height p) dy)
+      (render dc (+ h dy)
               cmds
               dx 0))))
 
