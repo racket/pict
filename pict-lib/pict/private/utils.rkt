@@ -1506,20 +1506,27 @@
 	     [drawer (make-pict-drawer p)]
 	     [w (pict-width p)]
 	     [h (pict-height p)])
-        (define tc (make-thread-cell #f))
 	(define new
           (dc
            (λ (dc x y)
              (define clip-rgn (send dc get-clipping-region))
+             (define-values (l t r b)
+               (if clip-rgn
+                   (send clip-rgn get-bounding-box)
+                   (values 0 0 0 0)))
+             (define clip-redundant?
+               (and (<= x l)
+                    (<= y t)
+                    (<= (+ x w) r)
+                    (<= (+ y h) b)))
              (cond
-               [(eq? clip-rgn (thread-cell-ref tc))
+               [clip-redundant?
                 (drawer dc x y)]
                [else
                 (define rgn (make-object region% dc))
                 (send rgn set-rectangle x y w h)
                 (when clip-rgn (send rgn intersect clip-rgn))
                 (send dc set-clipping-region rgn)
-                (thread-cell-set! tc rgn)
                 (drawer dc x y)
                 (send dc set-clipping-region clip-rgn)]))
            w h (pict-ascent p) (pict-descent p)))
