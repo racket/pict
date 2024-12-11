@@ -1506,26 +1506,31 @@
 	     [drawer (make-pict-drawer p)]
 	     [w (pict-width p)]
 	     [h (pict-height p)])
-	(let ([new
-	       (dc
-		(lambda (dc x y)
-		  (let ([rgn (make-object region% dc)])
-		    (send rgn set-rectangle x y w h)
-		    (let ([r (send dc get-clipping-region)])
-		      (when r
-			(send rgn intersect r))
-		      (send dc set-clipping-region rgn)
-		      (drawer dc x y)
-		      (send dc set-clipping-region r))))
-		w h (pict-ascent p) (pict-descent p))])
-	  (make-pict (pict-draw new)
-		     (pict-width new)
-		     (pict-height new)
-		     (pict-ascent new)
-		     (pict-descent new)
-		     (list (make-child p 0 0 1 1 0 0))
-		     #f
-                     (pict-last p))))]
+        (define tc (make-thread-cell #f))
+	(define new
+          (dc
+           (λ (dc x y)
+             (define clip-rgn (send dc get-clipping-region))
+             (cond
+               [(eq? clip-rgn (thread-cell-ref tc))
+                (drawer dc x y)]
+               [else
+                (define rgn (make-object region% dc))
+                (send rgn set-rectangle x y w h)
+                (when clip-rgn (send rgn intersect clip-rgn))
+                (send dc set-clipping-region rgn)
+                (thread-cell-set! tc rgn)
+                (drawer dc x y)
+                (send dc set-clipping-region clip-rgn)]))
+           w h (pict-ascent p) (pict-descent p)))
+        (make-pict (pict-draw new)
+                   (pict-width new)
+                   (pict-height new)
+                   (pict-ascent new)
+                   (pict-descent new)
+                   (list (make-child p 0 0 1 1 0 0))
+                   #f
+                   (pict-last p)))]
      [(p h v) (inset/clip p h v h v)]
      [(p a) (inset/clip p a a a a)]))
   
