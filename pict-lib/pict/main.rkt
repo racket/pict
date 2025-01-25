@@ -114,7 +114,9 @@
                ([d (or/c #f real?)]
                 [a (or/c #f real?)])
                [p pict?])]
-  [cellophane (-> pict-convertible? (real-in 0 1) pict?)]
+  [cellophane (->* (pict-convertible? (real-in 0 1))
+                   (#:composite? any/c)
+                   pict?)]
 
   [linewidth (-> (or/c real? #f) pict-convertible? pict?)]
 
@@ -425,10 +427,15 @@
 (require "private/play-pict.rkt")
 (provide
  (contract-out
-  [fade-pict (->* ((real-in 0.0 1.0) pict-convertible? pict-convertible?) (#:combine (-> pict-convertible? pict-convertible? pict?)) pict?)]
+  [fade-pict (->* ((real-in 0.0 1.0) pict-convertible? pict-convertible?)
+                  (#:combine (-> pict-convertible? pict-convertible? pict?)
+                   #:composite? any/c)
+                  pict?)]
   [slide-pict (-> pict-convertible? pict-convertible? pict-convertible? pict-convertible? (real-in 0.0 1.0) pict?)]
   [slide-pict/center (-> pict-convertible? pict-convertible? pict-convertible? pict-convertible? (real-in 0.0 1.0) pict?)]
-  [fade-around-pict (-> (real-in 0.0 1.0) pict-convertible? (-> pict-convertible? pict?) pict?)]
+  [fade-around-pict (->* ((real-in 0.0 1.0) pict-convertible? (-> pict-convertible? pict?))
+                         (#:composite? any/c)
+                         pict?)]
   [sequence-animations (->* () #:rest (listof (-> (real-in 0.0 1.0) pict-convertible?))
                             (-> (real-in 0.0 1.0) pict?))]
   [reverse-animations (->* () #:rest (listof (-> (real-in 0.0 1.0) pict-convertible?))

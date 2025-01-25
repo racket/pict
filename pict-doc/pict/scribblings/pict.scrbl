@@ -1135,20 +1135,29 @@ converted to black.
             (make-color 170 180 120))
 ]}
 
-@defproc[(cellophane [pict pict-convertible?] [opacity (real-in 0 1)])
+@defproc[(cellophane [pict pict-convertible?]
+                     [opacity (real-in 0 1)]
+                     [#:composite? composite? any/c #t])
          pict?]{
 
 Makes the given @racket[pict] semi-transparent, where an opacity of
 @racket[0] is fully transparent, and an opacity of @racket[1] is fully
-opaque.  See @method[dc<%> set-alpha] for information about the
-contexts and cases when semi-transparent drawing works.
+opaque.
+
+If @racket[composite?] is a true value, then the opacity adjustment is
+applied to @racket[pict] as a whole, instead of to individual drawing
+operations within @racket[pict]. Rendering @racket[pict] with
+compositing may take longer than with @racket[composite?] as
+@racket[#false].
 
 @examples[#:eval ss-eval
   (cc-superimpose (filled-rectangle 70 45 #:color "darkcyan")
                   (cellophane (disk 40) 0.2))
   (cc-superimpose (filled-rectangle 70 45 #:color "darkcyan")
                   (cellophane (disk 40) 0.8))
-]}
+]
+
+@history[#:changed "1.15" @elem{Added @racket[#:composite?] and enabled compositing by default.}]}
 
 @defproc[(clip [pict pict-convertible?]) pict]{
 

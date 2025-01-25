@@ -31,10 +31,11 @@
 ;; actually morphed; the drawing part transitions by fading
 ;; the original `a' out and the new `b' in. The `n' argument
 ;; ranges from 0.0 (= `a') to 1.0 (= `b').
-(define (fade-pict #:combine [combine cc-superimpose] n a b)
+(define (fade-pict #:combine [combine cc-superimpose] n a b
+                   #:composite? [composite? #t])
   ;; Combine ghosts of scaled pictures:
-  (let ([orig (combine (cellophane a (- 1.0 n))
-                       (cellophane b n))])
+  (let ([orig (combine (cellophane a (- 1.0 n) #:composite? composite?)
+                       (cellophane b n #:composite? composite?))])
     (cond
      [(zero? n) (refocus orig a)]
      [(= n 1.0) (refocus orig b)]
@@ -123,13 +124,15 @@
               (- (+ y1 (* (- y2 y1) n)) (/ (pict-height p) 2))
               p)))
 
-(define (fade-around-pict n base evolved)
+(define (fade-around-pict n base evolved
+                          #:composite? [composite? #t])
   (define tg1 (launder (ghost base)))
   (define tg2 (launder (ghost base)))
   (slide-pict
    (fade-pict n
               tg1
-              (evolved tg2))
+              (evolved tg2)
+              #:composite? composite?)
    base
    tg1
    tg2

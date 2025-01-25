@@ -17,7 +17,8 @@ slide constructors in @racketmodname[slideshow/play].
 @section{Pict Interpolations}
 
 @defproc[(fade-pict [n (real-in 0.0 1.0)] [p1 pict?] [p2 pict?]
-                    [#:combine combine (pict? pict? . -> . pict?) cc-superimpose])
+                    [#:combine combine (pict? pict? . -> . pict?) cc-superimpose]
+                    [#:composite? composite? any/c #t])
          pict?]{
 
 Interpolates @racket[p1] and @racket[p2], where the result with
@@ -37,6 +38,9 @@ height but different number of lines, then using
 location relative to the top of the resulting pict as the rest of the
 shape morphs around it.
 
+The @racket[composite?] argument is passed to the @racket[cellophane]
+as used to implement fading.
+
 @examples[#:eval ss-eval
   (define (do-fade n)
     (fade-pict n (rectangle 30 30) (disk 30)))
@@ -44,11 +48,14 @@ shape morphs around it.
          (for/list ([n (in-range 0 1.2 0.2)])
            (vc-append (text (~r n #:precision 2))
                       (do-fade n))))
-]}
+]
+
+@history[#:changed "1.15" @elem{Added @racket[#:composite?] and enabled compositing by default.}]}
 
 @defproc[(fade-around-pict [n (real-in 0.0 1.0)]
                            [p1 pict?] 
-                           [make-p2 (pict? . -> . pict?)])
+                           [make-p2 (pict? . -> . pict?)]
+                           [#:composite? composite? any/c #t])
          pict?]{
 
 Similar to @racket[fade-pict], but the target is not a fixed
@@ -75,7 +82,9 @@ For example,
                     (do-fade n))))
 ]
 
-animates the wrapping of @racket[x] with a @racket[(+ .... 1)] form.}
+animates the wrapping of @racket[x] with a @racket[(+ .... 1)] form.
+
+@history[#:changed "1.15" @elem{Added @racket[#:composite?] and enabled compositing by default.}]}
 
 @defproc[(slide-pict [base pict?]
                      [p pict?]

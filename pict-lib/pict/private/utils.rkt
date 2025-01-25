@@ -1468,36 +1468,40 @@
    p 0
    (+ dy (- (pict-ascent p)))))
 
-  (define cellophane
-    (case-lambda
-     [(p alpha-factor)
-      (let ([p (pict-convert p)])
-        (cond
-          [(= 1.0 alpha-factor)
-           (inset p 0)]
-          [(zero? alpha-factor)
-           (ghost p)]
-          [else
-           (let ([drawer (make-pict-drawer p)])
-             (let ([new
-                    (dc
+(define (cellophane p alpha-factor
+                    #:composite? [composite? #t])
+  (let ([p (pict-convert p)])
+    (cond
+      [(= 1.0 alpha-factor)
+       (inset p 0)]
+      [(zero? alpha-factor)
+       (ghost p)]
+      [else
+       (let ([drawer (make-pict-drawer p)])
+         (let ([new
+                (dc
+                 (if composite?
+                     (lambda (dc x y)
+                       (send dc start-alpha alpha-factor)
+                       (drawer dc x y)
+                       (send dc end-alpha))
                      (lambda (dc x y)
                        (let ([a (send dc get-alpha)])
                          (send dc set-alpha (* a alpha-factor))
                          (drawer dc x y)
-                         (send dc set-alpha a)))
-                     (pict-width p)
-                     (pict-height p)
-                     (pict-ascent p)
-                     (pict-descent p))])
-               (make-pict (pict-draw new)
-                          (pict-width new)
-                          (pict-height new)
-                          (pict-ascent new)
-                          (pict-descent new)
-                          (list (make-child p 0 0 1 1 0 0))
-                          #f
-                          (pict-last p))))]))]))
+                         (send dc set-alpha a))))
+                 (pict-width p)
+                 (pict-height p)
+                 (pict-ascent p)
+                 (pict-descent p))])
+           (make-pict (pict-draw new)
+                      (pict-width new)
+                      (pict-height new)
+                      (pict-ascent new)
+                      (pict-descent new)
+                      (list (make-child p 0 0 1 1 0 0))
+                      #f
+                      (pict-last p))))])))
 
   (define inset/clip
     (case-lambda
