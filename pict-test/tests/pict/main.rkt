@@ -688,6 +688,15 @@
   (check-pict=? (pin-under (hc-append 5 p1 p2) p1 lt-find p3-p)
                 (pin-under (hc-append 5 p1-p p2-p) p1-p lt-find p3-p)))
 
+(let ()
+  (define p1 (blank 5 5))
+  (define ph (hc-append p1 p1))
+  (define ps (cc-superimpose p1 p1))
+  (check-exn exn:fail? (λ () (lt-find ph p1 #:nth 'unique)))
+  (check-equal? (call-with-values (λ () (lt-find ph p1 #:nth 0)) list) (list 0 0))
+  (check-equal? (call-with-values (λ () (lt-find ph p1 #:nth 1)) list) (list 5 0))
+  (check-equal? (call-with-values (λ () (lt-find ps p1 #:nth 'unique)) list) (list 0 0)))
+
 ;; ensure that lines where the to and from are the same don't error
 (let ()
   (define stage (frame (blank 100)))

@@ -337,7 +337,9 @@
   (vector (send c red) (send c green) (send c blue)))
 
 (define *-find/c
-  (-> pict-convertible? pict-path? (values real? real?)))
+  (->* (pict-convertible? pict-path?)
+       (#:nth (or/c 'unique exact-nonnegative-integer?))
+       (values real? real?)))
 
 (define *-append/c
   (->* ()

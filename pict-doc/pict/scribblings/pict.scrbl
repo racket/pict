@@ -1440,21 +1440,21 @@ element of @racket[sub-pict] is used as the new last element for
 
 @section{Pict Finders}
 
-@defproc*[([(lt-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(ltl-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(lc-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(lbl-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(lb-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(ct-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(ctl-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(cc-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(cbl-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(cb-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(rt-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(rtl-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(rc-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(rbl-find [pict pict-convertible?] [find pict-path?]) (values real? real?)]
-           [(rb-find [pict pict-convertible?] [find pict-path?]) (values real? real?)])]{
+@defproc*[([(lt-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(ltl-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(lc-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(lbl-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(lb-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(ct-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(ctl-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(cc-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(cbl-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(cb-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(rt-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(rtl-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(rc-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(rbl-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)]
+           [(rb-find [pict pict-convertible?] [find pict-path?] [#:nth nth (or/c exact-nonnegative-integer? 'unique) 0]) (values real? real?)])]{
 
 Locates a pict designated by @racket[find] within @racket[pict]. If
 @racket[find] is a pict, then the @racket[pict] must have been created
@@ -1462,10 +1462,18 @@ as some combination involving @racket[find].
 
 If @racket[find] is a list, then the first element of @racket[find]
 must be within @racket[pict], the second element of @racket[find] must
-be within the first element, and so on. In general, the n+1-st element
-must be within the n-th element, so the list can provide a path to
+be within the first element, and so on. In general, the @math{i+1}st element
+must be within the @math{i}th element, so the list can provide a path to
 some specific pict, in case there is more than one occurrence of the pict
 that's being searched for within @racket[pict].
+
+If the last pict in @racket[find] exists multiple times in the
+enclosing pict (either @racket[pict] or the next-to-last element of
+@racket[find]), then the location for the first found occurrence is
+returned by default. If @racket[nth] is a larger number, then then
+first @racket[nth] found locations are skipped. If @racket[nth] is
+@racket['unique], then all instances are found, and an error is
+reported if multiple instances are found at different locations.
 
 @examples[#:eval ss-eval
   (define p1 (disk 60))
@@ -1487,7 +1495,8 @@ that's being searched for within @racket[pict].
 ]
 
 @history[#:changed "1.11" @elem{Removed implicit truncation of some centered coordinates
-           to integers.}]}
+           to integers.}
+         #:changed "1.16" @elem{Added the @racket[nth] argument.}]}
 
 @defproc[(pict-path? [v any/c]) boolean?]{
 
