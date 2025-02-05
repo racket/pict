@@ -692,10 +692,12 @@
   (define p1 (blank 5 5))
   (define ph (hc-append p1 p1))
   (define ps (cc-superimpose p1 p1))
+  (define ips (inset ps 5))
   (check-exn exn:fail? (λ () (lt-find ph p1 #:nth 'unique)))
   (check-equal? (call-with-values (λ () (lt-find ph p1 #:nth 0)) list) (list 0 0))
   (check-equal? (call-with-values (λ () (lt-find ph p1 #:nth 1)) list) (list 5 0))
-  (check-equal? (call-with-values (λ () (lt-find ps p1 #:nth 'unique)) list) (list 0 0)))
+  (check-equal? (call-with-values (λ () (lt-find ps p1 #:nth 'unique)) list) (list 0 0))
+  (check-equal? (call-with-values (λ () (lt-find ips p1 #:nth 1)) list) (list 5 5)))
 
 ;; ensure that lines where the to and from are the same don't error
 (let ()

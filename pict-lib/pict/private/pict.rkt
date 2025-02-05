@@ -376,9 +376,7 @@
                                           (child-sx c) (child-sy c)
                                           (child-sxy c) (child-syx c))])
                              (cond
-                               [nth (if (zero? nth)
-                                        (found dx dy)
-                                        (loop rst (sub1 nth) #f #f))]
+                               [nth (found dx dy)]
                                [(not fx) (loop rst #f dx dy)]
                                [(and (= fx dx) (= fy dy)) (loop rst #f dx dy)]
                                [else (error who
