@@ -199,7 +199,7 @@ ascent.}
 
 A list of strings to color as syntactic-form names. The default
 includes all of the forms provided by @racketmodname[racket/base] 
-and all of the forms provided by @racketmodname[mzscheme].}
+and all of the forms provided by @racketmodname[mzscheme #:indirect].}
 
 
 @defparam[current-const-list names (listof string?)]{
