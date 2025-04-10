@@ -36,9 +36,9 @@
 ;;   if the test fails, look at the picture, and if it looks fine,
 ;;   then update the expected hash
 (require racket/class racket/draw file/md5 rackunit)
-(define (test-codeblock-pict-hash s h)
+(define (test-pict-hash p h)
   (define rdc (new record-dc%))
-  (draw-pict (codeblock-pict s) rdc 0 0)
+  (draw-pict p rdc 0 0)
   (define commands (send rdc get-recorded-datum))
   ;; commands may include literal floating-point numbers
   ;; of course, this means that different machines, with different FPUs, may
@@ -76,7 +76,7 @@
   ╚═════════════╩═══════════════════════╩═════════════╝)
 END
 )
-(test-codeblock-pict-hash example #"0799f59e11c86bea943f9ba7cb914978")
+(test-pict-hash (codeblock-pict example) #"0799f59e11c86bea943f9ba7cb914978")
 
 ;; make sure that whitespace before #lang doesn't blow up
 (define example2
@@ -86,12 +86,19 @@ END
 >>
 )
 (check-not-exn
- (λ () (test-codeblock-pict-hash example2 #"62ec308dd6bed21018107ea44aae18dc")))
+ (λ () (test-pict-hash (codeblock-pict example2) #"62ec308dd6bed21018107ea44aae18dc")))
 
 ;; windows newlines should work
 (define example3 "#lang racket\r\n(define x 2)\r\nx")
-(test-codeblock-pict-hash example3 #"928d024d7811fb97952f1bad0ab97371")
+(test-pict-hash (codeblock-pict example3) #"928d024d7811fb97952f1bad0ab97371")
 
 ;; ascent should not be zero for a single line
 (define example4 (codeblock-pict #:keep-lang-line? #f "#lang racket\n(define foo 42)"))
 (check-pred (λ (v) (> v 0)) (pict-ascent example4))
+
+(test-pict-hash
+ (typeset-code
+  #'(begin (code:comment "single comment")
+           (code:comment2 "double comment")
+           (void)))
+ #"537157490dcb25174111b1b7045ee035")

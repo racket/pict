@@ -326,6 +326,7 @@
   (define-computed unsyntax-splicing-p (tt "#,@"))
   (define-computed quasisyntax-p (tt "#`"))
   (define-computed semi-p (tt "; "))
+  (define-computed two-semi-p (tt ";; "))
 
   (define (comment-mode? mode)
     (eq? mode 'comment))
@@ -540,17 +541,23 @@
                                        stx))]
                                 [else stx]))
                closes 'line)]
-        [(code:comment s ...)
+        [(_code:comment s ...)
+         (or (equal? (syntax-e #'_code:comment) 'code:comment)
+             (equal? (syntax-e #'_code:comment) 'code:comment2))
          (let ([p
                 (apply htl-append 
-                       (color-semi-p)
+                       (if (equal? (syntax-e #'_code:comment) 'code:comment2)
+                           (mode-colorize 'comment #f two-semi-p)
+                           (color-semi-p))
                        (map (lambda (s)
                               (define datum (syntax-e s))
                               (if (pict-convertible? datum)
                                   datum
                                   (if (string? datum)
                                       (maybe-colorize (tt datum) (current-comment-color))
-                                      (raise-argument-error 'code:comment "string?" datum))))
+                                      (raise-argument-error (syntax-e #'_code:comment)
+                                                            (format "~s" `(or/c string? pict-convertible?))
+                                                            datum))))
                             (syntax->list #'(s ...))))])
            ;; Ungraceful handling of ungraceful closes by adding a line
            ;; --- better than sticking them to the right of the comment, at least

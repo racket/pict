@@ -94,7 +94,7 @@
                     [(eq? 'code:blank (syntax-e x))
                      #f]
                     [(and (pair? (syntax-e x))
-                          (eq? 'code:comment (syntax-e (car (syntax-e x)))))
+                          (memq (syntax-e (car (syntax-e x))) '(code:comment code:comment2)))
                      #f]
                     [(and (pair? (syntax-e x))
                           (eq? 'code:contract (syntax-e (car (syntax-e x)))))
