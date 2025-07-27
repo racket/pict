@@ -74,7 +74,7 @@ A pict is serializable via @racketmodname[racket/serialize], but
 serialization loses sub-pict information (preserving only the pict's
 drawing and bounding box).
 
-All of the pict functions that accept picts also values that
+All of the pict functions that accept picts also accept values that
 are @tech{pict convertible}, meaning that picts can be mixed
 and matched with values from various other libraries.
 
