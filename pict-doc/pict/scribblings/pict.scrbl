@@ -7,7 +7,8 @@
                      pict/flash pict/face pict/balloon
                      (except-in racket only drop)
                      pict
-                     pict/convert))
+                     pict/convert
+                     file/convertible))
 
 
 @(define ss-eval (make-base-eval))
@@ -534,8 +535,8 @@ is not valid, or if the @racket[bitmap-draft-mode] parameter is set to
 @racket[#t], the result pict draws the words ``bitmap failed''.
 
  If @racket[img] is both @tech[#:doc '(lib "file/scribblings/file.scrbl")]{convertible}
- and @tech{pict convertible}, then the pict conversion is used. If both
- apply, the pict conversion is used. If pict conversion is used, the
+ and @tech{pict convertible}, then the pict conversion is used.
+ If pict conversion is used, the
  pict is drawn into a bitmap and the result of @racket[bitmap] draws
  that bitmap. If
  @tech[#:doc '(lib "file/scribblings/file.scrbl")]{convertible} is used,
