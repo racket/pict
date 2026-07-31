@@ -45,6 +45,9 @@
          current-keyword-list
          current-const-list
          current-literal-list))
+;; formerly in code^
+(provide code-pict-bottom-line-pict
+         pict->code-pict)
 (provide
  (contract-out
   [typeset-code (-> syntax? pict?)]

@@ -11,9 +11,11 @@
          (only-in mzscheme make-namespace))
 
 (provide define-code code^ code-params^ code@
+         code-wrt-pict@ pict-for-code^
          (for-syntax prop:code-transformer
                      code-transformer?
-                     make-code-transformer))
+                     make-code-transformer)
+         code-pict-bottom-line-pict pict->code-pict)
 
 (define (to-code-pict p extension)
   (use-last* p extension))
@@ -63,6 +65,16 @@
     [(sep a) a]
     [(sep a . rest)
      (code-vl-append sep a (apply code-vl-append sep rest))]))
+
+(define (code-pict-bottom-line-pict p)
+  (if (code-pict? p)
+      (code-pict-bottom-line p)
+      #f))
+
+(define (pict->code-pict p bottom-line)
+  (if bottom-line
+      (to-code-pict p bottom-line)
+      p))
 
 (begin-for-syntax
   (define-values (prop:code-transformer code-transformer? code-transformer-ref)
@@ -155,10 +167,9 @@
                                ;; otherwise the `expr`s will be arranged relative to it:
                                (datum->syntax #f (cons 'code:line (datum->syntax #f (syntax-e #'(expr (... ...))))))))])))]
     [(_ code typeset-code) #'(define-code code typeset-code unsyntax)]))
-  
+
 (define-signature code^
-  (typeset-code code-pict-bottom-line-pict pict->code-pict
-                comment-color keyword-color id-color const-color literal-color
+  (typeset-code comment-color keyword-color id-color const-color literal-color
                 code-align current-code-tt current-code-font
                 current-keyword-list current-const-list current-literal-list 
                 code-colorize-enabled code-colorize-quote-enabled 
@@ -172,6 +183,27 @@
 (define-signature code-params^
   (current-font-size 
    current-code-line-sep))
+
+(define-signature pict-for-code^
+  (pict-convertible?
+   pict-width
+   pict-height
+   vl-append
+   htl-append
+   hbl-append
+   code-htl-append
+   code-hbl-append
+   code-vl-append
+   lt-superimpose
+   cc-superimpose
+   lt-find
+   colorize
+   launder
+   ghost
+   refocus
+   inset
+   text
+   blank))
 
 (define-syntax (define-computed stx)
   (syntax-case stx ()
@@ -208,9 +240,9 @@
                               (and (syntax? (cdr stx)) (null? (cdr stx))))
                           (syntax-end-column (car stx) line (+ delta 1))))]
     [else #f]))
-  
-(define-unit code@
-  (import code-params^)
+
+(define-unit code-wrt-pict@
+  (import code-params^ pict-for-code^)
   (export code^)
 
   (define current-code-font (make-parameter `(bold . modern)))
@@ -224,23 +256,12 @@
     ((current-code-tt) s))
 
   (define (code-align p)
-    (let ([b (dc void 
-                 (pict-width p)
-                 (pict-height p)
-                 (pict-height p)
-                 0)])
+    (let ([b (blank (pict-width p)
+                    (pict-height p)
+                    (pict-height p)
+                    0)])
       (refocus (cc-superimpose p b) b)))
 
-  (define (code-pict-bottom-line-pict p)
-    (if (code-pict? p)
-        (code-pict-bottom-line p)
-        #f))
-
-  (define (pict->code-pict p bottom-line)
-    (if bottom-line
-        (to-code-pict p bottom-line)
-        p))
-      
   (define (get-vars/bindings ns require-spec)  
     (define ns (let ([n (make-namespace)])
                  (parameterize ([current-namespace n])
@@ -733,6 +754,14 @@
                     closes)])))
       
   )
+
+(define-unit-from-context pict-for-code@ pict-for-code^)
+
+(define-compound-unit/infer code@
+  (import code-params^)
+  (export code^)
+  (link code-wrt-pict@
+        pict-for-code@))
 
 (define (literal->string stx)
   (define lit (syntax-e stx))
