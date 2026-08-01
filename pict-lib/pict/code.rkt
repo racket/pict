@@ -34,20 +34,16 @@
          typeset-code
          current-code-font
          current-code-tt
-         current-comment-color
-         current-keyword-color
-         current-id-color
-         current-literal-color
-         current-const-color
-         current-base-color
-         current-reader-forms
-         code-align
-         current-keyword-list
-         current-const-list
-         current-literal-list))
+         code-align))
 ;; formerly in code^
 (provide code-pict-bottom-line-pict
-         pict->code-pict)
+         pict->code-pict
+         mzscheme-const-list
+         racket/base-const-list
+         comment-color keyword-color id-color const-color literal-color
+         code-colorize-enabled code-colorize-quote-enabled
+         code-italic-underscore-enabled code-scripts-enabled)
+
 (provide
  (contract-out
   [typeset-code (-> syntax? pict?)]

@@ -15,7 +15,16 @@
          (for-syntax prop:code-transformer
                      code-transformer?
                      make-code-transformer)
-         code-pict-bottom-line-pict pict->code-pict)
+         code-pict-bottom-line-pict pict->code-pict
+         current-keyword-list current-const-list current-literal-list
+         code-colorize-enabled code-colorize-quote-enabled
+         code-italic-underscore-enabled code-scripts-enabled
+         current-comment-color current-keyword-color
+         current-base-color current-id-color current-literal-color current-const-color
+         current-reader-forms
+         mzscheme-const-list
+         racket/base-const-list
+         comment-color keyword-color id-color const-color literal-color)
 
 (define (to-code-pict p extension)
   (use-last* p extension))
@@ -75,6 +84,70 @@
   (if bottom-line
       (to-code-pict p bottom-line)
       p))
+
+  (define (get-vars/bindings ns require-spec)
+    (define ns (let ([n (make-namespace)])
+                 (parameterize ([current-namespace n])
+                   (namespace-require/copy require-spec))
+                 n))
+    (define bindings (namespace-mapped-symbols ns))
+    (define vars (filter (lambda (n)
+                           (not (eq? 'nope
+                                     (namespace-variable-value n #f (lambda () 'nope) ns))))
+                         bindings))
+    (values vars bindings))
+
+(define-values (mzscheme-vars mzscheme-bindings) (get-vars/bindings (make-namespace) 'mzscheme))
+(define-values (racket/base-vars racket/base-bindings) (get-vars/bindings (r:make-base-namespace) 'racket/base))
+
+(define current-keyword-list
+  (make-parameter
+   (let ([ht (make-hasheq)])
+     (for-each (lambda (n) (hash-set! ht n #f))
+               mzscheme-vars)
+     (for-each (lambda (n) (hash-set! ht n #f))
+               racket/base-vars)
+     (map symbol->string
+          (filter (lambda (n)
+                    (hash-ref ht n #t))
+                  (append mzscheme-bindings
+                          racket/base-bindings))))))
+(define current-const-list
+  (make-parameter '()))
+(define current-literal-list
+  (make-parameter '()))
+
+(define mzscheme-const-list
+  (map symbol->string mzscheme-vars))
+(define racket/base-const-list
+  (map symbol->string racket/base-vars))
+
+(define code-colorize-enabled
+  (make-parameter #t))
+
+(define code-colorize-quote-enabled
+  (make-parameter #t))
+
+(define code-italic-underscore-enabled (make-parameter #t))
+(define code-scripts-enabled (make-parameter #t))
+
+(define current-base-color (make-parameter "brown"))
+(define keyword-color "black")
+(define current-keyword-color (make-parameter keyword-color))
+(define id-color "navy")
+(define current-id-color (make-parameter id-color))
+(define literal-color (make-object color% 51 135 39))
+(define current-literal-color (make-parameter literal-color))
+(define const-color (make-object color% #x99 0 0))
+(define current-const-color (make-parameter const-color))
+(define comment-color (current-base-color))
+(define current-comment-color (make-parameter comment-color))
+(define current-reader-forms (make-parameter '(quote
+                                               quasiquote
+                                               unquote unquote-splicing
+                                               syntax
+                                               quasisyntax
+                                               unsyntax unsyntax-splicing)))
 
 (begin-for-syntax
   (define-values (prop:code-transformer code-transformer? code-transformer-ref)
@@ -169,16 +242,7 @@
     [(_ code typeset-code) #'(define-code code typeset-code unsyntax)]))
 
 (define-signature code^
-  (typeset-code comment-color keyword-color id-color const-color literal-color
-                code-align current-code-tt current-code-font
-                current-keyword-list current-const-list current-literal-list 
-                code-colorize-enabled code-colorize-quote-enabled 
-                code-italic-underscore-enabled code-scripts-enabled
-                current-comment-color current-keyword-color 
-                current-base-color current-id-color current-literal-color current-const-color
-                current-reader-forms
-                mzscheme-const-list
-                racket/base-const-list))
+  (typeset-code code-align current-code-tt current-code-font))
 
 (define-signature code-params^
   (current-font-size 
@@ -262,74 +326,10 @@
                     0)])
       (refocus (cc-superimpose p b) b)))
 
-  (define (get-vars/bindings ns require-spec)  
-    (define ns (let ([n (make-namespace)])
-                 (parameterize ([current-namespace n])
-                   (namespace-require/copy require-spec))
-                 n))
-    (define bindings (namespace-mapped-symbols ns))
-    (define vars (filter (lambda (n)
-                           (not (eq? 'nope
-                                     (namespace-variable-value n #f (lambda () 'nope) ns))))
-                         bindings))
-    (values vars bindings))
-    
-  (define-values (mzscheme-vars mzscheme-bindings) (get-vars/bindings (make-namespace) 'mzscheme))
-  (define-values (racket/base-vars racket/base-bindings) (get-vars/bindings (r:make-base-namespace) 'racket/base))
-    
-  (define current-keyword-list 
-    (make-parameter 
-     (let ([ht (make-hasheq)])
-       (for-each (lambda (n) (hash-set! ht n #f))
-                 mzscheme-vars)
-       (for-each (lambda (n) (hash-set! ht n #f))
-                 racket/base-vars)
-       (map symbol->string
-            (filter (lambda (n)
-                      (hash-ref ht n #t))
-                    (append mzscheme-bindings
-                            racket/base-bindings))))))
-  (define current-const-list 
-    (make-parameter '()))
-  (define current-literal-list 
-    (make-parameter '()))
-
-  (define mzscheme-const-list
-    (map symbol->string mzscheme-vars))
-  (define racket/base-const-list
-    (map symbol->string racket/base-vars))
-
-  (define code-colorize-enabled
-    (make-parameter #t))
-
-  (define code-colorize-quote-enabled
-    (make-parameter #t))
-
-  (define code-italic-underscore-enabled (make-parameter #t))
-  (define code-scripts-enabled (make-parameter #t))
-
   (define (maybe-colorize p c)
     (if (code-colorize-enabled)
         (colorize p c)
         p))
-      
-  (define current-base-color (make-parameter "brown"))
-  (define keyword-color "black")
-  (define current-keyword-color (make-parameter keyword-color))
-  (define id-color "navy")
-  (define current-id-color (make-parameter id-color))
-  (define literal-color (make-object color% 51 135 39))
-  (define current-literal-color (make-parameter literal-color))
-  (define const-color (make-object color% #x99 0 0))
-  (define current-const-color (make-parameter const-color))
-  (define comment-color (current-base-color))
-  (define current-comment-color (make-parameter comment-color))
-  (define current-reader-forms (make-parameter '(quote
-                                                 quasiquote 
-                                                 unquote unquote-splicing
-                                                 syntax
-                                                 quasisyntax
-                                                 unsyntax unsyntax-splicing)))
       
   (define-computed open-paren-p (tt "("))
   (define-computed close-paren-p (tt ")"))
