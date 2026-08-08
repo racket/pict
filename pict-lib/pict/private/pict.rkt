@@ -503,7 +503,6 @@
     ;; So create a new last-position box to preserve the
     ;; original shape:
     (let ([l (pict-last box)])
-      (set-pict-last! box #f) ; preserve invariants
       (cond
        [(not l) b]
        [else
