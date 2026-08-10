@@ -1264,6 +1264,8 @@ black-and-white colors.
            [(inset [pict pict-convertible?] [l-amt real?] [t-amt real?] 
                    [r-amt real?] [b-amt real?]) pict?])]{
 
+@margin-note{Note that @tt{l}, @tt{t}, @tt{r} and @tt{b} stands for 
+left, top, right, bottom respectively.}
 Extends @racket[pict]'s @tech{bounding box} by adding the given amounts
 to the corresponding sides; ascent and descent are extended, too.
 
