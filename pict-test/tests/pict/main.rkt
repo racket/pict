@@ -752,6 +752,24 @@
     (define t (rand-bin-tree))
     (check-pict=? (alg t) (alg t #:transform values))))
 
+;; check that edge attributes are not leaked
+(test-case "edge attributes"
+  (check-pict=?
+   (naive-layered
+    (tree-layout
+     (tree-edge #:edge-style 'dot (tree-layout #:pict (circle 20)))))
+   (naive-layered
+    (tree-layout
+     (tree-edge #:edge-style 'dot (tree-layout #:pict (linestyle 'solid (circle 20)))))))
+
+  (check-pict=?
+   (naive-layered
+    (tree-layout
+     (tree-edge #:edge-width 10 (tree-layout #:pict (circle 20)))))
+   (naive-layered
+    (tree-layout
+     (tree-edge #:edge-width 10 (tree-layout #:pict (linewidth 1 (circle 20))))))))
+
 (test-case "Flips"
   (define fish (standard-fish 100 50))
   (check-pict=? (flip-x (flip-x fish)) fish)

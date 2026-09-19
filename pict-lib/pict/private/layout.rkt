@@ -116,10 +116,10 @@
                [main (pin-line main
                                parent-pict cc-find
                                child-pict cc-find
+                               #:line-width (and (not (unspecified? edge-width)) edge-width)
+                               #:style (and (not (unspecified? edge-style)) edge-style)
                                #:color edge-color
-                               #:under? #t)]
-               [main (if (unspecified? edge-width) main (linewidth edge-width main))]
-               [main (if (unspecified? edge-style) main (linestyle edge-style main))])
+                               #:under? #t)])
           main)]
        [(tree-layout pict children)
         (for/fold ([main (if transform (place-node main pict) main)])
