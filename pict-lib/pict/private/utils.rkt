@@ -1307,61 +1307,62 @@
                 (pict-last p))]
     [(p factor) (scale p factor factor)]))
 
-(define/match (compose-trans _t1 _t2)
-  [{(vector a d b e c f) (vector g j h k i l)}
-   (vector (+ (* a g) (* b j))   (+ (* d g) (* e j))
-           (+ (* a h) (* b k))   (+ (* d h) (* e k))
-           (+ (* a i) (* b l) c) (+ (* d i) (* e l) f))])
-
-(define (compose-trans* t0 . ts)
-  (foldl (λ (t acc) (compose-trans acc t)) t0 ts))
-
-(define (make-translate h k)
-  (vector 1 0 0 1 h k))
-
-(define (make-flip-x) ; around y-axis
-  (vector -1 0 0 1 0 0))
-
 (define (flip-x p)
-  (define w (pict-width p))
-  (define h (pict-height p))
-  (dc (λ (dc x y)
-        ;; ( x, y) is the top-left corner
-        ;; (cx,cy) is the center of the pict
-        (define cx (+ x (/ w 2)))
-        (define cy (+ y (/ h 2)))
-        (define old-t (send dc get-initial-matrix))
-        (define new-t (compose-trans*
-                        (make-translate cx cy)
-                        (make-flip-x)
-                        (make-translate (- cx) (- cy))
-                        old-t))
-        (send dc set-initial-matrix new-t)
-        (draw-pict p dc x y)
-        (send dc set-initial-matrix old-t))
-      w h))
-
-(define (make-flip-y)
-  (vector 1 0 0 -1 0 0))
+  (define w      (pict-width   p))
+  (define h      (pict-height  p))
+  (define a      (pict-ascent  p))
+  (define d      (pict-descent p))
+  (define w/2    (/ w 2.))
+  (define drawer (make-pict-drawer p))
+  (define new    (dc (λ (dc x y)
+                       ;; ( x,  y) is the top-left corner
+                       ;; (cx, cy) is the center of the upper side
+                       (define cx (+ x w/2))
+                       (define cy y)
+                       (define old-t (send dc get-transformation))
+                       ; Move center of upper side to (0,0)
+                       (send dc translate cx cy)
+                       (send dc transform #(-1 0 0 1 0 0))
+                       (drawer dc (- w/2) 0)
+                       (send dc set-transformation old-t))
+                     w h
+                     a d))
+  ; make the original pict a child
+  (make-pict (pict-draw new)
+             w h a d
+             (list (make-child p 1 0 0 1 0 0))
+             #f
+             (pict-last p)))
 
 (define (flip-y p)
-  (define w (pict-width p))
-  (define h (pict-height p))
-  (dc (λ (dc x y)
-        ;; ( x, y) is the top-left corner
-        ;; (cx,cy) is the center of the pict
-        (define cx (+ x (/ w 2)))
-        (define cy (+ y (/ h 2)))
-        (define old-t (send dc get-initial-matrix))
-        (define new-t (compose-trans*
-                        (make-translate cx cy)
-                        (make-flip-y)
-                        (make-translate (- cx) (- cy))
-                        old-t))
-        (send dc set-initial-matrix new-t)
-        (draw-pict p dc x y)
-        (send dc set-initial-matrix old-t))
-      w h))
+  (define w      (pict-width   p))
+  (define h      (pict-height  p))
+  (define a      (pict-ascent  p))
+  (define d      (pict-descent p))
+  (define h/2    (/ h 2))
+  (define drawer (make-pict-drawer p))
+  (define new    (dc (λ (dc x y)
+                       ;; ( x,  y) is the top-left corner
+                       ;; (cx, cy) is the center of the left side
+                       (define cx x)
+                       (define cy (+ y h/2))
+                       (define old-t (send dc get-transformation))
+                       ; Move center of left side to (0,0)
+                       (send dc translate cx cy)
+                       (send dc transform #(1 0 0 -1 0 0))
+                       (drawer dc 0 (- h/2))
+                       (send dc set-transformation old-t))
+                     w h
+                     ; Descent and ascent are swapped on purpose.
+                     d a))
+  (make-pict (pict-draw    new)
+             (pict-width   new)
+             (pict-height  new)
+             (pict-ascent  new)
+             (pict-descent new)
+             (list (make-child p 1 0 0 1 0 0))
+             #f
+             (pict-last p)))
 
 (define (translate p dx dy #:extend-bb? [bb? #f])
   (define nw (if (not bb?) (pict-width p) (+ (pict-width p) (abs dx))))
