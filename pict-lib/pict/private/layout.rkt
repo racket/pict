@@ -1,5 +1,7 @@
 #lang racket/base
-(require "../main.rkt" racket/match)
+(require "../main.rkt"
+         racket/match
+         racket/class)
 
 (provide (struct-out tree-layout)
          (struct-out tree-edge)
@@ -86,7 +88,7 @@
 
 ;; If `transform` is `#f`, then we'll reuse the layout pict and just place
 ;; edges on top of it.
-(define (transform-tree-pict t layout-pict transform)
+(define (transform-tree-pict t layout-pict transform node-connection-style)
   (define-values (l-amt t-amt r-amt b-amt) (values #f #f #f #f))
   (define (update-bb! x y)
     (set! l-amt (if l-amt (min l-amt x) x))
@@ -113,19 +115,67 @@
        [(tree-edge child edge-color edge-width edge-style)
         (define child-pict (tree-layout-pict child))
         (let* ([main (loop child main #f)]
-               [main (pin-line main
-                               parent-pict cc-find
-                               child-pict cc-find
-                               #:line-width (and (not (unspecified? edge-width)) edge-width)
-                               #:style (and (not (unspecified? edge-style)) edge-style)
-                               #:color edge-color
-                               #:under? #t)])
+               [main (connect-child-to-parent main
+                                              parent-pict
+                                              child-pict
+                                              #:line-width (and (not (unspecified? edge-width)) edge-width)
+                                              #:style (and (not (unspecified? edge-style)) edge-style)
+                                              #:color edge-color
+                                              #:node-connection-style node-connection-style)])
           main)]
        [(tree-layout pict children)
         (for/fold ([main (if transform (place-node main pict) main)])
                   ([child (in-list children)])
           (loop child main pict))])))
    (if transform (inset final-pict l-amt t-amt r-amt b-amt) final-pict))
+
+(define (connect-child-to-parent main
+                                 parent-pict
+                                 child-pict
+                                 #:line-width line-width
+                                 #:style style
+                                 #:color color
+                                 #:node-connection-style node-connection-style)
+  (match node-connection-style
+    ['direct
+     (pin-line main
+               parent-pict cc-find
+               child-pict cc-find
+               #:line-width line-width
+               #:style style
+               #:color color
+               #:under? #t)]
+    ['orthogonal
+     (define-values (px py) (cc-find main parent-pict))
+     (define-values (cx cy) (cc-find main child-pict))
+     (define cpy2 (/ (+ py cy) 2))
+     (define points (list (cons px py)
+                          (cons px cpy2)
+                          (cons cx cpy2)
+                          (cons cx cy)))
+     (define line-drawing-pict
+       (dc
+        (λ (dc dx dy)
+          (for ([p1 (in-list points)]
+                [p2 (in-list (cdr points))])
+            (send dc draw-line
+                  (+ dx (car p1)) (+ dy (cdr p1))
+                  (+ dx (car p2)) (+ dy (cdr p2)))))
+        (pict-width main)
+        (pict-height main)
+        (pict-ascent main)
+        (pict-descent main)))
+     (when line-width
+       (set! line-drawing-pict
+             (linewidth line-width line-drawing-pict)))
+     (when style
+       (set! line-drawing-pict
+             (linestyle style line-drawing-pict)))
+     (when color
+       (set! line-drawing-pict (colorize line-drawing-pict color)))
+     (cc-superimpose
+      line-drawing-pict
+      main)]))
 
 (define (uniquify-picts t)
   (let loop ([t t])

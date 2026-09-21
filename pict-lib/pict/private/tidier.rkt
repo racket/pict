@@ -17,7 +17,8 @@ Vol 7, #2, March 1981
 (define (binary-tidier t
                        #:x-spacing [given-x-spacing #f]
                        #:y-spacing [given-y-spacing #f]
-                       #:transform [transform #f])
+                       #:transform [transform #f]
+                       #:node-connection-style [node-connection-style 'direct])
   (cond
     [t
      (define-values (x-spacing y-spacing) (compute-spacing t given-x-spacing given-y-spacing))
@@ -60,7 +61,7 @@ Vol 7, #2, March 1981
              (loop right-t right-xc (+ y 1))])
           node-pict]))
      
-     (transform-tree-pict t-unique main transform)]
+     (transform-tree-pict t-unique main transform node-connection-style)]
     [else (blank)]))
 
 ;; x-coordinate-tree : (or/c #f x-node?)
@@ -330,8 +331,14 @@ Vol 7, #2, March 1981
   (define (build-right t) (_tree-layout t (_tree-layout #f #f)))
   (define (n-of n f t) (if (zero? n) t (n-of (- n 1) f (f t))))
   ;; this is the example from the paper
-  (binary-tidier
-   (_tree-layout
-    (n-of 3 build-right (n-of 3 build-left triangle))
-    (n-of 3 build-left (n-of 3 build-right triangle)))) 
+  (hc-append 20
+             (binary-tidier
+              (_tree-layout
+               (n-of 3 build-right (n-of 3 build-left triangle))
+               (n-of 3 build-left (n-of 3 build-right triangle)))
+              #:node-connection-style 'orthogonal)
+             (binary-tidier
+              (_tree-layout
+               (n-of 3 build-right (n-of 3 build-left triangle))
+               (n-of 3 build-left (n-of 3 build-right triangle)))))
   (binary-tidier (full 3)))

@@ -6,7 +6,8 @@
 (define (naive-layered t
                        #:x-spacing [given-x-spacing #f]
                        #:y-spacing [given-y-spacing #f]
-                       #:transform [transform #f])
+                       #:transform [transform #f]
+                       #:node-connection-style [node-connection-style 'direct])
   (define-values (x-space y-space) (compute-spacing t given-x-spacing given-y-spacing))
   (define t-unique (uniquify-picts t))
   (define root+tree-pair
@@ -40,7 +41,7 @@
                 (apply ht-append x-space children-trees))))
             (cons this-root main)])])))
   
-  (transform-tree-pict t-unique (cdr root+tree-pair) transform))
+  (transform-tree-pict t-unique (cdr root+tree-pair) transform node-connection-style))
 
 (define (place-parent-over-children parent-root children-roots main)
   (define x-min (pict-width main))
@@ -83,6 +84,14 @@
        (apply _tree-layout (build-list n (λ (_) t)))]))
   
   (naive-layered (complete 4))
+  (naive-layered (complete 4) #:node-connection-style 'orthogonal)
+  (hc-append (naive-layered (complete 4)
+                            #:transform (lambda (x y) (values y x)))
+             (naive-layered (complete 4)
+                            #:transform (lambda (x y) (values y x))
+                            #:node-connection-style 'orthogonal))
+
+
   (define right-subtree-with-long-left-chain
     (_tree-layout
      (_tree-layout
@@ -99,4 +108,6 @@
         #f)
        #f)
       #f)))
-  (naive-layered right-subtree-with-long-left-chain))
+  (hc-append 30
+             (naive-layered right-subtree-with-long-left-chain)
+             (naive-layered right-subtree-with-long-left-chain #:node-connection-style 'orthogonal)))

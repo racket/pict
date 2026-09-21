@@ -50,7 +50,7 @@ Computational Geometry, Theory and Applications 2 (1992)
      (/ x-size 2)
      (/ y-size 2)))
 
-  (transform-tree-pict t-unique main transform))
+  (transform-tree-pict t-unique main transform 'direct))
 
 (define (dot-ize p)
   (define b (blank))

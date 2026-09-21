@@ -94,7 +94,8 @@ that render them as @racket[pict]s.
 @defproc[(naive-layered [tree-layout tree-layout?]
                         [#:x-spacing x-spacing (or/c (and/c real? positive?) #f) #f]
                         [#:y-spacing y-spacing (or/c (and/c real? positive?) #f) #f]
-                        [#:transform transform (-> real? real? (values real? real?)) values])
+                        [#:transform transform (-> real? real? (values real? real?)) values]
+                        [#:node-connection-style node-connection-style (or/c 'direct 'orthogonal) 'direct])
          pict?]{
   Uses a naive algorithm that ensures that all nodes at a fixed
   depth are the same vertical distance from the root (dubbed ``layered'').
@@ -108,6 +109,14 @@ that render them as @racket[pict]s.
   of the original bounding box after the transformation has been
   applied to them.
 
+ The @racket[node-connection-style] argument determines
+ which lines are drawn to connect the nodes. With
+ @racket['direct], a line is drawn from the center of each
+ parent node to the center of the child node. With @racket['orthogonal],
+ a line is drawn from the parent node straight down to halfway
+ between the parent and child (vertically) and then straight across
+ to directly above the child, and then straight down to the child.
+
   @examples[#:eval 
             tree-layout-eval
             (define (complete d)
@@ -117,6 +126,7 @@ that render them as @racket[pict]s.
                       (tree-layout s s)]))
             
             (naive-layered (complete 4))
+            (naive-layered (complete 4) #:node-connection-style 'orthogonal)
             (naive-layered (complete 4) #:transform (lambda (x y) (values y x)))
             (naive-layered (tree-layout
                             (tree-layout)
@@ -151,7 +161,8 @@ that render them as @racket[pict]s.
 @defproc[(binary-tidier [tree-layout binary-tree-layout?]
                         [#:x-spacing x-spacing (or/c (and/c real? positive?) #f) #f]
                         [#:y-spacing y-spacing (or/c (and/c real? positive?) #f) #f]
-                        [#:transform transform (-> real? real? (values real? real?)) values])
+                        [#:transform transform (-> real? real? (values real? real?)) values]
+                        [#:node-connection-style node-connection-style (or/c 'direct 'orthogonal) 'direct])
          pict?]{
   Uses the layout algorithm from
   @italic{Tidier Drawing of Trees} by Edward M. Reingold and John S. Tilford
@@ -183,13 +194,12 @@ that render them as @racket[pict]s.
   it is the width of the widest node @racket[pict?] in the tree. 
   If @racket[y-spacing] is @racket[#f],
   it is @racket[1.5] times the width of the widest node @racket[pict?] in the tree. 
-  The @racket[transform] is the same as in @racket[naive-layered].
+  The @racket[transform] and @racket[node-connection-style] arguments are the same as in @racket[naive-layered].
   
   @examples[#:eval 
             tree-layout-eval
             
             (binary-tidier (complete 4))
-
             
             (define (dl t) (tree-layout (tree-layout #f #f) t))
             (define (dr t) (tree-layout t (tree-layout #f #f)))
